@@ -1,6 +1,10 @@
-class OsmParkingMapCardV022 extends HTMLElement {
+class OsmParkingMapCardV023 extends HTMLElement {
   static getStubConfig() {
-    return { entity: 'sensor.parking_suggestions', height: 430, show_list: true };
+    return {
+      entity: 'sensor.parking_suggestions',
+      height: 430,
+      show_list: true,
+    };
   }
 
   setConfig(config) {
@@ -28,12 +32,18 @@ class OsmParkingMapCardV022 extends HTMLElement {
       return;
     }
     const a = state.attributes || {};
-    const source = a.destination_entity ? hass?.states?.[a.destination_entity] : null;
+    const destinationEntity = this.config.destination_entity
+      || a.destination_entity
+      || this._destinationEntity
+      || null;
+    if (destinationEntity) this._destinationEntity = destinationEntity;
+    const source = destinationEntity ? hass?.states?.[destinationEntity] : null;
     const signature = JSON.stringify({
       state: state.state,
       destination_name: a.destination_name,
       destination_latitude: a.destination_latitude,
       destination_longitude: a.destination_longitude,
+      destination_entity: destinationEntity,
       source_state: source?.state,
       source_display_name: source?.attributes?.display_name,
       source_lat: source?.attributes?.lat ?? source?.attributes?.latitude,
@@ -58,7 +68,7 @@ class OsmParkingMapCardV022 extends HTMLElement {
             <div class="title"></div>
             <div class="subtitle"></div>
           </div>
-          <div class="headright"><span class="version">v0.2.2</span><ha-icon icon="mdi:parking"></ha-icon></div>
+          <div class="headright"><span class="version">v0.2.3</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
         <div class="error" hidden></div>
         <div class="map" style="height:${Number(this.config.height) || 430}px"></div>
@@ -243,8 +253,13 @@ class OsmParkingMapCardV022 extends HTMLElement {
     this._hideError();
 
     const attributes = this._stateObj?.attributes || {};
-    const source = attributes.destination_entity
-      ? this._hass?.states?.[attributes.destination_entity]
+    const destinationEntity = this.config.destination_entity
+      || attributes.destination_entity
+      || this._destinationEntity
+      || null;
+    if (destinationEntity) this._destinationEntity = destinationEntity;
+    const source = destinationEntity
+      ? this._hass?.states?.[destinationEntity]
       : null;
     const sourceState = String(source?.state ?? '').trim();
     const sourceUsable = sourceState
@@ -257,7 +272,7 @@ class OsmParkingMapCardV022 extends HTMLElement {
     const destinationName = sourceDisplayName
       || (sourceUsable ? sourceState : '')
       || attributes.destination_name
-      || attributes.destination_entity
+      || destinationEntity
       || 'Destination';
     const suggestions = Array.isArray(attributes.suggestions)
       ? attributes.suggestions
@@ -428,7 +443,7 @@ class OsmParkingMapCardV022 extends HTMLElement {
 }
 
 if (!customElements.get('osm-parking-map-card')) {
-  customElements.define('osm-parking-map-card', OsmParkingMapCardV022);
+  customElements.define('osm-parking-map-card', OsmParkingMapCardV023);
   window.customCards = window.customCards || [];
   window.customCards.push({
     type: 'osm-parking-map-card',
