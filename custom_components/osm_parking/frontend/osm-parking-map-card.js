@@ -1,4 +1,4 @@
-class OsmParkingMapCardV020 extends HTMLElement {
+class OsmParkingMapCardV021 extends HTMLElement {
   static getStubConfig() {
     return { entity: 'sensor.parking_suggestions', height: 430, show_list: true };
   }
@@ -58,7 +58,7 @@ class OsmParkingMapCardV020 extends HTMLElement {
             <div class="title"></div>
             <div class="subtitle"></div>
           </div>
-          <div class="headright"><span class="version">v0.2.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
+          <div class="headright"><span class="version">v0.2.1</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
         <div class="error" hidden></div>
         <div class="map" style="height:${Number(this.config.height) || 430}px"></div>
@@ -72,7 +72,50 @@ class OsmParkingMapCardV020 extends HTMLElement {
         .headright { display:flex; align-items:center; gap:8px; }
         .version { font-size:.68rem; color:var(--secondary-text-color); opacity:.72; }
         .header ha-icon { color:var(--state-icon-color); --mdc-icon-size:28px; flex:0 0 auto; }
-        .map { width:100%; background:var(--secondary-background-color); }
+        .map {
+          width:100%;
+          position:relative;
+          overflow:hidden;
+          contain:layout paint;
+          isolation:isolate;
+          background:var(--secondary-background-color);
+        }
+        /*
+         * MapLibre's CDN stylesheet lives outside Home Assistant's shadow-DOM
+         * boundaries, so its structural positioning rules are not guaranteed to
+         * reach a custom card. Keep the critical layout rules local to the card.
+         */
+        .map.maplibregl-map { position:relative; overflow:hidden; -webkit-tap-highlight-color:rgb(0 0 0 / 0%); }
+        .map .maplibregl-canvas-container { position:absolute; inset:0; width:100%; height:100%; }
+        .map .maplibregl-canvas { position:absolute; left:0; top:0; display:block; }
+        .map .maplibregl-marker {
+          position:absolute;
+          left:0;
+          top:0;
+          will-change:transform;
+          z-index:2;
+        }
+        .map .maplibregl-popup {
+          position:absolute;
+          left:0;
+          top:0;
+          display:flex;
+          will-change:transform;
+          pointer-events:none;
+          z-index:3;
+        }
+        .map .maplibregl-popup-content { position:relative; pointer-events:auto; }
+        .map .maplibregl-popup-close-button { position:absolute; right:0; top:0; border:0; background:transparent; cursor:pointer; }
+        .map .maplibregl-control-container { position:absolute; inset:0; pointer-events:none; z-index:4; }
+        .map .maplibregl-ctrl-top-left,
+        .map .maplibregl-ctrl-top-right,
+        .map .maplibregl-ctrl-bottom-left,
+        .map .maplibregl-ctrl-bottom-right { position:absolute; pointer-events:none; z-index:4; }
+        .map .maplibregl-ctrl-top-left { top:0; left:0; }
+        .map .maplibregl-ctrl-top-right { top:0; right:0; }
+        .map .maplibregl-ctrl-bottom-left { bottom:0; left:0; }
+        .map .maplibregl-ctrl-bottom-right { right:0; bottom:0; }
+        .map .maplibregl-ctrl { clear:both; pointer-events:auto; transform:translate(0); }
         .error { margin:0 16px 16px; padding:12px; color:var(--error-color); background:color-mix(in srgb,var(--error-color) 10%,transparent); border-radius:10px; }
         .list { padding:8px 12px 12px; display:grid; gap:8px; }
         .parking-row { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; padding:10px; border-radius:12px; background:var(--secondary-background-color); cursor:pointer; }
@@ -381,7 +424,7 @@ class OsmParkingMapCardV020 extends HTMLElement {
 }
 
 if (!customElements.get('osm-parking-map-card')) {
-  customElements.define('osm-parking-map-card', OsmParkingMapCardV020);
+  customElements.define('osm-parking-map-card', OsmParkingMapCardV021);
   window.customCards = window.customCards || [];
   window.customCards.push({
     type: 'osm-parking-map-card',
