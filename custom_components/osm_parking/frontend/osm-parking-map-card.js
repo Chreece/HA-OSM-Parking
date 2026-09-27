@@ -1,4 +1,4 @@
-class OsmParkingMapCardV021 extends HTMLElement {
+class OsmParkingMapCardV022 extends HTMLElement {
   static getStubConfig() {
     return { entity: 'sensor.parking_suggestions', height: 430, show_list: true };
   }
@@ -58,7 +58,7 @@ class OsmParkingMapCardV021 extends HTMLElement {
             <div class="title"></div>
             <div class="subtitle"></div>
           </div>
-          <div class="headright"><span class="version">v0.2.1</span><ha-icon icon="mdi:parking"></ha-icon></div>
+          <div class="headright"><span class="version">v0.2.2</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
         <div class="error" hidden></div>
         <div class="map" style="height:${Number(this.config.height) || 430}px"></div>
@@ -270,6 +270,10 @@ class OsmParkingMapCardV021 extends HTMLElement {
       subtitle.push(
         `${suggestions.length} suggestion${suggestions.length === 1 ? '' : 's'}`,
       );
+    } else if (this._stateObj?.state === 'stale') {
+      subtitle.push('using last known results');
+    } else {
+      subtitle.push('no suggestions returned');
     }
     this._els.subtitle.textContent = subtitle.join(' · ');
 
@@ -424,7 +428,7 @@ class OsmParkingMapCardV021 extends HTMLElement {
 }
 
 if (!customElements.get('osm-parking-map-card')) {
-  customElements.define('osm-parking-map-card', OsmParkingMapCardV021);
+  customElements.define('osm-parking-map-card', OsmParkingMapCardV022);
   window.customCards = window.customCards || [];
   window.customCards.push({
     type: 'osm-parking-map-card',
