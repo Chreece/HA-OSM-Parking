@@ -1,0 +1,13 @@
+{
+  "domain": "osm_parking",
+  "name": "OSM Parking",
+  "codeowners": ["@Chreece"],
+  "config_flow": true,
+  "dependencies": ["frontend", "http"],
+  "documentation": "https://github.com/Chreece/HA-OSM-Parking",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/Chreece/HA-OSM-Parking/issues",
+  "requirements": [],
+  "version": "0.2.0"
+}
