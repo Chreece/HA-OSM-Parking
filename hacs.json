@@ -1,0 +1,8 @@
+{
+  "name": "OSM Parking",
+  "render_readme": true,
+  "homeassistant": "2025.7.0",
+  "files": [
+    "custom_components/osm_parking/**"
+  ]
+}
