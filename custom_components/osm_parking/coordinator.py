@@ -126,6 +126,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         suggestions = self._build_suggestions(
             payload, lat, lon, include_restricted
         )
+        raw_result_count = len(payload.get("elements", []))
 
         buckets: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for item in suggestions:
@@ -148,8 +149,30 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         selected.sort(key=lambda item: item["distance_m"])
 
+        # A public Overpass instance can occasionally return a syntactically valid
+        # but empty response. Do not wipe a known-good result set for the same
+        # destination/radius just because one refresh came back empty.
+        status = "ok"
+        if not selected and self.data:
+            previous = self.data
+            same_destination = (
+                previous.get("destination_entity") == destination_entity
+                and previous.get("destination_latitude") == lat
+                and previous.get("destination_longitude") == lon
+                and previous.get("radius_m") == radius
+            )
+            previous_suggestions = previous.get("suggestions")
+            if (
+                same_destination
+                and isinstance(previous_suggestions, list)
+                and previous_suggestions
+            ):
+                selected = list(previous_suggestions)
+                category_counts = dict(previous.get("category_counts") or category_counts)
+                status = "stale"
+
         return {
-            "status": "ok",
+            "status": status,
             "destination_entity": destination_entity,
             "destination_name": destination_name,
             "destination_latitude": lat,
@@ -157,6 +180,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "radius_m": radius,
             "max_results_per_category": self._category_limit(),
             "source": source,
+            "raw_result_count": raw_result_count,
             "error": None,
             "category_counts": category_counts,
             "suggestions": selected,
@@ -182,12 +206,20 @@ out center tags;
                     endpoint,
                     data={"data": query},
                     timeout=30,
-                    headers={"User-Agent": "HomeAssistant-OSM-Parking/0.2.0"},
+                    headers={"User-Agent": "HomeAssistant-OSM-Parking/0.2.2"},
                 ) as response:
                     response.raise_for_status()
-                    return await response.json(content_type=None), endpoint
+                    payload = await response.json(content_type=None)
+                    # Empty payloads are suspicious for an urban parking search;
+                    # try the next public instance before accepting an empty set.
+                    if payload.get("elements"):
+                        return payload, endpoint
+                    last_error = ValueError(f"{endpoint} returned zero elements")
             except (ClientError, TimeoutError, ValueError) as err:
                 last_error = err
+
+        if last_error and "returned zero elements" in str(last_error):
+            return {"elements": []}, OVERPASS_ENDPOINTS[-1]
 
         raise UpdateFailed(f"Overpass request failed: {last_error}")
 
