@@ -1,4 +1,4 @@
-class OsmParkingMapCardV024 extends HTMLElement {
+class OsmParkingMapCardV025 extends HTMLElement {
   static getStubConfig() {
     return {
       entity: 'sensor.parking_suggestions',
@@ -26,97 +26,38 @@ class OsmParkingMapCardV024 extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
-    const configured = hass?.states?.[this.config.entity];
-    if (!configured) {
+    const state = hass?.states?.[this.config.entity];
+    if (!state) {
       this._showError(`Entity not found: ${this.config.entity}`);
       return;
     }
 
-    const resolved = this._resolveEntities(hass, configured);
-    this._stateObj = resolved.parkingState;
-    this._destinationStateObj = resolved.destinationState;
-    this._destinationEntity = resolved.destinationEntity;
+    const a = state.attributes || {};
+    if (
+      !('destination_entity' in a)
+      && !('destination_latitude' in a)
+      && !Array.isArray(a.suggestions)
+    ) {
+      this._showError(
+        `Entity ${this.config.entity} is not an OSM Parking sensor.`,
+      );
+      return;
+    }
 
-    const a = resolved.parkingState?.attributes || {};
-    const d = resolved.destinationState?.attributes || {};
     const signature = JSON.stringify({
-      parking_entity: resolved.parkingState?.entity_id,
-      parking_state: resolved.parkingState?.state,
-      destination_entity: resolved.destinationEntity,
-      destination_state: resolved.destinationState?.state,
-      destination_display_name: d.display_name,
-      destination_lat: d.lat ?? d.latitude,
-      destination_lon: d.lon ?? d.longitude,
-      copied_destination_name: a.destination_name,
-      copied_destination_latitude: a.destination_latitude,
-      copied_destination_longitude: a.destination_longitude,
+      state: state.state,
+      destination_entity: a.destination_entity,
+      destination_name: a.destination_name,
+      destination_latitude: a.destination_latitude,
+      destination_longitude: a.destination_longitude,
+      error: a.error,
       suggestions: a.suggestions,
     });
 
     if (signature === this._lastSignature) return;
     this._lastSignature = signature;
+    this._stateObj = state;
     void this._update();
-  }
-
-  _resolveEntities(hass, configured) {
-    const configuredAttributes = configured.attributes || {};
-    const configuredHasCoordinates =
-      this._n(configuredAttributes.lat ?? configuredAttributes.latitude) != null
-      && this._n(configuredAttributes.lon ?? configuredAttributes.longitude) != null;
-    const configuredLooksLikeParking =
-      Array.isArray(configuredAttributes.suggestions)
-      || configuredAttributes.destination_entity
-      || configuredAttributes.destination_latitude != null
-      || configuredAttributes.destination_longitude != null;
-
-    if (configuredLooksLikeParking) {
-      const destinationEntity = this.config.destination_entity
-        || configuredAttributes.destination_entity
-        || this._destinationEntity
-        || null;
-      return {
-        parkingState: configured,
-        destinationEntity,
-        destinationState: destinationEntity
-          ? hass?.states?.[destinationEntity] || null
-          : null,
-      };
-    }
-
-    if (configuredHasCoordinates) {
-      const destinationEntity = this.config.destination_entity || configured.entity_id;
-      let parkingState = null;
-
-      for (const candidate of Object.values(hass?.states || {})) {
-        const attrs = candidate?.attributes || {};
-        if (
-          candidate?.entity_id?.startsWith('sensor.')
-          && attrs.destination_entity === destinationEntity
-          && (
-            Array.isArray(attrs.suggestions)
-            || attrs.destination_latitude != null
-            || attrs.destination_longitude != null
-          )
-        ) {
-          parkingState = candidate;
-          break;
-        }
-      }
-
-      return {
-        parkingState: parkingState || configured,
-        destinationEntity,
-        destinationState: configured,
-      };
-    }
-
-    return {
-      parkingState: configured,
-      destinationEntity: this.config.destination_entity || null,
-      destinationState: this.config.destination_entity
-        ? hass?.states?.[this.config.destination_entity] || null
-        : null,
-    };
   }
 
   getCardSize() {
@@ -131,7 +72,7 @@ class OsmParkingMapCardV024 extends HTMLElement {
             <div class="title"></div>
             <div class="subtitle"></div>
           </div>
-          <div class="headright"><span class="version">v0.2.4</span><ha-icon icon="mdi:parking"></ha-icon></div>
+          <div class="headright"><span class="version">v0.2.5</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
         <div class="error" hidden></div>
         <div class="map" style="height:${Number(this.config.height) || 430}px"></div>
@@ -316,46 +257,11 @@ class OsmParkingMapCardV024 extends HTMLElement {
     this._hideError();
 
     const attributes = this._stateObj?.attributes || {};
-    const destinationEntity = this._destinationEntity
-      || this.config.destination_entity
-      || attributes.destination_entity
-      || null;
-    const source = this._destinationStateObj
-      || (destinationEntity ? this._hass?.states?.[destinationEntity] : null)
-      || null;
-
-    const sourceState = String(source?.state ?? '').trim();
-    const sourceUsable = sourceState
-      && !['unknown', 'unavailable', 'none', 'null'].includes(sourceState.toLowerCase());
-    const sourceDisplayName = String(source?.attributes?.display_name ?? '').trim();
-
-    const sourceLat = this._n(source?.attributes?.lat ?? source?.attributes?.latitude);
-    const sourceLon = this._n(source?.attributes?.lon ?? source?.attributes?.longitude);
-
-    const ownLat = this._n(attributes.lat ?? attributes.latitude);
-    const ownLon = this._n(attributes.lon ?? attributes.longitude);
-
-    const destinationLat =
-      sourceLat
-      ?? this._n(attributes.destination_latitude)
-      ?? ownLat;
-    const destinationLon =
-      sourceLon
-      ?? this._n(attributes.destination_longitude)
-      ?? ownLon;
-
+    const destinationLat = this._n(attributes.destination_latitude);
+    const destinationLon = this._n(attributes.destination_longitude);
     const destinationName =
-      sourceDisplayName
-      || (sourceUsable ? sourceState : '')
-      || attributes.destination_name
-      || (
-        !['unknown', 'unavailable', 'none', 'null', ''].includes(
-          String(this._stateObj?.state ?? '').trim().toLowerCase(),
-        )
-          ? String(this._stateObj.state).trim()
-          : ''
-      )
-      || destinationEntity
+      attributes.destination_name
+      || attributes.destination_entity
       || 'Destination';
     const suggestions = Array.isArray(attributes.suggestions)
       ? attributes.suggestions
@@ -368,15 +274,17 @@ class OsmParkingMapCardV024 extends HTMLElement {
       subtitle.push(
         `${suggestions.length} suggestion${suggestions.length === 1 ? '' : 's'}`,
       );
-    } else if (this._stateObj?.state === 'stale') {
-      subtitle.push('using last known results');
+    } else if (this._stateObj?.state === 'waiting') {
+      subtitle.push('waiting for destination');
     } else {
       subtitle.push('no suggestions returned');
     }
     this._els.subtitle.textContent = subtitle.join(' · ');
 
     if (destinationLat == null || destinationLon == null) {
-      this._showError('Destination coordinates are missing from the entity attributes.');
+      this._showError(
+        attributes.error || 'Destination coordinates are not available yet.',
+      );
       return;
     }
 
@@ -526,7 +434,7 @@ class OsmParkingMapCardV024 extends HTMLElement {
 }
 
 if (!customElements.get('osm-parking-map-card')) {
-  customElements.define('osm-parking-map-card', OsmParkingMapCardV024);
+  customElements.define('osm-parking-map-card', OsmParkingMapCardV025);
   window.customCards = window.customCards || [];
   window.customCards.push({
     type: 'osm-parking-map-card',
