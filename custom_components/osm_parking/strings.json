@@ -1,0 +1,50 @@
+{
+  "title": "OSM Parking",
+  "config": {
+    "step": {
+      "user": {
+        "title": "OSM Parking",
+        "description": "Configure the search, categories, and one maximum result count applied independently to every enabled category. The final list is sorted by distance. Prices are shown when OpenStreetMap provides charge data.",
+        "data": {
+          "destination_entity": "Destination entity",
+          "radius_m": "Search radius",
+          "refresh_minutes": "Refresh interval",
+          "include_restricted": "Include restricted/private parking",
+          "category_paid_enabled": "Include paid parking",
+          "category_open_enabled": "Include open / surface parking",
+          "category_street_enabled": "Include street parking",
+          "category_underground_enabled": "Include underground parking",
+          "category_multi_storey_enabled": "Include multi-storey parking",
+          "category_park_and_ride_enabled": "Include Park & Ride",
+          "category_other_enabled": "Include other parking",
+          "max_results": "Maximum results per category"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This destination entity is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "OSM Parking options",
+        "description": "Configure the search, categories, and one maximum result count applied independently to every enabled category. The final list is sorted by distance. Prices are shown when OpenStreetMap provides charge data.",
+        "data": {
+          "destination_entity": "Destination entity",
+          "radius_m": "Search radius",
+          "refresh_minutes": "Refresh interval",
+          "include_restricted": "Include restricted/private parking",
+          "category_paid_enabled": "Include paid parking",
+          "category_open_enabled": "Include open / surface parking",
+          "category_street_enabled": "Include street parking",
+          "category_underground_enabled": "Include underground parking",
+          "category_multi_storey_enabled": "Include multi-storey parking",
+          "category_park_and_ride_enabled": "Include Park & Ride",
+          "category_other_enabled": "Include other parking",
+          "max_results": "Maximum results per category"
+        }
+      }
+    }
+  }
+}
