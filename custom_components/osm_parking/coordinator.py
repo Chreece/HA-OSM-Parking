@@ -96,18 +96,27 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         state = self.hass.states.get(destination_entity)
         if state is None:
-            raise UpdateFailed(f"Destination entity {destination_entity} not found")
-
-        lat = self._float_attr(state.attributes, ("latitude", "lat"))
-        lon = self._float_attr(state.attributes, ("longitude", "lon", "lng"))
-        if lat is None or lon is None:
-            raise UpdateFailed(
-                f"Destination entity {destination_entity} has no latitude/longitude attributes"
+            return self._waiting_data(
+                destination_entity,
+                "Destination entity is not available yet",
             )
 
         display_name = str(state.attributes.get("display_name") or "").strip()
         state_name = str(state.state or "").strip()
         friendly_name = str(state.attributes.get("friendly_name") or "").strip()
+
+        lat = self._float_attr(state.attributes, ("latitude", "lat"))
+        lon = self._float_attr(state.attributes, ("longitude", "lon", "lng"))
+        if (
+            state_name.lower() in {"unknown", "unavailable", "none", ""}
+            or lat is None
+            or lon is None
+        ):
+            return self._waiting_data(
+                destination_entity,
+                "Waiting for destination coordinates",
+                destination_name=display_name or friendly_name or destination_entity,
+            )
         if display_name:
             destination_name = display_name
         elif state_name.lower() not in {"unknown", "unavailable", "none", ""}:
@@ -149,30 +158,8 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         selected.sort(key=lambda item: item["distance_m"])
 
-        # A public Overpass instance can occasionally return a syntactically valid
-        # but empty response. Do not wipe a known-good result set for the same
-        # destination/radius just because one refresh came back empty.
-        status = "ok"
-        if not selected and self.data:
-            previous = self.data
-            same_destination = (
-                previous.get("destination_entity") == destination_entity
-                and previous.get("destination_latitude") == lat
-                and previous.get("destination_longitude") == lon
-                and previous.get("radius_m") == radius
-            )
-            previous_suggestions = previous.get("suggestions")
-            if (
-                same_destination
-                and isinstance(previous_suggestions, list)
-                and previous_suggestions
-            ):
-                selected = list(previous_suggestions)
-                category_counts = dict(previous.get("category_counts") or category_counts)
-                status = "stale"
-
         return {
-            "status": status,
+            "status": "ok",
             "destination_entity": destination_entity,
             "destination_name": destination_name,
             "destination_latitude": lat,
@@ -184,6 +171,29 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "error": None,
             "category_counts": category_counts,
             "suggestions": selected,
+        }
+
+    def _waiting_data(
+        self,
+        destination_entity: str,
+        error: str,
+        *,
+        destination_name: str | None = None,
+    ) -> dict[str, Any]:
+        """Return a valid coordinator state while the source entity is restoring."""
+        return {
+            "status": "waiting",
+            "destination_entity": destination_entity,
+            "destination_name": destination_name or destination_entity,
+            "destination_latitude": None,
+            "destination_longitude": None,
+            "radius_m": int(self._option(CONF_RADIUS_M, DEFAULT_RADIUS_M)),
+            "max_results_per_category": self._category_limit(),
+            "source": None,
+            "raw_result_count": 0,
+            "error": error,
+            "category_counts": {category: 0 for category in CATEGORIES},
+            "suggestions": [],
         }
 
     async def _query_overpass(
@@ -206,7 +216,7 @@ out center tags;
                     endpoint,
                     data={"data": query},
                     timeout=30,
-                    headers={"User-Agent": "HomeAssistant-OSM-Parking/0.2.2"},
+                    headers={"User-Agent": "HomeAssistant-OSM-Parking/0.2.5"},
                 ) as response:
                     response.raise_for_status()
                     payload = await response.json(content_type=None)
