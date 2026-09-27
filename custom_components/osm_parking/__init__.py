@@ -55,7 +55,6 @@ async def async_setup_entry(
 ) -> bool:
     """Set up an OSM Parking config entry."""
     coordinator = OsmParkingCoordinator(hass, entry)
-    await coordinator.async_config_entry_first_refresh()
 
     destination_entity = str(
         entry.options.get(
@@ -66,9 +65,10 @@ async def async_setup_entry(
 
     remove_listener: Callable[[], None] | None = None
     if destination_entity:
+
         @callback
         def _destination_changed(event: Event) -> None:
-            """Refresh immediately when the destination entity changes."""
+            """Refresh immediately whenever the configured destination changes."""
             hass.async_create_task(coordinator.async_request_refresh())
 
         remove_listener = async_track_state_change_event(
@@ -79,9 +79,15 @@ async def async_setup_entry(
         coordinator=coordinator,
         remove_destination_listener=remove_listener,
     )
+
+    # The coordinator deliberately returns a waiting state while the configured
+    # destination entity is still restoring during Home Assistant startup.
+    # This keeps the integration loaded, so the state-change listener above can
+    # refresh it immediately once the destination has valid coordinates.
+    await coordinator.async_config_entry_first_refresh()
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
-
 
 async def async_unload_entry(
     hass: HomeAssistant, entry: OsmParkingConfigEntry
