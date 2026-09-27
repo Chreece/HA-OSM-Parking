@@ -2,15 +2,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from collections.abc import Callable
 from typing import Any
 
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import Event, HomeAssistant, callback
+from homeassistant.helpers.event import async_track_state_change_event
 
 from .const import (
     CATEGORIES,
+    CONF_DESTINATION_ENTITY,
     CONF_MAX_RESULTS,
     DEFAULT_MAX_PER_CATEGORY,
     DOMAIN,
@@ -27,6 +30,7 @@ CARD_PATH = Path(__file__).parent / "frontend" / "osm-parking-map-card.js"
 @dataclass
 class OsmParkingRuntimeData:
     coordinator: OsmParkingCoordinator
+    remove_destination_listener: Callable[[], None] | None = None
 
 
 type OsmParkingConfigEntry = ConfigEntry[OsmParkingRuntimeData]
@@ -52,7 +56,29 @@ async def async_setup_entry(
     """Set up an OSM Parking config entry."""
     coordinator = OsmParkingCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
-    entry.runtime_data = OsmParkingRuntimeData(coordinator=coordinator)
+
+    destination_entity = str(
+        entry.options.get(
+            CONF_DESTINATION_ENTITY,
+            entry.data.get(CONF_DESTINATION_ENTITY, ""),
+        )
+    ).strip()
+
+    remove_listener: Callable[[], None] | None = None
+    if destination_entity:
+        @callback
+        def _destination_changed(event: Event) -> None:
+            """Refresh immediately when the destination entity changes."""
+            hass.async_create_task(coordinator.async_request_refresh())
+
+        remove_listener = async_track_state_change_event(
+            hass, [destination_entity], _destination_changed
+        )
+
+    entry.runtime_data = OsmParkingRuntimeData(
+        coordinator=coordinator,
+        remove_destination_listener=remove_listener,
+    )
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
@@ -61,7 +87,10 @@ async def async_unload_entry(
     hass: HomeAssistant, entry: OsmParkingConfigEntry
 ) -> bool:
     """Unload an OSM Parking config entry."""
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unloaded and entry.runtime_data.remove_destination_listener is not None:
+        entry.runtime_data.remove_destination_listener()
+    return unloaded
 
 
 async def async_migrate_entry(
