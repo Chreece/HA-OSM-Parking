@@ -134,7 +134,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         payload, source = await self._query_overpass(lat, lon, radius)
         suggestions = self._build_suggestions(
-            payload, lat, lon, include_restricted
+            payload, lat, lon, radius, include_restricted
         )
         raw_result_count = len(payload.get("elements", []))
 
@@ -200,12 +200,11 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _query_overpass(
         self, lat: float, lon: float, radius: int
     ) -> tuple[dict[str, Any], str]:
+        south, west, north, east = self._bounding_box(lat, lon, radius)
         query = f"""
-[out:json][timeout:25];
-(
-  nwr["amenity"="parking"](around:{radius},{lat},{lon});
-);
-out center tags;
+[out:json][timeout:20];
+nwr["amenity"="parking"]({south:.7f},{west:.7f},{north:.7f},{east:.7f});
+out center tags qt;
 """.strip()
 
         session = async_get_clientsession(self.hass)
@@ -217,8 +216,8 @@ out center tags;
                 async with session.post(
                     endpoint,
                     data={"data": query},
-                    timeout=30,
-                    headers={"User-Agent": "HomeAssistant-OSM-Parking/0.2.6"},
+                    timeout=25,
+                    headers={"User-Agent": "HomeAssistant-OSM-Parking/0.3.0"},
                 ) as response:
                     if response.status >= 500:
                         errors.append(f"{endpoint}: HTTP {response.status}")
@@ -248,6 +247,7 @@ out center tags;
         payload: dict[str, Any],
         destination_lat: float,
         destination_lon: float,
+        radius: int,
         include_restricted: bool,
     ) -> list[dict[str, Any]]:
         result: list[dict[str, Any]] = []
@@ -277,6 +277,11 @@ out center tags;
             distance = round(
                 self._haversine_m(destination_lat, destination_lon, lat, lon)
             )
+            # The Overpass query uses a cheap bounding box for server-side
+            # efficiency; enforce the configured circular radius locally.
+            if distance > radius:
+                continue
+
             category = self._category(tags)
             parking_type = str(tags.get("parking", "unknown"))
             fee = str(tags.get("fee", "unknown"))
@@ -324,6 +329,21 @@ out center tags;
             result.append(item)
 
         return result
+
+    @staticmethod
+    def _bounding_box(
+        lat: float, lon: float, radius_m: int
+    ) -> tuple[float, float, float, float]:
+        """Return a bounding box that fully contains the configured radius."""
+        lat_delta = radius_m / 111_320.0
+        cos_lat = max(abs(math.cos(math.radians(lat))), 0.01)
+        lon_delta = radius_m / (111_320.0 * cos_lat)
+        return (
+            max(-90.0, lat - lat_delta),
+            max(-180.0, lon - lon_delta),
+            min(90.0, lat + lat_delta),
+            min(180.0, lon + lon_delta),
+        )
 
     @staticmethod
     def _float_attr(
