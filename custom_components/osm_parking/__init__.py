@@ -9,6 +9,7 @@ from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import Event, HomeAssistant, State, callback
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_track_state_change_event
 
 from .const import (
@@ -26,6 +27,8 @@ from .coordinator import OsmParkingCoordinator
 
 CARD_URL = f"/{DOMAIN}/osm-parking-map-card.js"
 CARD_PATH = Path(__file__).parent / "frontend" / "osm-parking-map-card.js"
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 @dataclass
