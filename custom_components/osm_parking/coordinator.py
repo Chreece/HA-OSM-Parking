@@ -38,7 +38,8 @@ _LOGGER = logging.getLogger(__name__)
 
 OVERPASS_ENDPOINTS = (
     "https://overpass-api.de/api/interpreter",
-    "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
 )
 
 RESTRICTED_ACCESS = {
@@ -208,7 +209,8 @@ out center tags;
 """.strip()
 
         session = async_get_clientsession(self.hass)
-        last_error: Exception | None = None
+        errors: list[str] = []
+        empty_source: str | None = None
 
         for endpoint in OVERPASS_ENDPOINTS:
             try:
@@ -216,22 +218,30 @@ out center tags;
                     endpoint,
                     data={"data": query},
                     timeout=30,
-                    headers={"User-Agent": "HomeAssistant-OSM-Parking/0.2.5"},
+                    headers={"User-Agent": "HomeAssistant-OSM-Parking/0.2.6"},
                 ) as response:
+                    if response.status >= 500:
+                        errors.append(f"{endpoint}: HTTP {response.status}")
+                        continue
+
                     response.raise_for_status()
                     payload = await response.json(content_type=None)
-                    # Empty payloads are suspicious for an urban parking search;
-                    # try the next public instance before accepting an empty set.
+
                     if payload.get("elements"):
                         return payload, endpoint
-                    last_error = ValueError(f"{endpoint} returned zero elements")
+
+                    # An empty result can be legitimate, but before accepting it,
+                    # ask the remaining public instances as well.
+                    empty_source = endpoint
+                    errors.append(f"{endpoint}: empty result")
             except (ClientError, TimeoutError, ValueError) as err:
-                last_error = err
+                errors.append(f"{endpoint}: {err}")
 
-        if last_error and "returned zero elements" in str(last_error):
-            return {"elements": []}, OVERPASS_ENDPOINTS[-1]
+        if empty_source is not None:
+            return {"elements": []}, empty_source
 
-        raise UpdateFailed(f"Overpass request failed: {last_error}")
+        detail = "; ".join(errors) if errors else "no endpoint returned data"
+        raise UpdateFailed(f"All Overpass endpoints failed: {detail}")
 
     def _build_suggestions(
         self,
