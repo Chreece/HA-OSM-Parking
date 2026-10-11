@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.3.4
+
+### Fixed
+
+- Added real per-version release notes to GitHub releases so HACS / Home Assistant update information can show the actual changelog.
+- Explicitly enable Home Assistant's import executor for the integration.
+- Removed the synchronous frontend-file existence check from async setup to avoid filesystem I/O on the Home Assistant event loop.
+
+### Changed
+
+- Release publishing now extracts the matching version section directly from `CHANGELOG.md` and uses it as the GitHub release body.
+
+
 ## v0.3.3
 
 ### Changed
