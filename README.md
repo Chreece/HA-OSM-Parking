@@ -1,59 +1,72 @@
-<!-- ko-fi-support -->
 <p align="center">
-  <a href="https://ko-fi.com/chreece">
-    <img src="https://raw.githubusercontent.com/Chreece/pir2ha/main/.github/ko-fi-banner.svg" alt="Support Chreece on Ko-fi" width="600">
-  </a>
+  <img src="https://raw.githubusercontent.com/Chreece/HA-OSM-Parking/main/assets/banner.jpg" alt="OSM Parking for Home Assistant" width="100%">
 </p>
 
-# OSM Parking for Home Assistant
+<p align="center">
+  <a href="https://github.com/Chreece/HA-OSM-Parking/actions/workflows/validate.yml"><img alt="HACS + Hassfest" src="https://github.com/Chreece/HA-OSM-Parking/actions/workflows/validate.yml/badge.svg"></a>
+  <a href="https://github.com/Chreece/HA-OSM-Parking/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/Chreece/HA-OSM-Parking?display_name=tag"></a>
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/github/license/Chreece/HA-OSM-Parking"></a>
+</p>
 
-[![HACS validation](https://github.com/Chreece/HA-OSM-Parking/actions/workflows/validate.yml/badge.svg)](https://github.com/Chreece/HA-OSM-Parking/actions/workflows/validate.yml)
+# OSM Parking
 
-Home Assistant custom integration that finds parking around a destination using OpenStreetMap / Overpass data.
+**OSM Parking** is a Home Assistant custom integration that follows a destination entity and finds nearby parking from OpenStreetMap through Overpass. It includes a bundled interactive Lovelace map card.
 
-## Features
+## Highlights
 
-- Uses any Home Assistant entity exposing destination latitude/longitude.
-- Configurable search radius and refresh interval.
-- Parking categories: paid, surface/open, street, underground, multi-storey, Park & Ride, and other.
-- One maximum-results value applied independently to every enabled category.
-- Final results sorted by distance.
-- Optional inclusion of private/restricted parking.
-- Exposes OSM capacity, access, opening-hours, operator and pricing metadata when available.
-- Bundled `custom:osm-parking-map-card` showing the destination and suggestions on an interactive map.
-- Map card is served and loaded by the integration itself; no separate `www` copy is required.
+- Follows the configured destination entity immediately when its state or coordinates change.
+- Handles Home Assistant startup cleanly while the destination entity is still restoring.
+- Searches a configurable radius and sorts the final results by distance.
+- Categories: paid, open/surface, street, underground, multi-storey, Park & Ride, and other.
+- One configurable maximum result count applied independently to each enabled category.
+- Optional private/restricted parking.
+- Shows capacity, access, opening hours, operator and OSM pricing metadata when available.
+- Uses multiple public Overpass instances with failover.
+- Uses a bounding-box Overpass query for lower server cost, then enforces the exact circular radius locally.
+- Bundled `custom:osm-parking-map-card` using MapLibre + OpenFreeMap.
+- Local Home Assistant brand icon included under `custom_components/osm_parking/brand/`.
 
-## Install with HACS
+## Installation
 
-Until the repository is included in HACS defaults:
+### HACS
 
-1. Open HACS.
+1. Open **HACS → Integrations**.
 2. Add `https://github.com/Chreece/HA-OSM-Parking` as a custom repository of type **Integration**.
 3. Install **OSM Parking**.
 4. Restart Home Assistant.
-5. Go to **Settings → Devices & services → Add integration → OSM Parking**.
+5. Open **Settings → Devices & services → Add integration → OSM Parking**.
+
+### Manual
+
+Copy:
+
+```text
+custom_components/osm_parking
+```
+
+into your Home Assistant `config/custom_components/` directory and restart Home Assistant.
 
 ## Destination entity
 
-The selected destination entity must expose coordinates in either of these attributes:
+Choose any Home Assistant entity that exposes either:
 
-- `latitude` / `longitude`
-- `lat` / `lon`
+- `latitude` + `longitude`
+- `lat` + `lon`
 
-The display name is taken from `display_name` when available, otherwise from the entity state and then `friendly_name`.
+The OSM Parking coordinator subscribes to that configured entity. When it changes, parking is refreshed immediately; the normal polling interval remains as a periodic refresh.
 
-Example destination entity:
+Example:
 
 ```yaml
 state: LANXESS arena, Willy-Brandt-Platz, Deutz, Innenstadt, Köln, Nordrhein-Westfalen, 50679, Deutschland
 attributes:
-  latitude: 50.9384967
-  longitude: 6.9828844
+  lat: 50.9384967
+  lon: 6.9828844
 ```
 
 ## Dashboard card
 
-The integration registers the bundled card automatically. Add it to a dashboard with YAML:
+The integration serves and registers its card automatically. Point the card at the **OSM Parking sensor**, not the source/geocode sensor:
 
 ```yaml
 type: custom:osm-parking-map-card
@@ -65,32 +78,56 @@ show_destination: true
 show_price: true
 ```
 
-Use the actual sensor entity created by your OSM Parking config entry.
+The map shows the destination, numbered parking markers, distance, category, access, price information when known, and navigation/OSM actions.
 
-The card displays:
+## Parking categories and result limits
 
-- destination marker
-- numbered parking markers
-- distance and parking type
-- access restrictions when known
-- explicit OSM price/charge information when available
-- paid/free status when OSM only provides `fee=yes/no`
-- navigation and OpenStreetMap actions
+The integration can independently enable:
 
-The map uses MapLibre with OpenFreeMap rather than OpenStreetMap's volunteer raster tile servers.
+- paid
+- open / surface
+- street
+- underground
+- multi-storey
+- Park & Ride
+- other
+
+**Maximum results per category** is one shared value applied to every enabled category. Results are capped inside each category first, merged, then globally sorted by distance.
 
 ## Pricing
 
-OSM data does not always contain an exact parking price. The integration does not invent one.
+OSM often knows whether parking is paid without containing the exact tariff. The integration never invents a price.
 
 - `fee=no` → free
-- `fee=yes` without charge data → paid, exact amount unknown
-- `charge`, `charge:conditional`, or `fee:conditional` → exposed as provided by OSM
+- `fee=yes` → paid; exact price unknown
+- `charge`, `charge:conditional`, or `fee:conditional` → shown as supplied by OSM
 
-## Data source
+## Overpass reliability
 
-Parking data is queried from public Overpass API instances and ultimately comes from OpenStreetMap contributors. Availability and completeness depend on local OSM tagging.
+OSM Parking uses public Overpass services. Public instances can occasionally return HTTP 5xx errors or time out, so the integration rotates through several documented global endpoints.
 
-## Issues
+The remote search uses a rectangular bounding box because it is inexpensive for Overpass to evaluate. Results are then filtered locally using the exact configured radius, so the user-facing search remains circular.
 
-Please report bugs or feature requests in the repository's Issues section and include Home Assistant diagnostics where useful.
+## Diagnostics
+
+Home Assistant diagnostics are supported. Coordinates and navigation/location fields are redacted from diagnostics where appropriate.
+
+## Contributing / issues
+
+Bug reports and feature requests are welcome:
+
+- [Issues](https://github.com/Chreece/HA-OSM-Parking/issues)
+
+When reporting a data-fetch problem, include the Home Assistant log entry and diagnostics if possible.
+
+## Data and attribution
+
+Parking data comes from [OpenStreetMap](https://www.openstreetmap.org/) contributors through Overpass API instances. Map rendering uses MapLibre and OpenFreeMap. Data completeness depends on local OSM tagging.
+
+## Support
+
+If you find the project useful, you can support development on [Ko-fi](https://ko-fi.com/chreece).
+
+## License
+
+MIT
