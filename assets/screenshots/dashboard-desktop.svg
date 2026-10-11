@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1080" viewBox="0 0 1440 1080" role="img" aria-labelledby="t d">
+<title id="t">OSM Parking Home Assistant dashboard example</title>
+<desc id="d">Desktop Home Assistant dashboard showing OSM Parking suggestions around LANXESS arena.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101419"/><stop offset="1" stop-color="#0b0f14"/></linearGradient>
+  <linearGradient id="map" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eef1e9"/><stop offset="1" stop-color="#d9e3d5"/></linearGradient>
+  <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#16b9ff"/><stop offset="1" stop-color="#0875d6"/></linearGradient>
+  <filter id="s"><feDropShadow dx="0" dy="6" stdDeviation="10" flood-opacity=".35"/></filter>
+</defs>
+<rect width="1440" height="1080" fill="url(#bg)"/>
+<rect x="0" y="0" width="330" height="1080" fill="#121820"/>
+<rect x="0" y="0" width="1440" height="72" fill="#161c22"/>
+<circle cx="40" cy="35" r="17" fill="#24a9e8"/><path d="M30 41V31l10-8 10 8v10h-7v-7h-6v7z" fill="#fff"/>
+<text x="76" y="44" font-family="Arial,sans-serif" font-size="28" font-weight="600" fill="#fff">Home Assistant</text>
+<g font-family="Arial,sans-serif" font-size="22" fill="#d6dde5">
+  <rect x="18" y="104" width="294" height="60" rx="12" fill="#193a59"/>
+  <text x="78" y="143">Overview</text>
+  <text x="78" y="211">Map</text><text x="78" y="279">Energy</text><text x="78" y="347">Logbook</text>
+  <text x="78" y="415">History</text><text x="78" y="483">Media</text><text x="78" y="551">To-do lists</text>
+  <text x="78" y="955">Settings</text><text x="78" y="1023">Notifications</text>
+</g>
+<g fill="#b6c1cc">
+  <rect x="33" y="123" width="24" height="24" rx="4"/><path d="M35 194h22v22H35zM36 330h20v4H36zM36 338h20v4H36zM36 346h20v4H36z"/>
+  <circle cx="45" cy="398" r="13"/><rect x="34" y="466" width="24" height="20" rx="3"/><rect x="34" y="536" width="24" height="24" rx="4"/>
+  <circle cx="45" cy="945" r="13"/><circle cx="45" cy="1013" r="10"/>
+</g>
+
+<rect x="380" y="92" width="1010" height="940" rx="18" fill="#171c22" stroke="#2a3139" filter="url(#s)"/>
+<text x="414" y="142" font-family="Arial,sans-serif" font-size="34" font-weight="700" fill="#fff">Parking suggestions</text>
+<text x="414" y="182" font-family="Arial,sans-serif" font-size="22" fill="#aab6c3">LANXESS arena, Willy-Brandt-Platz, Deutz, Köln · 8 suggestions</text>
+<text x="1302" y="142" font-family="Arial,sans-serif" font-size="18" fill="#7f8b97">v0.3.0</text>
+<text x="1348" y="150" font-family="Arial,sans-serif" font-size="48" font-weight="800" fill="#4c93cf">P</text>
+
+<rect x="380" y="205" width="1010" height="510" fill="url(#map)"/>
+<path d="M380 342h1010M380 590h1010M600 205l-55 510M920 205l60 510M1220 205l-130 510" stroke="#c2c8c1" stroke-width="10" opacity=".65"/>
+<path d="M390 620C560 530 680 500 770 430s175-30 270-100 210-10 340-76" stroke="#f6b847" stroke-width="18" fill="none"/>
+<path d="M455 710V205" stroke="#68b5ff" stroke-width="70" opacity=".8"/>
+<text x="415" y="510" transform="rotate(-90 415 510)" font-family="Arial" font-size="30" fill="#fff" opacity=".9">Rhein</text>
+<text x="570" y="495" font-family="Arial" font-size="26" font-weight="700" fill="#454b52">DEUTZ</text>
+<text x="1130" y="560" font-family="Arial" font-size="24" font-weight="700" fill="#454b52">HUMBOLDT</text>
+<circle cx="835" cy="432" r="68" fill="#c9cbc8" opacity=".7"/><text x="835" y="424" text-anchor="middle" font-family="Arial" font-size="24" fill="#40454b">LANXESS</text><text x="835" y="451" text-anchor="middle" font-family="Arial" font-size="24" fill="#40454b">arena</text>
+
+<g font-family="Arial,sans-serif" font-size="20" font-weight="700" text-anchor="middle">
+  <g transform="translate(835 355)"><path d="M0-30c-20 0-35 15-35 35 0 31 35 64 35 64s35-33 35-64c0-20-15-35-35-35z" fill="#e53935" stroke="#fff" stroke-width="4"/><circle cy="2" r="9" fill="#711"/></g>
+  <g transform="translate(700 425)"><circle r="26" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">1</text></g>
+  <g transform="translate(980 405)"><circle r="26" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">2</text></g>
+  <g transform="translate(720 520)"><circle r="26" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">3</text></g>
+  <g transform="translate(960 535)"><circle r="26" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">4</text></g>
+  <g transform="translate(610 575)"><circle r="26" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">5</text></g>
+  <g transform="translate(810 610)"><circle r="26" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">6</text></g>
+  <g transform="translate(1000 625)"><circle r="26" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">7</text></g>
+  <g transform="translate(765 665)"><circle r="26" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">8</text></g>
+</g>
+
+<g font-family="Arial,sans-serif">
+  <g transform="translate(398 735)"><rect width="974" height="70" rx="12" fill="#20262d"/><circle cx="36" cy="35" r="27" fill="#0da6e5"/><text x="36" y="43" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">1</text><text x="82" y="30" font-size="22" font-weight="700" fill="#fff">Street-side parking</text><text x="82" y="56" font-size="17" fill="#a8b2bd">144 m · street</text></g>
+  <g transform="translate(398 815)"><rect width="974" height="70" rx="12" fill="#20262d"/><circle cx="36" cy="35" r="27" fill="#0da6e5"/><text x="36" y="43" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">2</text><text x="82" y="30" font-size="22" font-weight="700" fill="#fff">LANXESS Arena P1</text><text x="82" y="56" font-size="17" fill="#a8b2bd">165 m · paid</text><text x="900" y="43" font-size="18" font-weight="700" fill="#fff">Paid</text></g>
+  <g transform="translate(398 895)"><rect width="974" height="70" rx="12" fill="#20262d"/><circle cx="36" cy="35" r="27" fill="#0da6e5"/><text x="36" y="43" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">3</text><text x="82" y="30" font-size="22" font-weight="700" fill="#fff">Open parking</text><text x="82" y="56" font-size="17" fill="#a8b2bd">244 m · open</text></g>
+</g>
+</svg>
