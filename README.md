@@ -33,6 +33,26 @@
 - Bundled `custom:osm-parking-map-card` using MapLibre + OpenFreeMap.
 - Local Home Assistant brand icon included under `custom_components/osm_parking/brand/`.
 
+## Screenshots
+
+### Desktop dashboard example
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Chreece/HA-OSM-Parking/main/assets/screenshots/dashboard-desktop.svg"
+       alt="OSM Parking dashboard card on Home Assistant desktop"
+       width="100%">
+</p>
+
+### Mobile dashboard example
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Chreece/HA-OSM-Parking/main/assets/screenshots/dashboard-mobile.svg"
+       alt="OSM Parking dashboard card on Home Assistant mobile"
+       width="520">
+</p>
+
+> Example dashboard views using the bundled OSM Parking map card. Parking availability, names, categories, pricing and OpenStreetMap data vary by location.
+
 ## Installation
 
 ### HACS
