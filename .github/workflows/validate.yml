@@ -6,6 +6,45 @@ on:
   workflow_dispatch:
 
 jobs:
+  local-contract:
+    name: Local import contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate local const imports
+        run: |
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+
+          package = Path("custom_components/osm_parking")
+          const_tree = ast.parse((package / "const.py").read_text(encoding="utf-8"))
+          exported = set()
+
+          for node in const_tree.body:
+              if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                  exported.add(node.name)
+              elif isinstance(node, ast.Assign):
+                  for target in node.targets:
+                      if isinstance(target, ast.Name):
+                          exported.add(target.id)
+              elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+                  exported.add(node.target.id)
+
+          missing = []
+          for path in package.glob("*.py"):
+              tree = ast.parse(path.read_text(encoding="utf-8"))
+              for node in ast.walk(tree):
+                  if isinstance(node, ast.ImportFrom) and node.module == "const":
+                      for alias in node.names:
+                          if alias.name != "*" and alias.name not in exported:
+                              missing.append(f"{path}: {alias.name}")
+
+          if missing:
+              raise SystemExit("Missing const imports:\n" + "\n".join(missing))
+          print("LOCAL_CONST_IMPORTS=PASS")
+          PY
+
   hacs:
     name: HACS
     runs-on: ubuntu-latest
