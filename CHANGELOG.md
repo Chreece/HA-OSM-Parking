@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.2
+
+### Fixed
+
+- Improved resilience when public Overpass instances return transient HTTP 429/500/502/503/504 errors.
+- Retries the public endpoint pool once after a short delay instead of failing after a single pass.
+- Remembers the last successful Overpass endpoint and tries it first on the next refresh.
+- Uses shorter per-request and server-side query timeouts so an overloaded endpoint cannot block the entire refresh for as long.
+- Non-retryable 4xx query errors now fail immediately with the response detail instead of being mistaken for temporary server outages.
+- No stale parking result or alternate destination fallback was introduced.
+
+
 ## v0.3.1
 
 ### Changed
