@@ -1,4 +1,4 @@
-class OsmParkingMapCardV025 extends HTMLElement {
+class OsmParkingMapCardV030 extends HTMLElement {
   static getStubConfig() {
     return {
       entity: 'sensor.parking_suggestions',
@@ -72,7 +72,7 @@ class OsmParkingMapCardV025 extends HTMLElement {
             <div class="title"></div>
             <div class="subtitle"></div>
           </div>
-          <div class="headright"><span class="version">v0.2.5</span><ha-icon icon="mdi:parking"></ha-icon></div>
+          <div class="headright"><span class="version">v0.3.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
         <div class="error" hidden></div>
         <div class="map" style="height:${Number(this.config.height) || 430}px"></div>
@@ -434,7 +434,7 @@ class OsmParkingMapCardV025 extends HTMLElement {
 }
 
 if (!customElements.get('osm-parking-map-card')) {
-  customElements.define('osm-parking-map-card', OsmParkingMapCardV025);
+  customElements.define('osm-parking-map-card', OsmParkingMapCardV030);
   window.customCards = window.customCards || [];
   window.customCards.push({
     type: 'osm-parking-map-card',
