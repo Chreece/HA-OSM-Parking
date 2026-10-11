@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.3.5
+
+### Fixed
+
+- Fixed the remaining Home Assistant event-loop `import_module` warning.
+- Removed a stale `CONF_REFRESH_MINUTES` import left behind after periodic polling was removed in v0.3.3.
+- The stale import caused executor loading to raise `ImportError`, which made Home Assistant fall back to importing OSM Parking on the event loop.
+- Legacy `refresh_minutes` migration now uses the literal legacy key without reintroducing the removed runtime setting.
+
+### Validation
+
+- Added a CI contract check that verifies every symbol imported from `const.py` actually exists, preventing this exact regression from passing validation again.
+
+
 ## v0.3.4
 
 ### Fixed
