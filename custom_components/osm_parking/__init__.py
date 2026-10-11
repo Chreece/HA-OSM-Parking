@@ -16,7 +16,6 @@ from .const import (
     CATEGORIES,
     CONF_DESTINATION_ENTITY,
     CONF_MAX_RESULTS,
-    CONF_REFRESH_MINUTES,
     DEFAULT_MAX_PER_CATEGORY,
     DOMAIN,
     PLATFORMS,
@@ -144,8 +143,8 @@ async def async_migrate_entry(
         changed = True
 
     if version == 2 and minor_version < 3:
-        data.pop(CONF_REFRESH_MINUTES, None)
-        options.pop(CONF_REFRESH_MINUTES, None)
+        data.pop("refresh_minutes", None)
+        options.pop("refresh_minutes", None)
         minor_version = 3
         changed = True
 
