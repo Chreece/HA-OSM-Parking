@@ -13,6 +13,7 @@
   <a href="https://github.com/Chreece/HA-OSM-Parking/actions/workflows/validate.yml"><img alt="HACS + Hassfest" src="https://github.com/Chreece/HA-OSM-Parking/actions/workflows/validate.yml/badge.svg"></a>
   <a href="https://github.com/Chreece/HA-OSM-Parking/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/Chreece/HA-OSM-Parking?display_name=tag"></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/github/license/Chreece/HA-OSM-Parking"></a>
+  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=Chreece&repository=HA-OSM-Parking&category=integration"><img alt="Open in HACS" src="https://my.home-assistant.io/badges/hacs_repository.svg"></a>
 </p>
 
 # OSM Parking
