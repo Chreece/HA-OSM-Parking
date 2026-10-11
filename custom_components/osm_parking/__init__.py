@@ -57,15 +57,14 @@ def _destination_signature(state: State | None) -> tuple[Any, ...]:
 
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     """Set up integration-wide frontend resources."""
-    if CARD_PATH.is_file():
-        try:
-            await hass.http.async_register_static_paths(
-                [StaticPathConfig(CARD_URL, str(CARD_PATH), cache_headers=False)]
-            )
-        except RuntimeError:
-            # The same URL can already be registered after a reload.
-            pass
-        add_extra_js_url(hass, CARD_URL)
+    try:
+        await hass.http.async_register_static_paths(
+            [StaticPathConfig(CARD_URL, str(CARD_PATH), cache_headers=False)]
+        )
+    except RuntimeError:
+        # The same URL can already be registered after a reload.
+        pass
+    add_extra_js_url(hass, CARD_URL)
     return True
 
 
