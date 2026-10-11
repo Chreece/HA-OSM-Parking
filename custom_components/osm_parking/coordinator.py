@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
-from datetime import timedelta
 import logging
 import math
 from typing import Any
@@ -27,11 +26,9 @@ from .const import (
     CONF_INCLUDE_RESTRICTED,
     CONF_MAX_RESULTS,
     CONF_RADIUS_M,
-    CONF_REFRESH_MINUTES,
     DEFAULT_INCLUDE_RESTRICTED,
     DEFAULT_MAX_PER_CATEGORY,
     DEFAULT_RADIUS_M,
-    DEFAULT_REFRESH_MINUTES,
     enabled_key,
 )
 
@@ -72,17 +69,10 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.entry = entry
         self._preferred_endpoint: str | None = None
-        minutes = int(
-            entry.options.get(
-                CONF_REFRESH_MINUTES,
-                entry.data.get(CONF_REFRESH_MINUTES, DEFAULT_REFRESH_MINUTES),
-            )
-        )
         super().__init__(
             hass,
             logger=_LOGGER,
             name="OSM Parking",
-            update_interval=timedelta(minutes=minutes),
         )
 
     def _option(self, key: str, default: Any) -> Any:
