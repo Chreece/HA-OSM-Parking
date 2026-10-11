@@ -4,11 +4,10 @@
     "step": {
       "user": {
         "title": "OSM Parking",
-        "description": "Configure the search, categories, and one maximum result count applied independently to every enabled category. The final list is sorted by distance. Prices are shown when OpenStreetMap provides charge data.",
+        "description": "Configure the search, categories, and one maximum result count applied independently to every enabled category. Parking refreshes only when the destination changes or when Home Assistant starts.",
         "data": {
           "destination_entity": "Destination entity",
           "radius_m": "Search radius",
-          "refresh_minutes": "Refresh interval",
           "include_restricted": "Include restricted/private parking",
           "category_paid_enabled": "Include paid parking",
           "category_open_enabled": "Include open / surface parking",
@@ -29,11 +28,10 @@
     "step": {
       "init": {
         "title": "OSM Parking options",
-        "description": "Configure the search, categories, and one maximum result count applied independently to every enabled category. The final list is sorted by distance. Prices are shown when OpenStreetMap provides charge data.",
+        "description": "Configure the search and categories. Parking refreshes only when the destination meaningfully changes or when Home Assistant starts; there is no periodic polling.",
         "data": {
           "destination_entity": "Destination entity",
           "radius_m": "Search radius",
-          "refresh_minutes": "Refresh interval",
           "include_restricted": "Include restricted/private parking",
           "category_paid_enabled": "Include paid parking",
           "category_open_enabled": "Include open / surface parking",
