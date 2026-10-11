@@ -22,7 +22,7 @@
 
 ## Highlights
 
-- Follows the configured destination entity immediately when its state or coordinates change.
+- Fully event-driven: refreshes on Home Assistant/integration startup and when the configured destination meaningfully changes; no periodic polling.
 - Handles Home Assistant startup cleanly while the destination entity is still restoring.
 - Searches a configurable radius and sorts the final results by distance.
 - Categories: paid, open/surface, street, underground, multi-storey, Park & Ride, and other.
@@ -81,7 +81,7 @@ Choose any Home Assistant entity that exposes either:
 - `latitude` + `longitude`
 - `lat` + `lon`
 
-The OSM Parking coordinator subscribes to that configured entity. When it changes, parking is refreshed immediately; the normal polling interval remains as a periodic refresh.
+The OSM Parking coordinator subscribes to that configured entity. Parking is fetched once when the integration starts and again only when the destination state/name/coordinates meaningfully change. There is no periodic polling.
 
 Example:
 
