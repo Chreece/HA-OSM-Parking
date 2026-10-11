@@ -62,6 +62,32 @@ jobs:
         run: |
           zip -r "osm-parking-v$VERSION.zip" custom_components/osm_parking
 
+      - name: Build release notes from changelog
+        if: steps.existing.outputs.exists != 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          version = os.environ["VERSION"]
+          changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+          heading = f"## v{version}"
+          start = changelog.find(heading)
+          if start == -1:
+              raise SystemExit(f"Missing changelog section for {heading}")
+
+          body_start = start + len(heading)
+          next_heading = changelog.find("\n## ", body_start)
+          body = changelog[body_start: next_heading if next_heading != -1 else None].strip()
+          if not body:
+              raise SystemExit(f"Empty changelog section for {heading}")
+
+          Path("release-notes.md").write_text(body + "\n", encoding="utf-8")
+          PY
+
       - name: Publish GitHub release
         if: steps.existing.outputs.exists != 'true'
         env:
@@ -71,4 +97,9 @@ jobs:
           SHA: ${{ github.event.workflow_run.head_sha }}
         shell: bash
         run: |
-          gh release create "$TAG"             "osm-parking-v$VERSION.zip"             --repo "$GITHUB_REPOSITORY"             --target "$SHA"             --title "OSM Parking $TAG"             --generate-notes
+          gh release create "$TAG" \
+            "osm-parking-v$VERSION.zip" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$SHA" \
+            --title "OSM Parking $TAG" \
+            --notes-file release-notes.md
