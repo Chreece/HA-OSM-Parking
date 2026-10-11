@@ -14,11 +14,9 @@ from .const import (
     CONF_INCLUDE_RESTRICTED,
     CONF_MAX_RESULTS,
     CONF_RADIUS_M,
-    CONF_REFRESH_MINUTES,
     DEFAULT_INCLUDE_RESTRICTED,
     DEFAULT_MAX_PER_CATEGORY,
     DEFAULT_RADIUS_M,
-    DEFAULT_REFRESH_MINUTES,
     DOMAIN,
     enabled_key,
 )
@@ -57,15 +55,6 @@ def _schema(defaults: dict[str, Any]) -> vol.Schema:
             )
         ),
         vol.Required(
-            CONF_REFRESH_MINUTES,
-            default=str(defaults.get(CONF_REFRESH_MINUTES, DEFAULT_REFRESH_MINUTES)),
-        ): selector.SelectSelector(
-            selector.SelectSelectorConfig(
-                options=["5", "10", "15", "30", "60", "120"],
-                mode=selector.SelectSelectorMode.DROPDOWN,
-            )
-        ),
-        vol.Required(
             CONF_INCLUDE_RESTRICTED,
             default=bool(
                 defaults.get(CONF_INCLUDE_RESTRICTED, DEFAULT_INCLUDE_RESTRICTED)
@@ -87,25 +76,18 @@ def _schema(defaults: dict[str, Any]) -> vol.Schema:
     return vol.Schema(fields)
 
 
-def _normalise_input(user_input: dict[str, Any]) -> dict[str, Any]:
-    """Normalise selector values to their stored types."""
-    data = dict(user_input)
-    data[CONF_REFRESH_MINUTES] = int(data[CONF_REFRESH_MINUTES])
-    return data
-
-
 class OsmParkingConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle the OSM Parking config flow."""
 
     VERSION = 2
-    MINOR_VERSION = 2
+    MINOR_VERSION = 3
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Create a new parking search."""
         if user_input is not None:
-            data = _normalise_input(user_input)
+            data = dict(user_input)
             await self.async_set_unique_id(str(data[CONF_DESTINATION_ENTITY]).strip())
             self._abort_if_unique_id_configured()
             return self.async_create_entry(
@@ -130,7 +112,7 @@ class OsmParkingOptionsFlow(OptionsFlowWithReload):
     ) -> ConfigFlowResult:
         """Show and save options."""
         if user_input is not None:
-            return self.async_create_entry(data=_normalise_input(user_input))
+            return self.async_create_entry(data=dict(user_input))
 
         defaults = {**self.config_entry.data, **self.config_entry.options}
         return self.async_show_form(step_id="init", data_schema=_schema(defaults))
