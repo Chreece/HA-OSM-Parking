@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="600" viewBox="0 0 1800 600" role="img" aria-labelledby="title desc">
+  <title id="title">OSM Parking for Home Assistant</title>
+  <desc id="desc">Smart parking suggestions powered by OpenStreetMap and Overpass, with an interactive Home Assistant map card.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset=".52" stop-color="#0b1f38"/>
+      <stop offset="1" stop-color="#07111f"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#33c7ff"/>
+      <stop offset="1" stop-color="#1877ff"/>
+    </linearGradient>
+    <linearGradient id="pin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#19c8ff"/>
+      <stop offset="1" stop-color="#1649d8"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4ee3a5"/>
+      <stop offset="1" stop-color="#15a76a"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000" flood-opacity=".42"/>
+    </filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="mapClip"><rect x="1020" y="0" width="780" height="600" rx="0"/></clipPath>
+  </defs>
+
+  <rect width="1800" height="600" fill="url(#bg)"/>
+  <circle cx="1390" cy="220" r="360" fill="#0f2f4b" opacity=".35"/>
+  <circle cx="1500" cy="250" r="260" fill="#123e55" opacity=".22"/>
+
+  <!-- left brand mark -->
+  <g transform="translate(70 76)" filter="url(#shadow)">
+    <rect width="150" height="150" rx="34" fill="url(#pin)"/>
+    <circle cx="112" cy="116" r="27" fill="#54dcff"/>
+    <circle cx="112" cy="116" r="10" fill="#0b4fb8"/>
+    <text x="75" y="106" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="88" font-weight="800" text-anchor="middle" fill="#fff">P</text>
+  </g>
+
+  <!-- title -->
+  <text x="270" y="150" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="84" font-weight="800" fill="#fff">OSM <tspan fill="#1da1ff">Parking</tspan></text>
+  <text x="272" y="206" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="30" font-weight="500" fill="#b7c4d4">Smart parking suggestions for Home Assistant</text>
+  <line x1="272" y1="226" x2="820" y2="226" stroke="#20b7ff" stroke-width="3" opacity=".75"/>
+
+  <!-- badges -->
+  <g font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="600">
+    <g transform="translate(74 278)">
+      <rect width="208" height="58" rx="29" fill="#102b46" stroke="#284e70"/>
+      <path d="M27 35v-13l13-10 13 10v13h-9v-9h-8v9z" fill="#40b9ff"/>
+      <text x="66" y="38" fill="#eef7ff">HACS Ready</text>
+    </g>
+    <g transform="translate(300 278)">
+      <rect width="258" height="58" rx="29" fill="#102b46" stroke="#284e70"/>
+      <path d="M27 16l15 7v18l-15-7zM42 23l15-7v18l-15 7z" fill="url(#green)"/>
+      <text x="76" y="38" fill="#eef7ff">OpenStreetMap</text>
+    </g>
+    <g transform="translate(576 278)">
+      <rect width="228" height="58" rx="29" fill="#102b46" stroke="#284e70"/>
+      <circle cx="31" cy="29" r="12" fill="none" stroke="#c64cff" stroke-width="5"/>
+      <line x1="40" y1="38" x2="51" y2="49" stroke="#c64cff" stroke-width="5" stroke-linecap="round"/>
+      <text x="68" y="38" fill="#eef7ff">Overpass API</text>
+    </g>
+    <g transform="translate(822 278)">
+      <rect width="260" height="58" rx="29" fill="#102b46" stroke="#284e70"/>
+      <path d="M27 18l10-5 10 5v24l-10 5-10-5zm20 0l10-5 10 5v24l-10 5-10-5z" fill="#3f8cff"/>
+      <text x="84" y="38" fill="#eef7ff">Interactive map</text>
+    </g>
+  </g>
+
+  <!-- footer bullets -->
+  <text x="78" y="394" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="700" letter-spacing="7" fill="#7f9ab5">FIND • COMPARE • PARK • OPEN DATA • OPEN SOURCE</text>
+
+  <!-- city silhouette -->
+  <g transform="translate(0 434)" opacity=".92">
+    <path d="M0 120L0 73l48-10 18 17 45-16 13-45 14 45 47 0 13-18 30 0 8-39 7 39h32l14-22 14 22h28l17-31 17 31h44l16-60 16 60h29l14-100 16 100h22l10-59 12 59h55l12-30 12 30h41l8-18 8 18h44l18-38 18 38h62v74z" fill="#071826"/>
+    <path d="M395 120V86h32V63h20v23h30v34zm118 0V75h20v-28h18v28h23v45z" fill="#0a2135"/>
+    <path d="M565 96c55-52 126-52 181 0" fill="none" stroke="#153653" stroke-width="8"/>
+    <path d="M605 96c35-31 69-31 105 0" fill="none" stroke="#153653" stroke-width="7"/>
+  </g>
+
+  <!-- right map -->
+  <g clip-path="url(#mapClip)">
+    <rect x="1020" width="780" height="600" fill="#0b2030"/>
+    <g stroke="#27455d" stroke-width="5" opacity=".55" fill="none">
+      <path d="M1010 88C1160 34 1280 110 1410 64s240-32 410 12"/>
+      <path d="M1035 160c130 15 230-16 360 9s240 11 405-8"/>
+      <path d="M1015 248c140-44 252-10 362-34s273-10 430 25"/>
+      <path d="M1030 345c135 23 220-20 339 12s270 44 454 12"/>
+      <path d="M1058 455c109-45 225-33 331 6s255 22 401-24"/>
+      <path d="M1120 0c-18 150-37 250-12 368s1 177-15 248"/>
+      <path d="M1250 0c25 150 12 264 50 367s56 144 35 236"/>
+      <path d="M1450 0c-24 138-9 259 20 345s5 176-6 255"/>
+      <path d="M1630 0c-2 114-40 222-2 340s47 173 18 260"/>
+    </g>
+    <path d="M1125 535c45-35 91-61 138-78s100-25 138-68 21-88 76-120 106-21 160-83" fill="none" stroke="#23caff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+    <circle cx="1125" cy="535" r="17" fill="#fff" stroke="#1db8ff" stroke-width="8"/>
+    <circle cx="1637" cy="186" r="19" fill="#ff4c47" stroke="#fff" stroke-width="5"/>
+
+    <!-- parking pins -->
+    <g font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="800" font-size="27" text-anchor="middle">
+      <g transform="translate(1240 112)" filter="url(#shadow)">
+        <path d="M0-28c-24 0-42 18-42 42 0 35 42 70 42 70s42-35 42-70c0-24-18-42-42-42z" fill="url(#pin)" stroke="#5bc6ff" stroke-width="3"/>
+        <text y="23" fill="#fff">P</text>
+      </g>
+      <g transform="translate(1365 234)" filter="url(#shadow)">
+        <path d="M0-28c-24 0-42 18-42 42 0 35 42 70 42 70s42-35 42-70c0-24-18-42-42-42z" fill="url(#pin)" stroke="#5bc6ff" stroke-width="3"/>
+        <text y="23" fill="#fff">P</text>
+      </g>
+      <g transform="translate(1514 385)" filter="url(#shadow)">
+        <path d="M0-28c-24 0-42 18-42 42 0 35 42 70 42 70s42-35 42-70c0-24-18-42-42-42z" fill="url(#pin)" stroke="#5bc6ff" stroke-width="3"/>
+        <text y="23" fill="#fff">P</text>
+      </g>
+    </g>
+
+    <!-- side panel -->
+    <g transform="translate(1490 74)" filter="url(#shadow)">
+      <rect width="278" height="370" rx="22" fill="#081421" stroke="#28506c" stroke-width="2"/>
+      <text x="24" y="46" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="28" font-weight="700" fill="#fff">Nearby Parking</text>
+      <line x1="24" y1="62" x2="254" y2="62" stroke="#28465e"/>
+      <g font-family="Inter,Segoe UI,Arial,sans-serif">
+        <g transform="translate(24 102)">
+          <circle cx="18" cy="0" r="18" fill="#1759c9"/><text x="18" y="8" font-size="20" text-anchor="middle" font-weight="800" fill="#fff">P</text>
+          <text x="50" y="-2" font-size="20" fill="#fff">LANXESS Arena</text><text x="50" y="20" font-size="15" fill="#7e93a7">street · 120 m</text>
+        </g>
+        <g transform="translate(24 164)">
+          <circle cx="18" cy="0" r="18" fill="#1759c9"/><text x="18" y="8" font-size="20" text-anchor="middle" font-weight="800" fill="#fff">P</text>
+          <text x="50" y="-2" font-size="20" fill="#fff">Surface parking</text><text x="50" y="20" font-size="15" fill="#7e93a7">open · 350 m</text>
+        </g>
+        <g transform="translate(24 226)">
+          <circle cx="18" cy="0" r="18" fill="#1759c9"/><text x="18" y="8" font-size="20" text-anchor="middle" font-weight="800" fill="#fff">P</text>
+          <text x="50" y="-2" font-size="20" fill="#fff">Parking garage</text><text x="50" y="20" font-size="15" fill="#7e93a7">paid · 500 m</text>
+        </g>
+        <g transform="translate(24 288)">
+          <circle cx="18" cy="0" r="18" fill="#1759c9"/><text x="18" y="8" font-size="20" text-anchor="middle" font-weight="800" fill="#fff">P</text>
+          <text x="50" y="-2" font-size="20" fill="#fff">Park &amp; Ride</text><text x="50" y="20" font-size="15" fill="#7e93a7">P+R · 650 m</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
