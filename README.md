@@ -1,5 +1,12 @@
+<!-- ko-fi-support -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Chreece/HA-OSM-Parking/main/assets/banner.jpg" alt="OSM Parking for Home Assistant" width="100%">
+  <a href="https://ko-fi.com/chreece">
+    <img src="https://raw.githubusercontent.com/Chreece/pir2ha/main/.github/ko-fi-banner.svg" alt="Support Chreece on Ko-fi" width="600">
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Chreece/HA-OSM-Parking/main/assets/banner.svg" alt="OSM Parking for Home Assistant" width="100%">
 </p>
 
 <p align="center">
