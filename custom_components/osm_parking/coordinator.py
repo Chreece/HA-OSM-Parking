@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from collections import defaultdict
 from datetime import timedelta
 import logging
@@ -41,6 +42,9 @@ OVERPASS_ENDPOINTS = (
     "https://overpass.private.coffee/api/interpreter",
     "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
 )
+OVERPASS_RETRYABLE_STATUS = {429, 500, 502, 503, 504}
+OVERPASS_ATTEMPTS = 2
+OVERPASS_RETRY_DELAY = 3
 
 RESTRICTED_ACCESS = {
     "private",
@@ -67,6 +71,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.entry = entry
+        self._preferred_endpoint: str | None = None
         minutes = int(
             entry.options.get(
                 CONF_REFRESH_MINUTES,
@@ -202,45 +207,75 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     ) -> tuple[dict[str, Any], str]:
         south, west, north, east = self._bounding_box(lat, lon, radius)
         query = f"""
-[out:json][timeout:20];
+[out:json][timeout:10];
 nwr["amenity"="parking"]({south:.7f},{west:.7f},{north:.7f},{east:.7f});
 out center tags qt;
 """.strip()
 
         session = async_get_clientsession(self.hass)
         errors: list[str] = []
-        empty_source: str | None = None
 
-        for endpoint in OVERPASS_ENDPOINTS:
-            try:
-                async with session.post(
-                    endpoint,
-                    data={"data": query},
-                    timeout=25,
-                    headers={"User-Agent": "HomeAssistant-OSM-Parking/0.3.0"},
-                ) as response:
-                    if response.status >= 500:
-                        errors.append(f"{endpoint}: HTTP {response.status}")
-                        continue
+        endpoints = list(OVERPASS_ENDPOINTS)
+        if self._preferred_endpoint in endpoints:
+            endpoints.remove(self._preferred_endpoint)
+            endpoints.insert(0, self._preferred_endpoint)
 
-                    response.raise_for_status()
-                    payload = await response.json(content_type=None)
+        for attempt in range(1, OVERPASS_ATTEMPTS + 1):
+            empty_source: str | None = None
 
-                    if payload.get("elements"):
-                        return payload, endpoint
+            for endpoint in endpoints:
+                try:
+                    async with session.post(
+                        endpoint,
+                        data={"data": query},
+                        timeout=15,
+                        headers={"User-Agent": "HomeAssistant-OSM-Parking/0.3.2"},
+                    ) as response:
+                        if response.status in OVERPASS_RETRYABLE_STATUS:
+                            errors.append(
+                                f"attempt {attempt} {endpoint}: "
+                                f"HTTP {response.status}"
+                            )
+                            continue
 
-                    # An empty result can be legitimate, but before accepting it,
-                    # ask the remaining public instances as well.
-                    empty_source = endpoint
-                    errors.append(f"{endpoint}: empty result")
-            except (ClientError, TimeoutError, ValueError) as err:
-                errors.append(f"{endpoint}: {err}")
+                        if 400 <= response.status < 500:
+                            detail = (await response.text())[:200].replace("\n", " ")
+                            raise UpdateFailed(
+                                f"Overpass rejected the query: HTTP "
+                                f"{response.status} from {endpoint}: {detail}"
+                            )
 
-        if empty_source is not None:
-            return {"elements": []}, empty_source
+                        response.raise_for_status()
+                        payload = await response.json(content_type=None)
+
+                        if payload.get("elements"):
+                            self._preferred_endpoint = endpoint
+                            return payload, endpoint
+
+                        # A successful empty response is valid. Check the rest of
+                        # this round before accepting it, but do not retry it as a
+                        # transient server failure.
+                        empty_source = endpoint
+                        errors.append(
+                            f"attempt {attempt} {endpoint}: empty result"
+                        )
+                except (ClientError, TimeoutError, ValueError) as err:
+                    errors.append(f"attempt {attempt} {endpoint}: {err}")
+
+            if empty_source is not None:
+                self._preferred_endpoint = empty_source
+                return {"elements": []}, empty_source
+
+            if attempt < OVERPASS_ATTEMPTS:
+                await asyncio.sleep(OVERPASS_RETRY_DELAY)
+                # Start the retry round on a different public instance.
+                endpoints = endpoints[1:] + endpoints[:1]
 
         detail = "; ".join(errors) if errors else "no endpoint returned data"
-        raise UpdateFailed(f"All Overpass endpoints failed: {detail}")
+        raise UpdateFailed(
+            f"All Overpass endpoints failed after "
+            f"{OVERPASS_ATTEMPTS} attempts: {detail}"
+        )
 
     def _build_suggestions(
         self,
