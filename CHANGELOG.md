@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.1
+
+### Changed
+
+- Enforced strict HACS validation with no ignored checks.
+- Added a one-click **Open in HACS** badge to the README.
+- Added crisp vector desktop and mobile dashboard examples.
+- Restored the Ko-fi support banner and replaced the project hero with a vector banner.
+- Prepared the repository for submission to the default HACS store.
+
+### Validation
+
+- Hassfest passes.
+- All integration-side HACS checks pass; default-store publication additionally requires GitHub repository description and topics metadata.
+
+
 ## v0.3.0
 
 ### Added
