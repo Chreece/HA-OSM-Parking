@@ -8,13 +8,14 @@ from typing import Any
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import Event, HomeAssistant, callback
+from homeassistant.core import Event, HomeAssistant, State, callback
 from homeassistant.helpers.event import async_track_state_change_event
 
 from .const import (
     CATEGORIES,
     CONF_DESTINATION_ENTITY,
     CONF_MAX_RESULTS,
+    CONF_REFRESH_MINUTES,
     DEFAULT_MAX_PER_CATEGORY,
     DOMAIN,
     PLATFORMS,
@@ -34,6 +35,24 @@ class OsmParkingRuntimeData:
 
 
 type OsmParkingConfigEntry = ConfigEntry[OsmParkingRuntimeData]
+
+
+def _destination_signature(state: State | None) -> tuple[Any, ...]:
+    """Return only destination fields that should trigger a parking refresh."""
+    if state is None:
+        return (None,)
+
+    attrs = state.attributes
+    return (
+        state.state,
+        attrs.get("display_name"),
+        attrs.get("friendly_name"),
+        attrs.get("latitude"),
+        attrs.get("lat"),
+        attrs.get("longitude"),
+        attrs.get("lon"),
+        attrs.get("lng"),
+    )
 
 
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
@@ -68,7 +87,11 @@ async def async_setup_entry(
 
         @callback
         def _destination_changed(event: Event) -> None:
-            """Refresh immediately whenever the configured destination changes."""
+            """Refresh only when the configured destination meaningfully changes."""
+            old_state = event.data.get("old_state")
+            new_state = event.data.get("new_state")
+            if _destination_signature(old_state) == _destination_signature(new_state):
+                return
             hass.async_create_task(coordinator.async_request_refresh())
 
         remove_listener = async_track_state_change_event(
@@ -102,14 +125,35 @@ async def async_unload_entry(
 async def async_migrate_entry(
     hass: HomeAssistant, config_entry: ConfigEntry
 ) -> bool:
-    """Migrate legacy entries to the current category model."""
-    if config_entry.version < 2:
-        data = dict(config_entry.data)
+    """Migrate legacy entries to the current event-driven model."""
+    data = dict(config_entry.data)
+    options = dict(config_entry.options)
+    version = config_entry.version
+    minor_version = config_entry.minor_version
+    changed = False
+
+    if version < 2:
         legacy_max = int(data.get(CONF_MAX_RESULTS, DEFAULT_MAX_PER_CATEGORY))
         for category in CATEGORIES:
             data.setdefault(enabled_key(category), True)
             data.setdefault(max_key(category), legacy_max)
+        version = 2
+        minor_version = 2
+        changed = True
+
+    if version == 2 and minor_version < 3:
+        data.pop(CONF_REFRESH_MINUTES, None)
+        options.pop(CONF_REFRESH_MINUTES, None)
+        minor_version = 3
+        changed = True
+
+    if changed:
         hass.config_entries.async_update_entry(
-            config_entry, data=data, version=2, minor_version=2
+            config_entry,
+            data=data,
+            options=options,
+            version=version,
+            minor_version=minor_version,
         )
+
     return True
