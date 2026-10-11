@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.3.3
+
+### Changed
+
+- Removed periodic Overpass polling entirely.
+- Parking is now fetched once on Home Assistant/integration startup and again only when the configured destination meaningfully changes.
+- Unrelated attribute updates on the destination entity no longer trigger an Overpass request.
+- Removed the refresh-interval option from setup/options.
+- Existing config entries are migrated automatically and the legacy refresh setting is discarded.
+
+
 ## v0.3.2
 
 ### Fixed
