@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="1220" viewBox="0 0 860 1220" role="img" aria-labelledby="t d">
+<title id="t">OSM Parking mobile dashboard example</title>
+<desc id="d">Mobile Home Assistant dashboard showing an OSM Parking card around LANXESS arena.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0d1218"/><stop offset="1" stop-color="#111821"/></linearGradient>
+  <linearGradient id="map" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0f2ea"/><stop offset="1" stop-color="#dce5d7"/></linearGradient>
+  <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#17c0ff"/><stop offset="1" stop-color="#0675da"/></linearGradient>
+  <filter id="s"><feDropShadow dx="0" dy="6" stdDeviation="10" flood-opacity=".4"/></filter>
+</defs>
+<rect width="860" height="1220" fill="url(#bg)"/>
+<rect width="860" height="76" fill="#161c22"/>
+<text x="54" y="48" font-family="Arial" font-size="32" fill="#fff">☰</text>
+<text x="110" y="48" font-family="Arial" font-size="30" font-weight="600" fill="#fff">Home Assistant</text>
+<text x="700" y="49" font-family="Arial" font-size="30" fill="#fff">⌕</text>
+<text x="760" y="49" font-family="Arial" font-size="30" fill="#fff">⋮</text>
+
+<rect x="28" y="95" width="804" height="1090" rx="22" fill="#171c22" stroke="#2a3139" filter="url(#s)"/>
+<text x="56" y="145" font-family="Arial" font-size="34" font-weight="700" fill="#fff">Parking suggestions</text>
+<text x="56" y="183" font-family="Arial" font-size="21" fill="#aab6c3">LANXESS arena, Willy-Brandt-Platz, Deutz, Köln</text>
+<text x="56" y="211" font-family="Arial" font-size="21" fill="#aab6c3">8 suggestions</text>
+<text x="728" y="145" font-family="Arial" font-size="17" fill="#7f8b97">v0.3.0</text>
+<text x="780" y="153" font-family="Arial" font-size="46" font-weight="800" fill="#4c93cf">P</text>
+
+<rect x="28" y="235" width="804" height="430" fill="url(#map)"/>
+<path d="M28 365h804M28 558h804M250 235l-45 430M500 235l44 430M720 235l-80 430" stroke="#c3c9c2" stroke-width="9" opacity=".65"/>
+<path d="M54 630C200 556 270 520 360 438s160-18 250-102 134-54 212-78" fill="none" stroke="#f5b94b" stroke-width="17"/>
+<rect x="28" y="235" width="73" height="430" fill="#68b7ff" opacity=".85"/>
+<text x="70" y="488" transform="rotate(-90 70 488)" font-family="Arial" font-size="28" fill="#fff">Rhein</text>
+<text x="190" y="492" font-family="Arial" font-size="25" font-weight="700" fill="#454b52">DEUTZ</text>
+<circle cx="458" cy="424" r="57" fill="#c9cbc8" opacity=".72"/>
+<text x="458" y="416" text-anchor="middle" font-family="Arial" font-size="20" fill="#444">LANXESS</text>
+<text x="458" y="442" text-anchor="middle" font-family="Arial" font-size="20" fill="#444">arena</text>
+<g font-family="Arial" font-size="20" font-weight="700" text-anchor="middle">
+  <g transform="translate(458 356)"><path d="M0-27c-19 0-32 14-32 32 0 29 32 58 32 58s32-29 32-58c0-18-13-32-32-32z" fill="#e53935" stroke="#fff" stroke-width="4"/><circle cy="1" r="8" fill="#711"/></g>
+  <g transform="translate(360 452)"><circle r="25" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">1</text></g>
+  <g transform="translate(436 322)"><circle r="25" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">2</text></g>
+  <g transform="translate(565 340)"><circle r="25" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">3</text></g>
+  <g transform="translate(596 470)"><circle r="25" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">4</text></g>
+  <g transform="translate(340 545)"><circle r="25" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">5</text></g>
+  <g transform="translate(548 558)"><circle r="25" fill="url(#blue)" stroke="#fff" stroke-width="4"/><text y="8" fill="#fff">6</text></g>
+</g>
+
+<g font-family="Arial">
+  <g transform="translate(46 686)"><rect width="768" height="88" rx="14" fill="#20262d"/><circle cx="40" cy="44" r="29" fill="#0da6e5"/><text x="40" y="52" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">1</text><text x="92" y="36" font-size="22" font-weight="700" fill="#fff">LANXESS arena Tiefgarage</text><text x="92" y="63" font-size="17" fill="#a8b2bd">144 m · paid</text><rect x="635" y="24" width="95" height="40" rx="20" fill="#1d6330"/><text x="683" y="51" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Open</text></g>
+  <g transform="translate(46 786)"><rect width="768" height="88" rx="14" fill="#20262d"/><circle cx="40" cy="44" r="29" fill="#0da6e5"/><text x="40" y="52" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">2</text><text x="92" y="36" font-size="22" font-weight="700" fill="#fff">Parkhaus Deutz-Center</text><text x="92" y="63" font-size="17" fill="#a8b2bd">450 m · paid</text><rect x="635" y="24" width="95" height="40" rx="20" fill="#1d6330"/><text x="683" y="51" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Open</text></g>
+  <g transform="translate(46 886)"><rect width="768" height="88" rx="14" fill="#20262d"/><circle cx="40" cy="44" r="29" fill="#0da6e5"/><text x="40" y="52" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">3</text><text x="92" y="36" font-size="22" font-weight="700" fill="#fff">Parkhaus Messe Köln</text><text x="92" y="63" font-size="17" fill="#a8b2bd">680 m · paid</text><rect x="635" y="24" width="95" height="40" rx="20" fill="#1d6330"/><text x="683" y="51" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Open</text></g>
+  <g transform="translate(46 986)"><rect width="768" height="88" rx="14" fill="#20262d"/><circle cx="40" cy="44" r="29" fill="#0da6e5"/><text x="40" y="52" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">4</text><text x="92" y="36" font-size="22" font-weight="700" fill="#fff">Street-side parking</text><text x="92" y="63" font-size="17" fill="#a8b2bd">730 m · street</text><rect x="625" y="24" width="105" height="40" rx="20" fill="#324151"/><text x="678" y="51" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Unknown</text></g>
+</g>
+</svg>
