@@ -134,6 +134,8 @@ OSM often knows whether parking is paid without containing the exact tariff. The
 
 OSM Parking uses public Overpass services. Public instances can occasionally return HTTP 5xx errors or time out, so the integration rotates through several documented global endpoints.
 
+Normal operation does not poll periodically. If every Overpass attempt fails, temporary recovery polling starts automatically: the first retry is after 1 minute and continued failures retry every 5 minutes. Recovery polling stops immediately after the first successful refresh.
+
 The remote search uses a rectangular bounding box because it is inexpensive for Overpass to evaluate. Results are then filtered locally using the exact configured radius, so the user-facing search remains circular.
 
 ## Diagnostics
