@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
+from datetime import timedelta
 import logging
 import math
 from typing import Any
@@ -43,6 +44,9 @@ OVERPASS_RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 OVERPASS_ATTEMPTS = 2
 OVERPASS_RETRY_DELAY = 3
 
+FAILED_REFRESH_FIRST_RETRY = timedelta(minutes=1)
+FAILED_REFRESH_INTERVAL = timedelta(minutes=5)
+
 RESTRICTED_ACCESS = {
     "private",
     "customers",
@@ -69,6 +73,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.entry = entry
         self._preferred_endpoint: str | None = None
+        self._failed_refreshes = 0
         super().__init__(
             hass,
             logger=_LOGGER,
@@ -77,6 +82,35 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     def _option(self, key: str, default: Any) -> Any:
         return self.entry.options.get(key, self.entry.data.get(key, default))
+
+    @callback
+    def async_reset_retry_cycle(self) -> None:
+        """Cancel failure polling before a fresh event-driven refresh."""
+        self._failed_refreshes = 0
+        self.update_interval = None
+        self._async_unsub_refresh()
+
+    @callback
+    def _async_refresh_finished(self) -> None:
+        """Poll only while the last real data refresh is failing."""
+        if self.last_update_success:
+            self._failed_refreshes = 0
+            if self.update_interval is not None:
+                self.update_interval = None
+                self._async_unsub_refresh()
+            return
+
+        self._failed_refreshes += 1
+        self.update_interval = (
+            FAILED_REFRESH_FIRST_RETRY
+            if self._failed_refreshes == 1
+            else FAILED_REFRESH_INTERVAL
+        )
+
+        # During the initial refresh the sensor platform has not subscribed yet.
+        # The first listener will schedule this interval automatically.
+        if self._listeners and not self.hass.is_stopping:
+            self._schedule_refresh()
 
     def _category_enabled(self, category: str) -> bool:
         return bool(self._option(enabled_key(category), True))
@@ -219,7 +253,7 @@ out center tags qt;
                         endpoint,
                         data={"data": query},
                         timeout=15,
-                        headers={"User-Agent": "HomeAssistant-OSM-Parking/0.3.2"},
+                        headers={"User-Agent": "HomeAssistant-OSM-Parking/0.3.6"},
                     ) as response:
                         if response.status in OVERPASS_RETRYABLE_STATUS:
                             errors.append(
