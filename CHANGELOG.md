@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.6
+
+### Changed
+
+- Normal operation remains fully event-driven: startup and meaningful destination changes trigger refreshes, with no background polling after success.
+- If a real Overpass refresh fails, OSM Parking now automatically enters temporary failure polling.
+- The first automatic retry happens after 1 minute; continued failures retry every 5 minutes.
+- Any successful refresh immediately disables failure polling.
+- A meaningful destination change cancels the previous retry cycle and performs a fresh request for the new destination.
+
+### Fixed
+
+- A temporary Overpass outage during Home Assistant startup no longer aborts the OSM Parking config entry setup.
+- The sensor can remain loaded while Overpass is unavailable and recover automatically as soon as a retry succeeds.
+
+
 ## v0.3.5
 
 ### Fixed
