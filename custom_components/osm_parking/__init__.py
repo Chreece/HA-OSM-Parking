@@ -93,6 +93,7 @@ async def async_setup_entry(
             new_state = event.data.get("new_state")
             if _destination_signature(old_state) == _destination_signature(new_state):
                 return
+            coordinator.async_reset_retry_cycle()
             hass.async_create_task(coordinator.async_request_refresh())
 
         remove_listener = async_track_state_change_event(
@@ -104,11 +105,12 @@ async def async_setup_entry(
         remove_destination_listener=remove_listener,
     )
 
-    # The coordinator deliberately returns a waiting state while the configured
-    # destination entity is still restoring during Home Assistant startup.
-    # This keeps the integration loaded, so the state-change listener above can
-    # refresh it immediately once the destination has valid coordinates.
-    await coordinator.async_config_entry_first_refresh()
+    # Do not fail config-entry setup just because every public Overpass
+    # endpoint is temporarily unavailable. A failed real fetch enables temporary
+    # retry polling in the coordinator; a successful fetch disables it again.
+    # A restoring destination still returns a normal waiting state and relies on
+    # the destination state-change listener rather than polling.
+    await coordinator.async_refresh()
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
