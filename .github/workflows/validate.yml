@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Compile Python package
+        run: python3 -m compileall -q custom_components/osm_parking
+
       - name: Validate local const imports
         run: |
           python3 - <<'PY'
