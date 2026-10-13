@@ -116,7 +116,7 @@ def _schema(hass: HomeAssistant, defaults: dict[str, Any]) -> vol.Schema:
             selector.SelectSelectorConfig(
                 options=destination_options,
                 mode=selector.SelectSelectorMode.DROPDOWN,
-                custom_value=True,
+                custom_value=bool(current_destination),
             )
         ),
         vol.Required(
@@ -207,7 +207,16 @@ class OsmParkingOptionsFlow(OptionsFlowWithReload):
             destination_entity = str(
                 user_input[CONF_DESTINATION_ENTITY]
             ).strip()
-            if _state_coordinates(self.hass.states.get(destination_entity)) is None:
+            current_destination = str(
+                defaults.get(CONF_DESTINATION_ENTITY, "")
+            ).strip()
+
+            if (
+                destination_entity != current_destination
+                and _state_coordinates(
+                    self.hass.states.get(destination_entity)
+                ) is None
+            ):
                 errors[CONF_DESTINATION_ENTITY] = "invalid_destination_entity"
             else:
                 return self.async_create_entry(data=dict(user_input))
