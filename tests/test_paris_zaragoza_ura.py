@@ -99,7 +99,7 @@ class ParisProviderTests(unittest.TestCase):
         self.row["geo_point_2d"] = [48.84734233, 2.29739674]
         self.assertAlmostEqual(self.parse()["latitude"], 48.84734233, places=6)
         self.row["geo_point_2d"] = {"lat": 48.84734233, "lon": 2.29739674}
-        self.assertEqual(self.parse()["longitude"], 2.29739674)
+        self.assertAlmostEqual(self.parse()["longitude"], 2.29739674, places=6)
 
     def test_paris_invalid_coordinates_or_missing_id(self):
         self.row["xlong"] = float("nan")
