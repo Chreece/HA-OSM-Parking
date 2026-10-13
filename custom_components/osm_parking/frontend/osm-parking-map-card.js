@@ -140,6 +140,23 @@ const OSM_PARKING_I18N = {
   },
 };
 
+const OSM_PARKING_PROVIDER_I18N = {
+  en: { available: 'available', source: 'Source', updated: 'Updated', live: 'Live data', partialTitle: 'Some data sources are unavailable', partialBody: 'Showing the parking data that is currently available. Missing sources will be retried automatically.' },
+  el: { available: 'διαθέσιμες', source: 'Πηγή', updated: 'Ενημέρωση', live: 'Ζωντανά δεδομένα', partialTitle: 'Ορισμένες πηγές δεδομένων δεν είναι διαθέσιμες', partialBody: 'Εμφανίζονται τα δεδομένα στάθμευσης που είναι διαθέσιμα τώρα. Οι πηγές που λείπουν θα δοκιμαστούν ξανά αυτόματα.' },
+  de: { available: 'frei', source: 'Quelle', updated: 'Aktualisiert', live: 'Live-Daten', partialTitle: 'Einige Datenquellen sind nicht verfügbar', partialBody: 'Die aktuell verfügbaren Parkdaten werden angezeigt. Fehlende Quellen werden automatisch erneut versucht.' },
+  es: { available: 'disponibles', source: 'Fuente', updated: 'Actualizado', live: 'Datos en directo', partialTitle: 'Algunas fuentes no están disponibles', partialBody: 'Se muestran los datos disponibles actualmente. Las fuentes ausentes se volverán a intentar automáticamente.' },
+  fr: { available: 'disponibles', source: 'Source', updated: 'Mis à jour', live: 'Données en direct', partialTitle: 'Certaines sources sont indisponibles', partialBody: 'Les données actuellement disponibles sont affichées. Les sources manquantes seront réessayées automatiquement.' },
+  it: { available: 'disponibili', source: 'Fonte', updated: 'Aggiornato', live: 'Dati in tempo reale', partialTitle: 'Alcune fonti non sono disponibili', partialBody: 'Vengono mostrati i dati attualmente disponibili. Le fonti mancanti verranno riprovate automaticamente.' },
+  nl: { available: 'beschikbaar', source: 'Bron', updated: 'Bijgewerkt', live: 'Livegegevens', partialTitle: 'Sommige gegevensbronnen zijn niet beschikbaar', partialBody: 'De momenteel beschikbare parkeerdata wordt getoond. Ontbrekende bronnen worden automatisch opnieuw geprobeerd.' },
+  pl: { available: 'wolnych', source: 'Źródło', updated: 'Aktualizacja', live: 'Dane na żywo', partialTitle: 'Niektóre źródła danych są niedostępne', partialBody: 'Wyświetlane są dostępne obecnie dane. Brakujące źródła zostaną automatycznie ponowione.' },
+  pt: { available: 'disponíveis', source: 'Fonte', updated: 'Atualizado', live: 'Dados em tempo real', partialTitle: 'Algumas fontes não estão disponíveis', partialBody: 'São mostrados os dados disponíveis neste momento. As fontes em falta serão tentadas novamente automaticamente.' },
+  'pt-BR': { available: 'disponíveis', source: 'Fonte', updated: 'Atualizado', live: 'Dados em tempo real', partialTitle: 'Algumas fontes não estão disponíveis', partialBody: 'Os dados disponíveis no momento estão sendo exibidos. As fontes ausentes serão tentadas novamente automaticamente.' },
+  ru: { available: 'свободно', source: 'Источник', updated: 'Обновлено', live: 'Данные в реальном времени', partialTitle: 'Некоторые источники недоступны', partialBody: 'Показаны доступные сейчас данные. Недоступные источники будут повторно опрошены автоматически.' },
+  tr: { available: 'boş', source: 'Kaynak', updated: 'Güncellendi', live: 'Canlı veri', partialTitle: 'Bazı veri kaynakları kullanılamıyor', partialBody: 'Şu anda kullanılabilen park verileri gösteriliyor. Eksik kaynaklar otomatik olarak yeniden denenecek.' },
+  'zh-Hans': { available: '可用', source: '来源', updated: '更新', live: '实时数据', partialTitle: '部分数据源不可用', partialBody: '正在显示当前可用的停车数据。缺失的数据源将自动重试。' },
+  ja: { available: '空き', source: 'データ元', updated: '更新', live: 'リアルタイム', partialTitle: '一部のデータソースが利用できません', partialBody: '現在利用可能な駐車場データを表示しています。不足しているソースは自動的に再試行されます。' },
+};
+
 const OSM_PARKING_STATUS_I18N = {
   en: {
     entityMissingTitle: 'OSM Parking sensor not found',
@@ -670,6 +687,7 @@ class OsmParkingMapCardV0311 extends HTMLElement {
         .badge { min-width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:var(--primary-color); color:#fff; font-weight:700; }
         .row-title { font-weight:600; color:var(--primary-text-color); }
         .row-meta { margin-top:2px; color:var(--secondary-text-color); font-size:.84rem; }
+        .row-source { margin-top:2px; color:var(--secondary-text-color); opacity:.78; font-size:.74rem; }
         .row-price { font-weight:600; white-space:nowrap; color:var(--primary-text-color); }
         .osm-dest-marker,.osm-park-marker { width:32px; height:32px; border-radius:50%; display:grid; place-items:center; border:3px solid #fff; box-shadow:0 1px 5px rgba(0,0,0,.45); color:#fff; font-weight:800; box-sizing:border-box; }
         .osm-dest-marker { background:#d32f2f; }
@@ -696,6 +714,40 @@ class OsmParkingMapCardV0311 extends HTMLElement {
       statusDetailsSummary: this.querySelector('.status-details summary'),
       statusDetailsPre: this.querySelector('.status-details pre'),
     };
+  }
+
+  _providerTranslations() {
+    const raw = String(this._hass?.language || 'en').replace('_', '-');
+    if (OSM_PARKING_PROVIDER_I18N[raw]) return OSM_PARKING_PROVIDER_I18N[raw];
+    const base = raw.split('-')[0];
+    return OSM_PARKING_PROVIDER_I18N[base] || OSM_PARKING_PROVIDER_I18N.en;
+  }
+
+  _pt(key) {
+    return this._providerTranslations()[key]
+      ?? OSM_PARKING_PROVIDER_I18N.en[key]
+      ?? key;
+  }
+
+  _availabilityText(suggestion) {
+    const free = Number(suggestion.free_capacity);
+    if (!Number.isFinite(free)) return '';
+    const capacity = Number(suggestion.capacity);
+    if (Number.isFinite(capacity)) {
+      return `${Math.round(free)}/${Math.round(capacity)} ${this._pt('available')}`;
+    }
+    return `${Math.round(free)} ${this._pt('available')}`;
+  }
+
+  _formatProviderTime(value) {
+    if (!value) return '';
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return String(value);
+    try {
+      return parsed.toLocaleString(this._hass?.language || undefined);
+    } catch (_) {
+      return String(value);
+    }
   }
 
   _statusTranslations() {
@@ -891,6 +943,25 @@ class OsmParkingMapCardV0311 extends HTMLElement {
       return true;
     }
 
+    if (attributes.partial_data) {
+      const providerErrors = attributes.provider_errors || {};
+      const detailsText = [
+        attributes.error || '',
+        ...Object.entries(providerErrors).map(([key, value]) => `${key}: ${value}`),
+      ].filter(Boolean).join('\n');
+
+      this._showStatus({
+        tone: 'info',
+        icon: 'mdi:database-alert-outline',
+        title: this._pt('partialTitle'),
+        message: this._pt('partialBody'),
+        details: detailsText,
+        actions: [
+          { label: this._st('retryNow'), handler: () => void this._retryNow() },
+        ],
+      });
+    }
+
     return false;
   }
 
@@ -999,17 +1070,26 @@ class OsmParkingMapCardV0311 extends HTMLElement {
     const access = suggestion.access && suggestion.access !== 'unknown'
       ? suggestion.access
       : '';
+    const availability = this._availabilityText(suggestion);
+    const provider = suggestion.provider_name && suggestion.provider !== 'osm'
+      ? String(suggestion.provider_name)
+      : '';
+    const updated = this._formatProviderTime(suggestion.realtime_updated_at);
 
     const lines = [
       distance && `<div class="popup-line">${this._esc(this._t('distance'))}: ${this._esc(distance)}</div>`,
       `<div class="popup-line">${this._esc(this._t('type'))}: ${this._esc(this._labelType(suggestion))}</div>`,
+      availability && `<div class="popup-line">${this._esc(this._pt('live'))}: ${this._esc(availability)}</div>`,
       price && `<div class="popup-line">${this._esc(this._t('price'))}: ${this._esc(price)}</div>`,
       access && `<div class="popup-line">${this._esc(this._t('access'))}: ${this._esc(access)}</div>`,
+      provider && `<div class="popup-line">${this._esc(this._pt('source'))}: ${this._esc(provider)}</div>`,
+      updated && `<div class="popup-line">${this._esc(this._pt('updated'))}: ${this._esc(updated)}</div>`,
     ].filter(Boolean).join('');
 
     const actions = [
       suggestion.navigation_url && `<a href="${this._esc(suggestion.navigation_url)}" target="_blank" rel="noopener">${this._esc(this._t('navigate'))}</a>`,
       suggestion.osm_url && `<a href="${this._esc(suggestion.osm_url)}" target="_blank" rel="noopener">OSM</a>`,
+      suggestion.provider_url && `<a href="${this._esc(suggestion.provider_url)}" target="_blank" rel="noopener">${this._esc(this._pt('source'))}</a>`,
     ].filter(Boolean).join('');
 
     return `<div class="popup-title">${this._esc(suggestion.name || `${this._t('parking')} ${index + 1}`)}</div>${lines}${actions ? `<div class="popup-actions">${actions}</div>` : ''}`;
@@ -1218,12 +1298,17 @@ class OsmParkingMapCardV0311 extends HTMLElement {
         ? `${Math.round(Number(suggestion.distance_m))} m`
         : '';
       const type = this._labelType(suggestion);
+      const availability = this._availabilityText(suggestion);
+      const provider = suggestion.provider_name && suggestion.provider !== 'osm'
+        ? String(suggestion.provider_name)
+        : '';
 
       row.innerHTML = `
         <div class="badge">${index + 1}</div>
         <div>
           <div class="row-title">${this._esc(suggestion.name || `${this._t('parking')} ${index + 1}`)}</div>
-          <div class="row-meta">${this._esc([distance, type].filter(Boolean).join(' · '))}</div>
+          <div class="row-meta">${this._esc([distance, type, availability].filter(Boolean).join(' · '))}</div>
+          ${provider ? `<div class="row-source">${this._esc(this._pt('source'))}: ${this._esc(provider)}</div>` : ''}
         </div>
         <div class="row-price">${this._esc(price)}</div>
       `;
