@@ -23,6 +23,8 @@
 ## Highlights
 
 - Worldwide OpenStreetMap / Overpass baseline plus automatic municipal and national open-data providers.
+- Source-quality ranking, deduplication and provider provenance with live, reported, estimated, predicted and static distinctions.
+- Optional Athens municipal controlled-parking zone overlays (off by default).
 - Live free-space/occupancy data is shown when a supported provider exposes it.
 - Zero-key public providers work automatically; Prague, NSW and Taiwan providers can be enabled with optional free developer credentials.
 - OSM/static operation is event-driven; periodic refresh is enabled only while realtime provider data is active or while a failed source is recovering.
@@ -161,6 +163,8 @@ OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worl
 | Provider | Coverage | Realtime | Credentials |
 | --- | --- | ---: | --- |
 | OpenStreetMap / Overpass | Worldwide | No | None |
+| İBB / İSPARK | İstanbul, Turkey | Reported counts, upstream measurement time not published | None |
+| İzmir Municipality / İZUM | İzmir, Turkey | Reported counts, upstream measurement time not published | None |
 | ParkAPI / MobiData BW | ParkAPI-covered Central European regions | When source provides it | None |
 | ParkenDD / ParkAPI | Supported European cities | Yes where upstream provides it | None |
 | Netherlands RDW Open Data | Netherlands | Static locations | None |
@@ -188,6 +192,20 @@ OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worl
 
 Provider results are normalized into the same parking model and conservatively merged with OSM results. When two sources describe the same facility, OSM links/descriptive data can be retained while the regional provider contributes live capacity, free spaces, opening status or provider metadata. Individual physical parking-bay feeds such as Melbourne can opt out of merging so nearby bays remain distinct.
 
+### Source-quality precedence and deduplication
+
+Parking facilities from different sources are conservatively deduplicated using nearby coordinates, meaningful name similarity and type compatibility. Different nearby garages stay separate; individual street bays and segments may explicitly opt out of merging. One facility keeps the strongest valid availability while OSM navigation links, prices and other missing metadata can enrich it.
+
+The source-quality order is: **verified live** (fresh upstream measurement timestamp), **reported** (plausible count but no publisher measurement time), **estimated occupancy**, **predicted occupancy**, then **static facility details**. Within the same category, newer verified measurements take precedence. Display attributes expose availability_kind, availability_source, availability_freshness, metadata_source, data_sources and deduplicated_source_count.
+
+İstanbul İSPARK and İzmir İZUM publish counts but not dependable upstream observation times in their parking-list responses. They are therefore **reported**, never timestamp-verified live. Their current-location feeds refresh every five minutes while a covered facility is in the search radius; API failures are isolated from OSM. The time at which Home Assistant downloaded the response is not the original measurement time. Unsupported parking tariffs are never invented. Pre-existing provider responses without upstream timestamps are likewise classified as reported when they contain plausible counts.
+
+### Athens experimental parking-zone layer
+
+To enable official Athens controlled-parking zone polygons, open **Settings → Devices & services → OSM Parking → Configure** and enable the Athens zone option. It is **off by default** because the city GIS WFS may be unavailable. Only geographically relevant Athens queries activate it.
+
+The bundled card draws Polygon/MultiPolygon boundaries independently of physical parking markers. Zone data is never counted as a free parking space, never deduplicated into a garage and does not imply legal parking permission. Always check local posted signs, permits, operating hours and fees. Card option **show_zones: false** hides the layer without changing integration options. A zone-feed failure triggers a partial-data notice while other valid parking results remain available.
+
 ### Optional provider credentials
 
 Open **Settings → Devices & services → OSM Parking → Configure** to add optional credentials. Leaving these fields empty has no effect on the automatic public providers.
@@ -201,6 +219,8 @@ Credentials are stored in the Home Assistant config entry and are redacted from 
 ### Refresh behaviour
 
 - **OSM/static data only:** startup + destination changes; no successful periodic polling.
+- **İstanbul and İzmir reported parking:** 5-minute refresh while facilities are nearby; not labelled verified live.
+- **Athens zone GIS:** opt-in, static response cached 24 hours; failures participate in existing recovery polling.
 - **Melbourne / Singapore / Madrid / St.Gallen / Málaga live data:** approximately 60-second refresh while live data is active.
 - **Strasbourg live data:** 3-minute refresh, matching the official source cadence.
 - **Lyon and Nantes live feeds:** 2-minute refresh while covered facilities are in range, including when upstream availability is temporarily invalid.
@@ -232,6 +252,10 @@ Helsinki's public statistics intentionally suppress exact occupancy when the rea
 ### Unsupported/private app feeds
 
 ParkOut and AthensWay are useful Athens parking services, but no stable documented public third-party API has been identified. OSM Parking does not scrape undocumented private/mobile endpoints. They can be added when an official read-only integration API or reusable open-data feed is available.
+
+## Worldwide provider expansion research
+
+See [the researched source inventory](docs/provider-research-2026-10-13.md), including Greek municipalities, European, Asian, North American and Australian candidates, expected API access and licensing restrictions. Listed candidates are **not automatically implemented**.
 
 ## Parking categories and result limits
 

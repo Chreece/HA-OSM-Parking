@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import math
 from typing import Any, Protocol
 
@@ -14,6 +14,7 @@ class ProviderFetchResult:
     provider: str
     suggestions: list[dict[str, Any]]
     live_refresh_seconds: int | None = None
+    zones: list[dict[str, Any]] = field(default_factory=list)
 
 
 class ParkingProvider(Protocol):

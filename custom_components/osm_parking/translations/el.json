@@ -53,14 +53,16 @@
           "tfnsw_api_key": "Κλειδί API TfNSW",
           "tdx_enabled": "Ενεργοποίηση παρόχου Taiwan TDX",
           "tdx_client_id": "TDX Client ID",
-          "tdx_client_secret": "TDX Client Secret"
+          "tdx_client_secret": "TDX Client Secret",
+          "athens_zones_enabled": "Εμφάνιση ζωνών ελεγχόμενης στάθμευσης Αθήνας (πειραματική υπηρεσία GIS)"
         },
         "data_description": {
           "destination_entity": "Στη λίστα εμφανίζονται αυτόματα μόνο οι συμβατές οντότητες. Αναμενόμενα γνωρίσματα: latitude + longitude ή lat + lon/lng. Παράδειγμα: latitude 50.9385, longitude 6.9829.",
           "golemio_api_key": "Προαιρετικό δωρεάν κλειδί προγραμματιστή από api.golemio.cz/api-keys. Χρησιμοποιείται μόνο για προορισμούς στην Πράγα.",
           "tfnsw_api_key": "Προαιρετικό κλειδί Transport for NSW Open Data API. Χρησιμοποιείται μόνο για προορισμούς στη Νέα Νότια Ουαλία.",
           "tdx_client_id": "Προαιρετικό TDX Client ID από το κέντρο μελών TDX. Απαιτούνται και Client ID και Client Secret.",
-          "tdx_client_secret": "Προαιρετικό TDX Client Secret. Αποθηκεύεται στην καταχώρηση του Home Assistant και αποκρύπτεται από τα διαγνωστικά."
+          "tdx_client_secret": "Προαιρετικό TDX Client Secret. Αποθηκεύεται στην καταχώρηση του Home Assistant και αποκρύπτεται από τα διαγνωστικά.",
+          "athens_zones_enabled": "Προαιρετικό και αρχικά ανενεργό: η υπηρεσία GIS του Δήμου μπορεί να μη λειτουργεί. Δείχνει μόνο όρια ζωνών, όχι δικαίωμα στάθμευσης· ελέγξτε τις πινακίδες."
         }
       }
     },

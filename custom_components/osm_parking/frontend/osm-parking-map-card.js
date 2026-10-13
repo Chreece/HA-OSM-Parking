@@ -517,6 +517,180 @@ const OSM_PARKING_STATUS_I18N = {
   },
 };
 
+const OSM_PARKING_QUALITY_I18N = {
+  "en": {
+    "reported": "Reported count (measurement time unverified)",
+    "liveUnverified": "Reported live feed (timestamp unavailable)",
+    "checked": "Checked at",
+    "sources": "sources",
+    "predicted": "Predicted occupancy"
+  },
+  "el": {
+    "reported": "Δηλωμένες θέσεις (χωρίς επιβεβαιωμένη ώρα μέτρησης)",
+    "liveUnverified": "Αναφερόμενα ζωντανά δεδομένα (χωρίς ώρα μέτρησης)",
+    "checked": "Έλεγχος στις",
+    "sources": "πηγές",
+    "predicted": "Προβλεπόμενη πληρότητα"
+  },
+  "de": {
+    "reported": "Gemeldete Plätze (Messzeit unbekannt)",
+    "liveUnverified": "Live-Meldung (Messzeit unbekannt)",
+    "checked": "Abgerufen",
+    "sources": "Quellen",
+    "predicted": "Prognostizierte Belegung"
+  },
+  "es": {
+    "reported": "Plazas comunicadas (sin hora de medición)",
+    "liveUnverified": "Feed en directo sin hora verificada",
+    "checked": "Consultado",
+    "sources": "fuentes",
+    "predicted": "Ocupación prevista"
+  },
+  "fr": {
+    "reported": "Places déclarées (heure de mesure inconnue)",
+    "liveUnverified": "Flux direct sans heure vérifiée",
+    "checked": "Consulté",
+    "sources": "sources",
+    "predicted": "Occupation prévue"
+  },
+  "it": {
+    "reported": "Posti segnalati (orario non verificato)",
+    "liveUnverified": "Dati in diretta senza ora verificata",
+    "checked": "Consultato",
+    "sources": "fonti",
+    "predicted": "Occupazione prevista"
+  },
+  "nl": {
+    "reported": "Gemelde plekken (meettijd onbekend)",
+    "liveUnverified": "Livefeed zonder meettijd",
+    "checked": "Opgehaald",
+    "sources": "bronnen",
+    "predicted": "Verwachte bezetting"
+  },
+  "pl": {
+    "reported": "Zgłoszone miejsca (czas pomiaru nieznany)",
+    "liveUnverified": "Dane na żywo bez czasu pomiaru",
+    "checked": "Sprawdzono",
+    "sources": "źródła",
+    "predicted": "Prognoza zajętości"
+  },
+  "pt": {
+    "reported": "Vagas comunicadas (hora da medição desconhecida)",
+    "liveUnverified": "Dados ao vivo sem hora confirmada",
+    "checked": "Consultado",
+    "sources": "fontes",
+    "predicted": "Ocupação prevista"
+  },
+  "pt-BR": {
+    "reported": "Vagas informadas (sem horário da medição)",
+    "liveUnverified": "Dados ao vivo sem hora confirmada",
+    "checked": "Consultado",
+    "sources": "fontes",
+    "predicted": "Ocupação prevista"
+  },
+  "ru": {
+    "reported": "Заявленные места (время измерения неизвестно)",
+    "liveUnverified": "Онлайн-данные без времени измерения",
+    "checked": "Проверено",
+    "sources": "источники",
+    "predicted": "Прогноз занятости"
+  },
+  "tr": {
+    "reported": "Bildirilen boş yer (ölçüm saati bilinmiyor)",
+    "liveUnverified": "Canlı akış (ölçüm saati bilinmiyor)",
+    "checked": "Kontrol",
+    "sources": "kaynak",
+    "predicted": "Tahmini doluluk"
+  },
+  "zh-Hans": {
+    "reported": "报告空位数（未核实测量时间）",
+    "liveUnverified": "实时数据（测量时间未知）",
+    "checked": "查询时间",
+    "sources": "数据源",
+    "predicted": "预测占用率"
+  },
+  "ja": {
+    "reported": "報告された空き（計測時刻は未確認）",
+    "liveUnverified": "ライブ配信（測定時刻不明）",
+    "checked": "照会時刻",
+    "sources": "情報元",
+    "predicted": "予測占有率"
+  }
+};
+
+const OSM_PARKING_ZONE_I18N = {
+  "en": {
+    "zone": "Controlled parking zone",
+    "zones": "regulated zones",
+    "signage": "Zone boundary only. Check posted signs, permits and hours."
+  },
+  "el": {
+    "zone": "Ζώνη ελεγχόμενης στάθμευσης",
+    "zones": "ζώνες ελεγχόμενης στάθμευσης",
+    "signage": "Μόνο όρια ζώνης. Ελέγξτε τις πινακίδες, τις άδειες και το ωράριο."
+  },
+  "de": {
+    "zone": "Bewirtschaftete Parkzone",
+    "zones": "Parkzonen",
+    "signage": "Nur Zonengrenze. Beschilderung, Berechtigungen und Zeiten prüfen."
+  },
+  "es": {
+    "zone": "Zona de estacionamiento regulado",
+    "zones": "zonas reguladas",
+    "signage": "Solo límite de la zona. Verifique señales, permisos y horarios."
+  },
+  "fr": {
+    "zone": "Zone de stationnement réglementé",
+    "zones": "zones réglementées",
+    "signage": "Limites de zone seulement. Vérifiez les panneaux, permis et horaires."
+  },
+  "it": {
+    "zone": "Zona a sosta regolamentata",
+    "zones": "zone regolamentate",
+    "signage": "Solo confini della zona. Verificare cartelli, permessi e orari."
+  },
+  "nl": {
+    "zone": "Gereguleerde parkeerzone",
+    "zones": "parkeerzones",
+    "signage": "Alleen zonegrens. Controleer borden, vergunningen en tijden."
+  },
+  "pl": {
+    "zone": "Strefa parkowania regulowanego",
+    "zones": "strefy parkowania",
+    "signage": "Tylko granica strefy. Sprawdź znaki, pozwolenia i godziny."
+  },
+  "pt": {
+    "zone": "Zona de estacionamento regulamentado",
+    "zones": "zonas regulamentadas",
+    "signage": "Apenas limites de zona. Consulte sinalização, licenças e horários."
+  },
+  "pt-BR": {
+    "zone": "Zona de estacionamento regulamentado",
+    "zones": "zonas regulamentadas",
+    "signage": "Apenas limites da zona. Consulte placas, permissões e horários."
+  },
+  "ru": {
+    "zone": "Зона регулируемой парковки",
+    "zones": "парковочные зоны",
+    "signage": "Только граница зоны. Проверяйте знаки, разрешения и часы."
+  },
+  "tr": {
+    "zone": "Kontrollü park bölgesi",
+    "zones": "park bölgeleri",
+    "signage": "Yalnızca bölge sınırı. Tabelaları, izinleri ve saatleri kontrol edin."
+  },
+  "zh-Hans": {
+    "zone": "受管制停车区域",
+    "zones": "受管制区域",
+    "signage": "仅显示区域边界。请核实路牌、许可与时段。"
+  },
+  "ja": {
+    "zone": "駐車規制区域",
+    "zones": "規制区域",
+    "signage": "区域境界のみ。標識・許可・時間帯を確認してください。"
+  }
+};
+
 class OsmParkingMapCardV070 extends HTMLElement {
   static getStubConfig() {
     return {
@@ -533,6 +707,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
       height: 430,
       show_list: true,
       show_destination: true,
+      show_zones: true,
       show_price: true,
       map_style: 'https://tiles.openfreemap.org/styles/liberty',
       ...config,
@@ -596,6 +771,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
       realtime_result_count: a.realtime_result_count,
       live_refresh_seconds: a.live_refresh_seconds,
       suggestions: a.suggestions,
+      parking_zones: a.parking_zones,
     });
 
     if (signature === this._lastSignature) return;
@@ -616,7 +792,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
             <div class="title"></div>
             <div class="subtitle"></div>
           </div>
-          <div class="headright"><span class="version">v0.9.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
+          <div class="headright"><span class="version">v1.0.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
         <div class="status-panel" hidden>
           <div class="status-head">
@@ -751,11 +927,29 @@ class OsmParkingMapCardV070 extends HTMLElement {
       ?? key;
   }
 
+  _qt(key) {
+    const raw = String(this._hass?.language || 'en').replace('_', '-');
+    const lang = OSM_PARKING_QUALITY_I18N[raw]
+      || OSM_PARKING_QUALITY_I18N[raw.split('-')[0]]
+      || OSM_PARKING_QUALITY_I18N.en;
+    return lang[key] || OSM_PARKING_QUALITY_I18N.en[key] || key;
+  }
+
+  _zt(key) {
+    const raw = String(this._hass?.language || 'en').replace('_', '-');
+    const dict = OSM_PARKING_ZONE_I18N[raw]
+      || OSM_PARKING_ZONE_I18N[raw.split('-')[0]]
+      || OSM_PARKING_ZONE_I18N.en;
+    return dict[key] || OSM_PARKING_ZONE_I18N.en[key] || key;
+  }
+
   _availabilityText(suggestion) {
+    const kind = suggestion.availability_kind || (suggestion.has_realtime_data ? 'live' : 'static');
+    if (!['live', 'reported'].includes(kind) || suggestion.free_capacity == null) return '';
     const free = Number(suggestion.free_capacity);
-    if (!Number.isFinite(free)) return '';
-    const capacity = Number(suggestion.capacity);
-    if (Number.isFinite(capacity)) {
+    if (!Number.isFinite(free) || free < 0) return '';
+    const capacity = suggestion.capacity == null ? NaN : Number(suggestion.capacity);
+    if (Number.isFinite(capacity) && capacity >= free) {
       return `${Math.round(free)}/${Math.round(capacity)} ${this._pt('available')}`;
     }
     return `${Math.round(free)} ${this._pt('available')}`;
@@ -769,9 +963,10 @@ class OsmParkingMapCardV070 extends HTMLElement {
   }
 
   _estimatedOccupancyText(suggestion) {
-    let percent = Number(suggestion.estimated_occupancy_percent);
+    if (suggestion.availability_kind && suggestion.availability_kind !== 'estimated') return '';
+    let percent = suggestion.estimated_occupancy_percent == null ? NaN : Number(suggestion.estimated_occupancy_percent);
     if (!Number.isFinite(percent)) {
-      const ratio = Number(suggestion.estimated_occupancy_ratio);
+      const ratio = suggestion.estimated_occupancy_ratio == null ? NaN : Number(suggestion.estimated_occupancy_ratio);
       if (Number.isFinite(ratio)) percent = ratio * 100;
     }
     if (!Number.isFinite(percent)) return '';
@@ -1114,20 +1309,31 @@ class OsmParkingMapCardV070 extends HTMLElement {
       ? suggestion.access
       : '';
     const availability = this._availabilityText(suggestion);
+    const kind = suggestion.availability_kind || (suggestion.has_realtime_data ? 'live' : 'static');
+    const availabilityLabel = kind === 'reported'
+      ? this._qt('reported')
+      : suggestion.availability_freshness === 'unverified'
+        ? this._qt('liveUnverified') : this._pt('live');
     const estimatedOccupancy = this._estimatedOccupancyText(suggestion);
+    const prediction = kind === 'predicted' && suggestion.predicted_occupancy_percent != null
+      ? Number(suggestion.predicted_occupancy_percent) : NaN;
     const provider = suggestion.provider_name && suggestion.provider !== 'osm'
       ? String(suggestion.provider_name)
       : '';
-    const updated = this._formatProviderTime(suggestion.realtime_updated_at);
+    const updated = kind === 'live' ? this._formatProviderTime(suggestion.realtime_updated_at) : '';
+    const checked = kind === 'reported' ? this._formatProviderTime(suggestion.availability_checked_at) : '';
+    const sourceCount = Number(suggestion.deduplicated_source_count) || 0;
 
     const lines = [
       distance && `<div class="popup-line">${this._esc(this._t('distance'))}: ${this._esc(distance)}</div>`,
       `<div class="popup-line">${this._esc(this._t('type'))}: ${this._esc(this._labelType(suggestion))}</div>`,
-      availability && `<div class="popup-line">${this._esc(this._pt('live'))}: ${this._esc(availability)}</div>`,
+      availability && `<div class="popup-line">${this._esc(availabilityLabel)}: ${this._esc(availability)}</div>`,
+      Number.isFinite(prediction) && prediction >= 0 && prediction <= 100 && `<div class="popup-line">${this._esc(this._qt('predicted'))}: ${Math.round(prediction)}%</div>`,
       estimatedOccupancy && `<div class="popup-line">${this._esc(this._estimatedTranslations().label)}: ${this._esc(estimatedOccupancy)}</div>`,
       price && `<div class="popup-line">${this._esc(this._t('price'))}: ${this._esc(price)}</div>`,
       access && `<div class="popup-line">${this._esc(this._t('access'))}: ${this._esc(access)}</div>`,
-      provider && `<div class="popup-line">${this._esc(this._pt('source'))}: ${this._esc(provider)}</div>`,
+      provider && `<div class="popup-line">${this._esc(this._pt('source'))}: ${this._esc(provider)}${sourceCount > 1 ? ` · ${sourceCount} ${this._esc(this._qt('sources'))}` : ''}</div>`,
+      checked && `<div class="popup-line">${this._esc(this._qt('checked'))}: ${this._esc(checked)}</div>`,
       updated && `<div class="popup-line">${this._esc(this._pt('updated'))}: ${this._esc(updated)}</div>`,
     ].filter(Boolean).join('');
 
@@ -1145,6 +1351,51 @@ class OsmParkingMapCardV070 extends HTMLElement {
     this._markers = [];
   }
 
+  _updateZoneOverlay(zones) {
+    if (!this._map?.isStyleLoaded()) return;
+    const id = 'osm-parking-controlled-zones';
+    const valid = (this.config.show_zones !== false ? zones : []).filter(zone =>
+      zone?.type === 'Feature'
+      && ['Polygon', 'MultiPolygon'].includes(zone?.geometry?.type)
+      && zone?.properties?.record_type === 'zone',
+    );
+    const data = { type: 'FeatureCollection', features: valid };
+    const source = this._map.getSource(id);
+    if (source) {
+      source.setData(data);
+      return;
+    }
+    if (!valid.length) return;
+    this._map.addSource(id, { type: 'geojson', data });
+    this._map.addLayer({
+      id: `${id}-fill`, type: 'fill', source: id,
+      paint: { 'fill-color': '#d18c23', 'fill-opacity': 0.19 },
+    });
+    this._map.addLayer({
+      id: `${id}-border`, type: 'line', source: id,
+      paint: { 'line-color': '#bd7914', 'line-width': 2 },
+    });
+    this._map.on('click', `${id}-fill`, event => {
+      const properties = event.features?.[0]?.properties;
+      if (!properties) return;
+      const name = this._esc(properties.name || this._zt('zone'));
+      const sourceUrl = String(properties.provider_url || '');
+      const link = sourceUrl.startsWith('https://')
+        ? `<div class="popup-actions"><a href="${this._esc(sourceUrl)}" target="_blank" rel="noopener">${this._esc(this._pt('source'))}</a></div>`
+        : '';
+      new maplibregl.Popup({ offset: 12 })
+        .setLngLat(event.lngLat)
+        .setHTML(`<div class="popup-title">${name}</div><div class="popup-line">${this._esc(this._zt('signage'))}</div>${link}`)
+        .addTo(this._map);
+    });
+    this._map.on('mouseenter', `${id}-fill`, () => {
+      this._map.getCanvas().style.cursor = 'pointer';
+    });
+    this._map.on('mouseleave', `${id}-fill`, () => {
+      this._map.getCanvas().style.cursor = '';
+    });
+  }
+
   async _update() {
     this._hideStatus();
     this._setContentVisible(true);
@@ -1159,6 +1410,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
     const suggestions = Array.isArray(attributes.suggestions)
       ? attributes.suggestions
       : [];
+    const zones = Array.isArray(attributes.parking_zones) ? attributes.parking_zones : [];
 
     this._els.title.textContent = this.config.title || this._t('title');
     const subtitle = [];
@@ -1167,6 +1419,8 @@ class OsmParkingMapCardV070 extends HTMLElement {
       subtitle.push(
         `${suggestions.length} ${this._t(suggestions.length === 1 ? 'suggestion' : 'suggestions')}`,
       );
+    } else if (zones.length && this.config.show_zones !== false) {
+      subtitle.push(`${zones.length} ${this._zt('zones')}`);
     } else if (this._stateObj?.state === 'waiting') {
       subtitle.push(this._t('waiting'));
     } else {
@@ -1248,6 +1502,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
       return;
     }
 
+    this._updateZoneOverlay(zones);
     this._clearMarkers();
     const bounds = new maplibregl.LngLatBounds();
 
@@ -1311,6 +1566,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
 
     if (
       suggestions.length === 0
+      && (zones.length === 0 || this.config.show_zones === false)
       && attributes.status === 'ok'
       && !attributes.error
     ) {
@@ -1344,6 +1600,10 @@ class OsmParkingMapCardV070 extends HTMLElement {
         : '';
       const type = this._labelType(suggestion);
       const availability = this._availabilityText(suggestion);
+      const kind = suggestion.availability_kind || (suggestion.has_realtime_data ? 'live' : 'static');
+      const availabilityMeta = availability
+        ? `${kind === 'reported' ? this._qt('reported') : this._pt('live')}: ${availability}`
+        : '';
       const estimatedOccupancy = this._estimatedOccupancyText(suggestion);
       const estimatedMeta = estimatedOccupancy
         ? `${this._estimatedTranslations().label}: ${estimatedOccupancy}`
@@ -1356,7 +1616,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
         <div class="badge">${index + 1}</div>
         <div>
           <div class="row-title">${this._esc(suggestion.name || `${this._t('parking')} ${index + 1}`)}</div>
-          <div class="row-meta">${this._esc([distance, type, availability, estimatedMeta].filter(Boolean).join(' · '))}</div>
+          <div class="row-meta">${this._esc([distance, type, availabilityMeta, estimatedMeta].filter(Boolean).join(' · '))}</div>
           ${provider ? `<div class="row-source">${this._esc(this._pt('source'))}: ${this._esc(provider)}</div>` : ''}
         </div>
         <div class="row-price">${this._esc(price)}</div>
