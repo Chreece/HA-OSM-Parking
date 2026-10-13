@@ -1021,7 +1021,8 @@ class OsmParkingMapCardV0310 extends HTMLElement {
   }
 
   async _update() {
-    this._hideError();
+    this._hideStatus();
+    this._setContentVisible(true);
 
     const attributes = this._stateObj?.attributes || {};
     const destinationLat = this._n(attributes.destination_latitude);
@@ -1048,44 +1049,78 @@ class OsmParkingMapCardV0310 extends HTMLElement {
     }
     this._els.subtitle.textContent = subtitle.join(' · ');
 
+    if (this._showBackendStatus(attributes)) {
+      this._setContentVisible(false);
+      return;
+    }
+
     if (destinationLat == null || destinationLon == null) {
-      this._showError(
-        attributes.error || this._t('coords'),
-      );
+      this._setContentVisible(false);
+      this._showStatus({
+        tone: 'warning',
+        icon: 'mdi:crosshairs-question',
+        title: this._st('sourceCoordsTitle'),
+        message: this._st('sourceCoordsBody'),
+        details: attributes.error || this._t('coords'),
+        actions: [
+          ...(attributes.destination_entity ? [{
+            label: this._st('openSource'),
+            handler: () => this._openSource(attributes.destination_entity),
+          }] : []),
+          { label: this._st('retryNow'), handler: () => void this._retryNow() },
+          { label: this._st('settings'), handler: () => this._openSettings() },
+        ],
+      });
       return;
     }
 
     try {
       await this._ensureMapLibre();
-    } catch (error) {
-      this._showError(error.message);
-      return;
-    }
 
-    if (!this._map) {
-      this._map = new maplibregl.Map({
-        container: this._els.map,
-        style: this.config.map_style,
-        center: [destinationLon, destinationLat],
-        zoom: 15,
-        attributionControl: true,
-      });
-      this._map.addControl(
-        new maplibregl.NavigationControl({ showCompass: false }),
-        'top-right',
-      );
-
-      await new Promise((resolve, reject) => {
-        if (this._map.loaded()) {
-          resolve();
-          return;
-        }
-        this._map.once('load', resolve);
-        this._map.once(
-          'error',
-          event => reject(event?.error || new Error('Map failed to load')),
+      if (!this._map) {
+        this._map = new maplibregl.Map({
+          container: this._els.map,
+          style: this.config.map_style,
+          center: [destinationLon, destinationLat],
+          zoom: 15,
+          attributionControl: true,
+        });
+        this._map.addControl(
+          new maplibregl.NavigationControl({ showCompass: false }),
+          'top-right',
         );
+
+        await new Promise((resolve, reject) => {
+          if (this._map.loaded()) {
+            resolve();
+            return;
+          }
+          this._map.once('load', resolve);
+          this._map.once(
+            'error',
+            event => reject(event?.error || new Error('Map failed to load')),
+          );
+        });
+      }
+    } catch (error) {
+      try {
+        this._map?.remove();
+      } catch (_) {
+        // Ignore cleanup errors from a partially initialized map.
+      }
+      this._map = null;
+      this._setContentVisible(false);
+      this._showStatus({
+        tone: 'error',
+        icon: 'mdi:map-marker-off-outline',
+        title: this._st('mapTitle'),
+        message: this._st('mapBody'),
+        details: error?.message || String(error),
+        actions: [
+          { label: this._st('retryNow'), handler: () => void this._update() },
+        ],
       });
+      return;
     }
 
     this._clearMarkers();
@@ -1148,6 +1183,24 @@ class OsmParkingMapCardV0310 extends HTMLElement {
     }
 
     setTimeout(() => this._map?.resize(), 0);
+
+    if (
+      suggestions.length === 0
+      && attributes.status === 'ok'
+      && !attributes.error
+    ) {
+      this._showStatus({
+        tone: 'info',
+        icon: 'mdi:information-outline',
+        title: this._st('noResultsTitle'),
+        message: this._st('noResultsBody'),
+        actions: [
+          { label: this._st('settings'), handler: () => this._openSettings() },
+          { label: this._st('retryNow'), handler: () => void this._retryNow() },
+        ],
+      });
+    }
+
     this._renderList(suggestions);
   }
 
