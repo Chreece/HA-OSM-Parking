@@ -24,7 +24,7 @@ def style(dark=True):
         features.append({'type':'Feature','geometry':{'type':'LineString','coordinates':[[x,50.915],[x+.008,50.960]]},'properties':{}})
         y=50.938+n*.001
         features.append({'type':'Feature','geometry':{'type':'LineString','coordinates':[[6.950,y],[7.015,y+.002]]},'properties':{}})
-    return {'version':8,'name':'Offline map fixture',
+    return {'version':8,'name':'Offline map fixture - '+('dark' if dark else 'light'),
             'sources':{'fixture':{'type':'geojson','attribution':'Offline map fixture — not geographic evidence','data':{'type':'FeatureCollection','features':features}}},
             'layers':[{'id':'background','type':'background','paint':{'background-color':'#14222d' if dark else '#edf1f3'}},
                       {'id':'roads','type':'line','source':'fixture','paint':{'line-color':'#3a5060' if dark else '#c7d1d7','line-width':3}}]}
@@ -135,13 +135,15 @@ with sync_playwright() as p:
         page.locator('.fit').click()
 
         page.evaluate('window.applyTheme(false)')
-        page.wait_for_function("window.card._style.endsWith('/liberty') && window.card._map.isStyleLoaded() && !!window.card._map.getLayer('osm-parking-controlled-zones-fill')")
+        page.wait_for_function("window.card._style.endsWith('/liberty') && window.card._map.getStyle()?.name==='Offline map fixture - light' && window.card._map.isStyleLoaded() && !!window.card._map.getLayer('osm-parking-controlled-zones-fill')")
+        page.evaluate("() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))")
         assert page.locator('osm-parking-map-card').get_attribute('data-mode')=='light'
         assert page.locator('.osm-park-marker').count()==5
         page.screenshot(path=str(OUT/'desktop-light.png'),full_page=True)
         report['screenshots'].append('desktop-light.png')
         page.evaluate('window.applyTheme(true)')
-        page.wait_for_function("window.card._style.endsWith('/dark') && window.card._map.isStyleLoaded() && !!window.card._map.getLayer('osm-parking-controlled-zones-fill')")
+        page.wait_for_function("window.card._style.endsWith('/dark') && window.card._map.getStyle()?.name==='Offline map fixture - dark' && window.card._map.isStyleLoaded() && !!window.card._map.getLayer('osm-parking-controlled-zones-fill')")
+        page.evaluate("() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))")
         checked('HA theme switch preserves markers and controlled-zone overlays')
         page.locator('.expand').click()
         assert page.locator('.map').evaluate('(e)=>e.getBoundingClientRect().height')>=400

@@ -342,7 +342,10 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     if(!this._map) return;
     const style=this._styleURL();if(style===this._style) return;
     this._style=style;this._fallbackStyle=false;
-    this._map.setStyle(style); // Camera and HTML markers are intentionally retained.
+    // A style diff can omit style.load while removing our custom zone layer.
+    // Rebuild the stylesheet only, retaining the map, camera and HTML markers;
+    // the existing style.load handler then restores zone sources reliably.
+    this._map.setStyle(style, {diff:false});
     clearTimeout(this._styleTimer);this._styleTimer=setTimeout(()=>this._mapFailure(new Error('Map style timed out')),15000);
   }
   _mapFailure(error) {
