@@ -94,6 +94,11 @@ attributes:
 
 ## Dashboard card
 
+### Card loading and browser cache
+
+In normal Home Assistant storage mode, OSM Parking registers its bundled card as a versioned Lovelace module resource. This avoids dashboard/card startup races and stale ES-module caching after Home Assistant restarts or integration updates. YAML resource mode falls back to Home Assistant's frontend extra-module loader.
+
+
 The integration serves and registers its card automatically. Point the card at the **OSM Parking sensor**, not the source/geocode sensor:
 
 ```yaml
