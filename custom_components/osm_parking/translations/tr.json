@@ -34,7 +34,7 @@
     "step": {
       "init": {
         "title": "OSM Park seçenekleri",
-        "description": "Şu anda uyumlu olan bir hedef varlık seçin ve aramayı yapılandırın. Desteklenen koordinat öznitelikleri latitude + longitude veya lat + lon/lng'dir.",
+        "description": "Aramayı ve isteğe bağlı bölgesel sağlayıcıları yapılandırın. Anahtarsız açık sağlayıcılar otomatik olarak kullanılır. Kimlik bilgisi isteyen sağlayıcılar yalnızca etkinleştirilmiş, yapılandırılmış ve hedef kapsama alanındaysa kullanılır.",
         "data": {
           "destination_entity": "Hedef varlık",
           "radius_m": "Arama yarıçapı",
@@ -46,10 +46,21 @@
           "category_multi_storey_enabled": "Çok katlı otoparkları dahil et",
           "category_park_and_ride_enabled": "Park & Ride dahil et",
           "category_other_enabled": "Diğer park alanlarını dahil et",
-          "max_results": "Kategori başına azami sonuç"
+          "max_results": "Kategori başına azami sonuç",
+          "golemio_enabled": "Prag Golemio sağlayıcısını etkinleştir",
+          "golemio_api_key": "Golemio API anahtarı",
+          "tfnsw_enabled": "Transport for NSW sağlayıcısını etkinleştir",
+          "tfnsw_api_key": "TfNSW API anahtarı",
+          "tdx_enabled": "Taiwan TDX sağlayıcısını etkinleştir",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret"
         },
         "data_description": {
-          "destination_entity": "Yalnızca uyumlu varlıklar otomatik olarak listelenir. Beklenen öznitelikler: latitude + longitude veya lat + lon/lng. Örnek: latitude 50.9385, longitude 6.9829."
+          "destination_entity": "Yalnızca uyumlu varlıklar otomatik olarak listelenir. Beklenen öznitelikler: latitude + longitude veya lat + lon/lng. Örnek: latitude 50.9385, longitude 6.9829.",
+          "golemio_api_key": "api.golemio.cz/api-keys adresinden isteğe bağlı ücretsiz geliştirici anahtarı. Yalnızca Prag hedefleri için kullanılır.",
+          "tfnsw_api_key": "İsteğe bağlı Transport for NSW Open Data API anahtarı. Yalnızca NSW hedefleri için kullanılır.",
+          "tdx_client_id": "TDX üye merkezinden isteğe bağlı TDX Client ID. Client ID ve Client Secret birlikte gereklidir.",
+          "tdx_client_secret": "İsteğe bağlı TDX Client Secret. Home Assistant yapılandırma girdisinde saklanır ve tanılama verilerinde gizlenir."
         }
       }
     },
