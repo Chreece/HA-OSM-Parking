@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OSM Parking · Compact card preview</title>
+<style>
+:root{color-scheme:dark;--primary-text-color:#e6edf0;--secondary-text-color:#a1aeb8;--card-background-color:#152028;--secondary-background-color:#1e2b34;--divider-color:#2d3b44;--ha-card-border-radius:20px;--ha-card-box-shadow:0 12px 40px #0002;--primary-color:#69dfc4;--error-color:#df8a85}
+html{background:#0c141b;color:var(--primary-text-color);font:14px Arial,sans-serif}body{margin:0;padding:30px 20px 50px;min-height:100vh;box-sizing:border-box}.demo-heading{max-width:540px;margin:0 auto 17px}.eyebrow{font-size:10px;letter-spacing:2px;color:#69dfc4;margin:0 0 7px;font-weight:700}.demo-heading h1{font-size:25px;letter-spacing:-.8px;margin:0 0 7px;font-weight:600}.description{font-size:12px;color:var(--secondary-text-color);line-height:1.6;margin:0}.demo-tools{max-width:540px;margin:15px auto;display:flex;align-items:center;gap:8px}.demo-tools button,.demo-tools select{padding:8px 12px;color:inherit;background:var(--secondary-background-color);border:1px solid var(--divider-color);border-radius:8px;font:inherit;font-size:12px}main{max-width:540px;margin:auto}.test-sibling{display:none}body.light{--primary-text-color:#1b2e37;--secondary-text-color:#62747f;--card-background-color:#fff;--secondary-background-color:#f1f5f4;--divider-color:#d9e3e3;--primary-color:#087e73;color-scheme:light;background:#edf3f2;color:var(--primary-text-color)}@media(max-width:420px){body{padding:18px 10px 30px}.demo-heading h1{font-size:22px}.description{font-size:11px}}
+</style>
+<header class="demo-heading"><p class="eyebrow">OSM PARKING / UI PREVIEW</p><h1>Less map. More useful detail.</h1><p class="description">Working card UI with sample parking data and an offline schematic.<br>This preview does not show your Home Assistant or live map tiles.</p></header>
+<div class="demo-tools"><button id="toggle">Light / dark</button><select id="language"><option value="en">English</option><option value="el">Ελληνικά</option><option value="de">Deutsch</option></select></div>
+<div class="test-sibling"><h2 class="title">Outside card title</h2><div class="list">Outside card content</div></div>
+<main><osm-parking-map-card id="parking"></osm-parking-map-card></main>
+<script src="legacy-adapter.js"></script><script src="mock-map.js"></script><script src="../modern-card-extension.js"></script>
+<script>
+customElements.define('osm-parking-map-card',OsmParkingMapCardCompact);
+const card=document.querySelector('#parking');card.setConfig({entity:'sensor.parking_suggestions',map_height:250});
+const sample=[
+ {name:'Rheinpark Garage',distance_m:180,category:'underground',parking_type:'underground',latitude:50.9389,longitude:6.9814,fee:'yes',price:'€2.50 / h',availability_kind:'live',has_realtime_data:true,free_capacity:28,capacity:240,provider:'city',provider_name:'Municipal parking feed',data_sources:['city','openstreetmap'],realtime_updated_at:new Date().toISOString()},
+ {name:'Deutzer Freiheit',distance_m:320,category:'street',parking_type:'street_side',latitude:50.9378,longitude:6.9846,fee:'no',availability_kind:'static',provider:'osm',provider_name:'OpenStreetMap',capacity:18,access:'public'},
+ {name:'Messe / Deutz P+R',distance_m:650,category:'park_and_ride',parking_type:'park_and_ride',latitude:50.9414,longitude:6.9870,fee:'yes',price:'€4.00 / day',availability_kind:'reported',free_capacity:74,capacity:310,availability_checked_at:new Date().toISOString(),provider:'regional',provider_name:'Regional parking service'},
+ {name:'Lanxess Arena P2',distance_m:820,category:'multi_storey',parking_type:'multi_storey',latitude:50.9364,longitude:6.9896,fee:'yes',price:'€3.00 / h',availability_kind:'estimated',estimated_occupancy_percent:62,provider:'estimate',provider_name:'Published occupancy estimate'},
+ {name:'Riverside Surface Parking',distance_m:1300,category:'open',parking_type:'surface',latitude:50.9351,longitude:6.9784,fee:'unknown',availability_kind:'static',provider:'osm',provider_name:'OpenStreetMap',capacity:35},
+];
+sample.forEach((p,i)=>{p.provider_id=`sample:${i}`;p.navigation_url=`https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}`;p.osm_url='https://www.openstreetmap.org';p.provider_url='https://www.openstreetmap.org';p.address='Illustrative example — not a real availability reading';});
+const originalSamples=JSON.stringify(sample);
+window.serviceCalls=[];
+function makeHass(items=sample){return{language:document.querySelector('#language').value,themes:{darkMode:!document.body.classList.contains('light')},user:{id:'preview'},states:{'sensor.parking_suggestions':{state:'ok',attributes:{status:'ok',destination_entity:'sensor.destination',destination_name:'LANXESS arena · Köln',destination_latitude:50.9385,destination_longitude:6.9829,radius_m:1500,suggestions:items,parking_zones:[]}}},callService:async(...args)=>window.serviceCalls.push(args)};}
+window.sample=sample;window.makeHass=makeHass;window.card=card;window.pushHass=()=>card.hass=makeHass();pushHass();
+document.querySelector('#toggle').onclick=()=>{document.body.classList.toggle('light');pushHass();};document.querySelector('#language').onchange=()=>pushHass();
+</script></html>

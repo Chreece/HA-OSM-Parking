@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.3.0b1
+
+### Pre-release
+
+- Compact theme-aware map, modern result cards, runtime filters and sorting.
+- Graphical card editor, direct navigation and coordinated list/map selection.
+- Existing providers, credentials and four-step setup remain unchanged.
+- Opt-in beta only; v1.2.0 remains the stable release.
+- See [beta installation and test limitations](docs/card-redesign-beta.md).
+
 ## v1.2.0
 
 ### Added
