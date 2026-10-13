@@ -1,0 +1,60 @@
+{
+  "title": "Parking OSM",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Parking OSM",
+        "description": "Wybierz encję docelową spośród wykrytych poniżej zgodnych encji. Zgodna encja musi udostępniać liczbowe atrybuty latitude + longitude albo lat + lon/lng. Wyszukiwanie jest odświeżane po zmianie celu lub uruchomieniu Home Assistant.",
+        "data": {
+          "destination_entity": "Encja docelowa",
+          "radius_m": "Promień wyszukiwania",
+          "include_restricted": "Uwzględnij parking ograniczony/prywatny",
+          "category_paid_enabled": "Uwzględnij parking płatny",
+          "category_open_enabled": "Uwzględnij parking otwarty / naziemny",
+          "category_street_enabled": "Uwzględnij parkowanie przy ulicy",
+          "category_underground_enabled": "Uwzględnij parking podziemny",
+          "category_multi_storey_enabled": "Uwzględnij parking wielopoziomowy",
+          "category_park_and_ride_enabled": "Uwzględnij Park & Ride",
+          "category_other_enabled": "Uwzględnij inne parkingi",
+          "max_results": "Maksymalna liczba wyników na kategorię"
+        },
+        "data_description": {
+          "destination_entity": "Automatycznie wyświetlane są tylko zgodne encje. Wymagane atrybuty: latitude + longitude albo lat + lon/lng. Przykład: latitude 50.9385, longitude 6.9829."
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "Wybrana encja jest niedostępna lub obecnie nie udostępnia prawidłowych współrzędnych."
+    },
+    "abort": {
+      "already_configured": "Ta encja docelowa jest już skonfigurowana."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opcje Parking OSM",
+        "description": "Wybierz aktualnie zgodną encję docelową i skonfiguruj wyszukiwanie. Obsługiwane atrybuty to latitude + longitude albo lat + lon/lng.",
+        "data": {
+          "destination_entity": "Encja docelowa",
+          "radius_m": "Promień wyszukiwania",
+          "include_restricted": "Uwzględnij parking ograniczony/prywatny",
+          "category_paid_enabled": "Uwzględnij parking płatny",
+          "category_open_enabled": "Uwzględnij parking otwarty / naziemny",
+          "category_street_enabled": "Uwzględnij parkowanie przy ulicy",
+          "category_underground_enabled": "Uwzględnij parking podziemny",
+          "category_multi_storey_enabled": "Uwzględnij parking wielopoziomowy",
+          "category_park_and_ride_enabled": "Uwzględnij Park & Ride",
+          "category_other_enabled": "Uwzględnij inne parkingi",
+          "max_results": "Maksymalna liczba wyników na kategorię"
+        },
+        "data_description": {
+          "destination_entity": "Automatycznie wyświetlane są tylko zgodne encje. Wymagane atrybuty: latitude + longitude albo lat + lon/lng. Przykład: latitude 50.9385, longitude 6.9829."
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "Wybrana encja jest niedostępna lub obecnie nie udostępnia prawidłowych współrzędnych."
+    }
+  }
+}
