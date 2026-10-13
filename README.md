@@ -163,6 +163,9 @@ OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worl
 | Provider | Coverage | Realtime | Credentials |
 | --- | --- | ---: | --- |
 | OpenStreetMap / Overpass | Worldwide | No | None |
+| Ville de Paris Open Data / BNLS | Paris concession garages | Static capacity, tariffs, accessibility | None |
+| Ayuntamiento de Zaragoza | Zaragoza public garages | Static facilities, no occupancy | None |
+| Singapore URA | Singapore URA car parks | Reported available car lots (timestamp not supplied) | Optional URA access key |
 | İBB / İSPARK | İstanbul, Turkey | Reported counts, upstream measurement time not published | None |
 | İzmir Municipality / İZUM | İzmir, Turkey | Reported counts, upstream measurement time not published | None |
 | ParkAPI / MobiData BW | ParkAPI-covered Central European regions | When source provides it | None |
@@ -192,6 +195,13 @@ OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worl
 
 Provider results are normalized into the same parking model and conservatively merged with OSM results. When two sources describe the same facility, OSM links/descriptive data can be retained while the regional provider contributes live capacity, free spaces, opening status or provider metadata. Individual physical parking-bay feeds such as Melbourne can opt out of merging so nearby bays remain distinct.
 
+### Paris, Zaragoza and Singapore URA data integrity
+
+- **Paris:** The official BNLS stationnement-en-ouvrage catalog uses WGS84, stable national garage IDs, one-hour tariffs and static total/accessible/EV capacities. Refreshed roughly twice yearly; never labelled live. Subscriber-only sites are excluded unless restricted parking is enabled.
+- **Zaragoza:** The documented municipal REST inventory provides public car-park locations and optional static capacity. Its map displays separate VINCI occupancy and **estimated** controlled-street occupancy, but no verified open API contract for those measurements has been established. The integration does not invent counts.
+- **Singapore URA:** The official Car_Park_Details and Car_Park_Availability feeds use an optional AccessKey and daily token. SVY21 coordinates are transformed to WGS84; only passenger-car lots (lotType C) are considered. Numbers are **reported**, never verified live, because the availability feed has no producer measurement timestamp. The unrelated 26 MB quarterly individual-lot GeoJSON is not downloaded as facility points.
+- All new data stays subject to the existing best-valid-source deduplication. Municipal provider failure cannot erase other successful sources.
+
 ### Source-quality precedence and deduplication
 
 Parking facilities from different sources are conservatively deduplicated using nearby coordinates, meaningful name similarity and type compatibility. Different nearby garages stay separate; individual street bays and segments may explicitly opt out of merging. One facility keeps the strongest valid availability while OSM navigation links, prices and other missing metadata can enrich it.
@@ -213,12 +223,15 @@ Open **Settings → Devices & services → OSM Parking → Configure** to add op
 - **Prague Golemio** — create a free key at `api.golemio.cz/api-keys`; used only for destinations in Prague.
 - **Transport for NSW** — use a Transport for NSW Open Data API key; used only for NSW destinations.
 - **Taiwan TDX** — enter the Client ID and Client Secret from the TDX member center; OAuth access tokens are obtained and cached automatically.
+- **Singapore URA** — register at the [official URA data API](https://eservice.ura.gov.sg/maps/api/) to obtain an AccessKey, then enter it in OSM Parking options. A daily API token is generated automatically; no URA requests occur without your key. The key is redacted from diagnostics.
 
 Credentials are stored in the Home Assistant config entry and are redacted from diagnostics.
 
 ### Refresh behaviour
 
 - **OSM/static data only:** startup + destination changes; no successful periodic polling.
+- **Paris BNLS and Zaragoza:** static catalog cached 24 hours, with no successful background polling.
+- **Singapore URA:** with user access key, car park details cached 12 hours, token cached up to 20 hours, reported availability refreshed about every 5 minutes if nearby facilities are found.
 - **İstanbul and İzmir reported parking:** 5-minute refresh while facilities are nearby; not labelled verified live.
 - **Athens zone GIS:** opt-in, static response cached 24 hours; failures participate in existing recovery polling.
 - **Melbourne / Singapore / Madrid / St.Gallen / Málaga live data:** approximately 60-second refresh while live data is active.

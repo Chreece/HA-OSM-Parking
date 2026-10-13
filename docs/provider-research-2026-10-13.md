@@ -45,6 +45,26 @@ and authorized public third-party integration API.
 | Brisbane, Australia | https://www.data.brisbane.qld.gov.au/ | Municipal inventories and occupancy predictions | Forecasts must be marked predicted, not free-space measurements |
 | Austria, countrywide | https://www.oeamtc.at/ | Car-park availability services | Contract or paid access; do not silently use as free public API |
 
+## Additional official sources researched for v1.1.0
+
+The following data sources are **candidates**, not new implemented providers:
+
+| Location | Official data source | Possible addition | Qualification |
+| --- | --- | --- | --- |
+| Toulouse, France | https://data.toulouse-metropole.fr/explore/dataset/parcs-de-stationnement/ | BNLS-style catalog of 23 public garages, refreshed monthly, Etalab Open Licence v2 | Static inventory, not live vacant bays |
+| Toulouse, France | https://data.toulouse-metropole.fr/explore/dataset/aires-et-poches-de-stationnement/ | 371 public surface parking pockets (Oct 2026) | Separate from garages; some attributes contain HTML strings |
+| Toulouse, France | https://data.toulouse-metropole.fr/explore/dataset/stationnement-reglementation-zones/ | 248 regulated-parking zone geometries | Do not infer permission, fee or availability from zones alone |
+| Bordeaux Métropole, France | https://opendata.bordeaux-metropole.fr/explore/dataset/st_park_p/ | Garage and P+R location, operator, capacity, pricing metadata | Rapid database refresh does NOT establish direct available-space readings |
+| Bordeaux Métropole, France | https://datahub.bordeaux-metropole.fr/explore/dataset/parkings-donnees-techniques-2026/ | Parking technical specifications/capacity | Static; verify source freshness and primary geo join before shipping |
+| Galway, Ireland | https://data.gov.ie/dataset/carparkingopendata3 | Official municipal ArcGIS public car-parking sites, CC BY 4.0 | Static facility inventory, last published 2025 |
+| Galway, Ireland | https://data.gov.ie/dataset/carparkingopendata3/resource/9b9832d6-4359-4a4c-8d30-8705d5fa3854 | Direct ArcGIS FeatureServer query | Validate geometry CRS and exact field schema first |
+| London, UK | https://api.tfl.gov.uk/Occupancy/CarPark | Car-park occupancy at supported sites | Registered access and publisher observation timestamps need checking |
+| Seoul, South Korea | https://data.seoul.go.kr/ | City parking feeds | Optional developer key and official source schema verification |
+| Zaragoza, Spain | https://www.zaragoza.es/sede/portal/movilidad/trafico/estacionamiento | 2-minute estimated controlled-street occupancy and 90-second VINCI garage map counts | Map update frequency is not a public API contract; no unverified data ingestion |
+| Singapore URA parking-lot polygons | https://data.gov.sg/datasets/d_d959102fa76d58f2de276bfbb7e8f68e/view | Large individual-lot geometry dataset | 26 MB quarterly data is NOT per-facility availability; separate overlay only, not car park suggestions |
+
+**Next candidate priorities:** Toulouse BNLS static parking, Galway ArcGIS facilities and Bordeaux parking, once their schemas and access/attribution are checked. Greece remains a high-priority research region; Patras/Piraeus historical parking snapshots do not establish current official live feeds. Do not duplicate the existing Dublin, Melbourne, ParkAPI or French city providers merely to increase source count.
+
 ## Release gates for future automatic providers
 
 1. Confirm an official publisher or explicit authorized reuse and attribution.
