@@ -54,7 +54,8 @@ with sync_playwright() as p:
     try:
         page.goto(f'http://127.0.0.1:{server.server_port}/tests/card/preview.html')
         page.wait_for_function('window.card?._map?.loaded() && window.card?._pins?.size===5',timeout=30000)
-        assert page.evaluate('window.maplibregl.version')=='5.6.2'
+        report['maplibre_version']=page.evaluate('window.maplibregl.getVersion()')
+        assert report['maplibre_version']=='5.6.2',report['maplibre_version']
         assert page.locator('.result-card').count()==5
         assert page.locator('.map').evaluate('(e)=>e.getBoundingClientRect().height')==220
         checked('real MapLibre + actual bundled card + compact 220px map')
