@@ -33,6 +33,7 @@ class GhentParkingProvider:
         lat: float,
         lon: float,
         radius_m: int,
+        options: dict[str, Any] | None = None,
     ) -> ProviderFetchResult:
         """Fetch realtime Gent parking occupancy."""
         try:
