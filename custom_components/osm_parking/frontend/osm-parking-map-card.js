@@ -618,6 +618,79 @@ const OSM_PARKING_QUALITY_I18N = {
   }
 };
 
+const OSM_PARKING_ZONE_I18N = {
+  "en": {
+    "zone": "Controlled parking zone",
+    "zones": "regulated zones",
+    "signage": "Zone boundary only. Check posted signs, permits and hours."
+  },
+  "el": {
+    "zone": "Ζώνη ελεγχόμενης στάθμευσης",
+    "zones": "ζώνες ελεγχόμενης στάθμευσης",
+    "signage": "Μόνο όρια ζώνης. Ελέγξτε τις πινακίδες, τις άδειες και το ωράριο."
+  },
+  "de": {
+    "zone": "Bewirtschaftete Parkzone",
+    "zones": "Parkzonen",
+    "signage": "Nur Zonengrenze. Beschilderung, Berechtigungen und Zeiten prüfen."
+  },
+  "es": {
+    "zone": "Zona de estacionamiento regulado",
+    "zones": "zonas reguladas",
+    "signage": "Solo límite de la zona. Verifique señales, permisos y horarios."
+  },
+  "fr": {
+    "zone": "Zone de stationnement réglementé",
+    "zones": "zones réglementées",
+    "signage": "Limites de zone seulement. Vérifiez les panneaux, permis et horaires."
+  },
+  "it": {
+    "zone": "Zona a sosta regolamentata",
+    "zones": "zone regolamentate",
+    "signage": "Solo confini della zona. Verificare cartelli, permessi e orari."
+  },
+  "nl": {
+    "zone": "Gereguleerde parkeerzone",
+    "zones": "parkeerzones",
+    "signage": "Alleen zonegrens. Controleer borden, vergunningen en tijden."
+  },
+  "pl": {
+    "zone": "Strefa parkowania regulowanego",
+    "zones": "strefy parkowania",
+    "signage": "Tylko granica strefy. Sprawdź znaki, pozwolenia i godziny."
+  },
+  "pt": {
+    "zone": "Zona de estacionamento regulamentado",
+    "zones": "zonas regulamentadas",
+    "signage": "Apenas limites de zona. Consulte sinalização, licenças e horários."
+  },
+  "pt-BR": {
+    "zone": "Zona de estacionamento regulamentado",
+    "zones": "zonas regulamentadas",
+    "signage": "Apenas limites da zona. Consulte placas, permissões e horários."
+  },
+  "ru": {
+    "zone": "Зона регулируемой парковки",
+    "zones": "парковочные зоны",
+    "signage": "Только граница зоны. Проверяйте знаки, разрешения и часы."
+  },
+  "tr": {
+    "zone": "Kontrollü park bölgesi",
+    "zones": "park bölgeleri",
+    "signage": "Yalnızca bölge sınırı. Tabelaları, izinleri ve saatleri kontrol edin."
+  },
+  "zh-Hans": {
+    "zone": "受管制停车区域",
+    "zones": "受管制区域",
+    "signage": "仅显示区域边界。请核实路牌、许可与时段。"
+  },
+  "ja": {
+    "zone": "駐車規制区域",
+    "zones": "規制区域",
+    "signage": "区域境界のみ。標識・許可・時間帯を確認してください。"
+  }
+};
+
 class OsmParkingMapCardV070 extends HTMLElement {
   static getStubConfig() {
     return {
@@ -634,6 +707,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
       height: 430,
       show_list: true,
       show_destination: true,
+      show_zones: true,
       show_price: true,
       map_style: 'https://tiles.openfreemap.org/styles/liberty',
       ...config,
@@ -697,6 +771,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
       realtime_result_count: a.realtime_result_count,
       live_refresh_seconds: a.live_refresh_seconds,
       suggestions: a.suggestions,
+      parking_zones: a.parking_zones,
     });
 
     if (signature === this._lastSignature) return;
@@ -858,6 +933,14 @@ class OsmParkingMapCardV070 extends HTMLElement {
       || OSM_PARKING_QUALITY_I18N[raw.split('-')[0]]
       || OSM_PARKING_QUALITY_I18N.en;
     return lang[key] || OSM_PARKING_QUALITY_I18N.en[key] || key;
+  }
+
+  _zt(key) {
+    const raw = String(this._hass?.language || 'en').replace('_', '-');
+    const dict = OSM_PARKING_ZONE_I18N[raw]
+      || OSM_PARKING_ZONE_I18N[raw.split('-')[0]]
+      || OSM_PARKING_ZONE_I18N.en;
+    return dict[key] || OSM_PARKING_ZONE_I18N.en[key] || key;
   }
 
   _availabilityText(suggestion) {
@@ -1268,6 +1351,51 @@ class OsmParkingMapCardV070 extends HTMLElement {
     this._markers = [];
   }
 
+  _updateZoneOverlay(zones) {
+    if (!this._map?.isStyleLoaded()) return;
+    const id = 'osm-parking-controlled-zones';
+    const valid = (this.config.show_zones !== false ? zones : []).filter(zone =>
+      zone?.type === 'Feature'
+      && ['Polygon', 'MultiPolygon'].includes(zone?.geometry?.type)
+      && zone?.properties?.record_type === 'zone',
+    );
+    const data = { type: 'FeatureCollection', features: valid };
+    const source = this._map.getSource(id);
+    if (source) {
+      source.setData(data);
+      return;
+    }
+    if (!valid.length) return;
+    this._map.addSource(id, { type: 'geojson', data });
+    this._map.addLayer({
+      id: `${id}-fill`, type: 'fill', source: id,
+      paint: { 'fill-color': '#d18c23', 'fill-opacity': 0.19 },
+    });
+    this._map.addLayer({
+      id: `${id}-border`, type: 'line', source: id,
+      paint: { 'line-color': '#bd7914', 'line-width': 2 },
+    });
+    this._map.on('click', `${id}-fill`, event => {
+      const properties = event.features?.[0]?.properties;
+      if (!properties) return;
+      const name = this._esc(properties.name || this._zt('zone'));
+      const sourceUrl = String(properties.provider_url || '');
+      const link = sourceUrl.startsWith('https://')
+        ? `<div class="popup-actions"><a href="${this._esc(sourceUrl)}" target="_blank" rel="noopener">${this._esc(this._pt('source'))}</a></div>`
+        : '';
+      new maplibregl.Popup({ offset: 12 })
+        .setLngLat(event.lngLat)
+        .setHTML(`<div class="popup-title">${name}</div><div class="popup-line">${this._esc(this._zt('signage'))}</div>${link}`)
+        .addTo(this._map);
+    });
+    this._map.on('mouseenter', `${id}-fill`, () => {
+      this._map.getCanvas().style.cursor = 'pointer';
+    });
+    this._map.on('mouseleave', `${id}-fill`, () => {
+      this._map.getCanvas().style.cursor = '';
+    });
+  }
+
   async _update() {
     this._hideStatus();
     this._setContentVisible(true);
@@ -1282,6 +1410,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
     const suggestions = Array.isArray(attributes.suggestions)
       ? attributes.suggestions
       : [];
+    const zones = Array.isArray(attributes.parking_zones) ? attributes.parking_zones : [];
 
     this._els.title.textContent = this.config.title || this._t('title');
     const subtitle = [];
@@ -1290,6 +1419,8 @@ class OsmParkingMapCardV070 extends HTMLElement {
       subtitle.push(
         `${suggestions.length} ${this._t(suggestions.length === 1 ? 'suggestion' : 'suggestions')}`,
       );
+    } else if (zones.length && this.config.show_zones !== false) {
+      subtitle.push(`${zones.length} ${this._zt('zones')}`);
     } else if (this._stateObj?.state === 'waiting') {
       subtitle.push(this._t('waiting'));
     } else {
@@ -1371,6 +1502,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
       return;
     }
 
+    this._updateZoneOverlay(zones);
     this._clearMarkers();
     const bounds = new maplibregl.LngLatBounds();
 
@@ -1434,6 +1566,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
 
     if (
       suggestions.length === 0
+      && (zones.length === 0 || this.config.show_zones === false)
       && attributes.status === 'ok'
       && !attributes.error
     ) {
