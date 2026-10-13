@@ -18,11 +18,11 @@
 
 # OSM Parking
 
-**OSM Parking** is a Home Assistant custom integration that follows a destination entity and finds nearby parking from OpenStreetMap through Overpass. It includes a bundled interactive Lovelace map card.
+**OSM Parking** is a Home Assistant custom integration that follows a destination entity and finds nearby parking from OpenStreetMap plus supported public/open parking APIs. OpenStreetMap / Overpass remains the worldwide baseline, while regional providers can add richer metadata and realtime availability. It includes a bundled interactive Lovelace map card.
 
 ## Highlights
 
-- Fully event-driven: refreshes on Home Assistant/integration startup and when the configured destination meaningfully changes; no periodic polling.
+- OSM/static operation is event-driven; periodic refresh is enabled only while realtime provider data is active or while a failed source is recovering.
 - Handles Home Assistant startup cleanly while the destination entity is still restoring.
 - Searches a configurable radius and sorts the final results by distance.
 - Categories: paid, open/surface, street, underground, multi-storey, Park & Ride, and other.
@@ -151,6 +151,29 @@ The bundled card distinguishes between different failure conditions instead of o
 
 Technical error details are available in a collapsible section when useful.
 
+## Parking data providers
+
+OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worldwide baseline.** Additional public providers are queried automatically only when the destination falls inside their geographic coverage.
+
+| Provider | Coverage in OSM Parking | Realtime | Credentials |
+| --- | --- | ---: | --- |
+| OpenStreetMap / Overpass | Worldwide | No | None |
+| ParkAPI / MobiData BW | Central European ParkAPI coverage | When source provides it | None |
+| Singapore HDB / data.gov.sg | Singapore HDB car parks | Yes, ~1 minute | None |
+| Hong Kong DATA.GOV.HK | Hong Kong published car parks | Yes | None |
+
+Provider results are normalized into the same parking model and conservatively merged with OSM results. When two sources describe the same facility, OSM links/descriptive data can be retained while the regional provider contributes live capacity, free spaces or opening status.
+
+### Refresh behaviour
+
+- **OSM/static data only:** startup + destination changes; no successful periodic polling.
+- **ParkAPI or Hong Kong realtime data:** refresh every 5 minutes while live data is present.
+- **Singapore realtime data:** refresh every 60 seconds while Singapore HDB live data is present.
+- **Any partial provider outage:** temporary 5-minute recovery refreshes until the missing source recovers.
+- **Complete refresh failure:** first recovery retry after 1 minute, then every 5 minutes until success.
+
+A regional provider failure does not discard good data from the other providers. The card shows a partial-data notice and the missing source is retried automatically.
+
 ## Parking categories and result limits
 
 The integration can independently enable:
@@ -195,7 +218,14 @@ When reporting a data-fetch problem, include the Home Assistant log entry and di
 
 ## Data and attribution
 
-Parking data comes from [OpenStreetMap](https://www.openstreetmap.org/) contributors through Overpass API instances. Map rendering uses MapLibre and OpenFreeMap. Data completeness depends on local OSM tagging.
+Parking data can come from:
+
+- [OpenStreetMap](https://www.openstreetmap.org/) contributors through public Overpass API instances.
+- [ParkAPI / MobiData BW](https://api.mobidata-bw.de/) public ParkAPI v3 endpoints.
+- [Singapore data.gov.sg](https://data.gov.sg/) HDB Carpark Information and Carpark Availability datasets under the Singapore Open Data Licence.
+- [Hong Kong DATA.GOV.HK](https://data.gov.hk/) Parking Vacancy Data (One-Stop Version).
+
+Map rendering uses MapLibre and OpenFreeMap. Availability and metadata completeness depend on the source and local coverage.
 
 ## Support
 
