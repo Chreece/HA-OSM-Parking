@@ -49,7 +49,7 @@ class OsmParkingSensor(CoordinatorEntity[OsmParkingCoordinator], SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        """Expose destination and parking suggestions."""
+        """Expose destination, parking suggestions, and recovery information."""
         attrs = dict(self.coordinator.data or {})
         attrs.setdefault(
             "destination_entity",
@@ -58,4 +58,33 @@ class OsmParkingSensor(CoordinatorEntity[OsmParkingCoordinator], SensorEntity):
                 self._entry.data.get("destination_entity"),
             ),
         )
+
+        if self.coordinator.last_update_success:
+            attrs.setdefault("auto_retry", False)
+            return attrs
+
+        # DataUpdateCoordinator intentionally preserves the previous successful
+        # payload after a failed refresh. Do not expose those old suggestions as
+        # current parking data; instead publish a structured failure state that
+        # the bundled card can explain and recover from.
+        error = str(self.coordinator.last_exception or "Unknown update error")
+        attrs["status"] = "error"
+        attrs["suggestions"] = []
+        attrs["raw_result_count"] = 0
+        attrs["error"] = error
+        attrs["error_code"] = self._error_code(error)
+        attrs["auto_retry"] = True
+        attrs["retry_after_seconds"] = self.coordinator.retry_interval_seconds
         return attrs
+
+    @staticmethod
+    def _error_code(error: str) -> str:
+        """Classify coordinator failures for user-facing recovery guidance."""
+        lowered = error.lower()
+        if "all overpass endpoints failed" in lowered:
+            return "overpass_unavailable"
+        if "overpass rejected the query" in lowered:
+            return "overpass_rejected"
+        if "no destination entity configured" in lowered:
+            return "destination_not_configured"
+        return "update_failed"
