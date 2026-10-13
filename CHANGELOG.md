@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.10
+
+### Changed
+
+- Localized the bundled Lovelace card to the same 14 languages as the setup/options UI.
+- Card titles, suggestion counts, waiting/empty states, destination labels, distance/type/price/access labels, navigation text, free/paid status and parking category names now follow the Home Assistant UI language.
+- Unsupported Home Assistant languages fall back to English automatically.
+
+
 ## v0.3.9
 
 ### Changed
