@@ -171,6 +171,7 @@ OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worl
 | Singapore HDB / data.gov.sg | Singapore HDB car parks | Yes | None |
 | Hong Kong DATA.GOV.HK | Hong Kong | Yes | None |
 | City of Melbourne Parking Bay Sensors | Central Melbourne street bays | Yes | None |
+| Madrid Open Data Parking | Madrid rotational car parks | Yes | None |
 | Prague Golemio Parking v3 | Prague | Yes | Optional free API key |
 | Transport for NSW Car Park API | NSW supported facilities | Yes | Optional Open Data API key |
 | Taiwan TDX Parking | Taiwan | Yes | Optional Client ID + Client Secret |
@@ -190,7 +191,7 @@ Credentials are stored in the Home Assistant config entry and are redacted from 
 ### Refresh behaviour
 
 - **OSM/static data only:** startup + destination changes; no successful periodic polling.
-- **Melbourne / Singapore live data:** approximately 60-second refresh while live data is active.
+- **Melbourne / Singapore / Madrid live data:** approximately 60-second refresh while live data is active.
 - **ParkAPI, ParkenDD, Hong Kong, Ghent, Dublin, Helsinki, Golemio, TfNSW or TDX live data:** provider-specific live refresh, generally 1–5 minutes.
 - **Any partial provider outage:** temporary 5-minute recovery refreshes until the missing source recovers.
 - **Complete refresh failure:** first recovery retry after 1 minute, then every 5 minutes until success.
@@ -251,7 +252,7 @@ When reporting a data-fetch problem, include the Home Assistant log entry and di
 
 ## Data and attribution
 
-Depending on destination, parking data may come from OpenStreetMap/Overpass and supported municipal or national open-data sources such as MobiData BW/ParkAPI, ParkenDD, RDW, Stad Gent, Brussels Open Data, Dublin City Council, Helsinki Parkkihubi, Singapore data.gov.sg, Hong Kong DATA.GOV.HK and City of Melbourne. Optional credentialed providers include Golemio, Transport for NSW and Taiwan TDX.
+Depending on destination, parking data may come from OpenStreetMap/Overpass and supported municipal or national open-data sources such as MobiData BW/ParkAPI, ParkenDD, RDW, Stad Gent, Brussels Open Data, Dublin City Council, Helsinki Parkkihubi, Singapore data.gov.sg, Hong Kong DATA.GOV.HK, City of Melbourne and Madrid Open Data. Optional credentialed providers include Golemio, Transport for NSW and Taiwan TDX.
 
 Each provider's original attribution/licence remains applicable. The integration exposes provider/source information on normalized results where available. Map rendering uses MapLibre and OpenFreeMap.
 
