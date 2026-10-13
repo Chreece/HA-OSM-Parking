@@ -174,6 +174,9 @@ OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worl
 | Hong Kong DATA.GOV.HK | Hong Kong | Yes | None |
 | City of Melbourne Parking Bay Sensors | Central Melbourne street bays | Yes | None |
 | Madrid Open Data Parking | Madrid rotational car parks | Yes | None |
+| Strasbourg Open Data | Strasbourg Eurométropole structured car parks | Yes, 3-minute feed | None |
+| Montpellier NGSI-LD Open Data | Montpellier Métropole structured car parks | Yes | None |
+| Málaga Open Data | Málaga municipal public car parks | Yes, 1-minute feed | None |
 | Prague Golemio Parking v3 | Prague | Yes | Optional free API key |
 | Transport for NSW Car Park API | NSW supported facilities | Yes | Optional Open Data API key |
 | Taiwan TDX Parking | Taiwan | Yes | Optional Client ID + Client Secret |
@@ -193,8 +196,9 @@ Credentials are stored in the Home Assistant config entry and are redacted from 
 ### Refresh behaviour
 
 - **OSM/static data only:** startup + destination changes; no successful periodic polling.
-- **Melbourne / Singapore / Madrid / St.Gallen live data:** approximately 60-second refresh while live data is active.
-- **ParkAPI, ParkenDD, Hong Kong, Ghent, Dublin, Helsinki, Golemio, TfNSW or TDX live data:** provider-specific live refresh, generally 1–5 minutes.
+- **Melbourne / Singapore / Madrid / St.Gallen / Málaga live data:** approximately 60-second refresh while live data is active.
+- **Strasbourg live data:** 3-minute refresh, matching the official source cadence.
+- **Montpellier / ParkAPI / ParkenDD / Hong Kong / Ghent / Dublin / Helsinki / Golemio / TfNSW or TDX live data:** provider-specific live refresh, generally 1–5 minutes.
 - **Swiss estimated occupancy:** 30-minute refresh while estimated occupancy is available.
 - **Any partial provider outage:** temporary 5-minute recovery refreshes until the missing source recovers.
 - **Complete refresh failure:** first recovery retry after 1 minute, then every 5 minutes until success.
@@ -206,6 +210,8 @@ A regional provider failure does not discard good data from other providers. The
 Realtime data is only labelled live when the upstream source is usable and sufficiently fresh. For example, Melbourne sensor timestamps are checked before a bay is shown as occupied/free, and ParkenDD data that has aged beyond its live-data window is treated as static.
 
 Swiss `currentEstimatedOccupancy` values are shown as **estimated occupancy**, not as exact free spaces. St.Gallen free-space values are only treated as live when the upstream update timestamp is fresh.
+
+Montpellier `availableSpotNumber` is only shown as realtime while its NGSI-LD `observedAt` timestamp is fresh. Strasbourg status code `0` is treated as unavailable realtime data. Málaga only exposes the municipality's published free-space count and does not infer total capacity.
 
 Helsinki's public statistics intentionally suppress exact occupancy when the real count is three or less. OSM Parking preserves that privacy behavior and does **not** reverse-engineer an exact free-space count from a suppressed value.
 
@@ -257,7 +263,7 @@ When reporting a data-fetch problem, include the Home Assistant log entry and di
 
 ## Data and attribution
 
-Depending on destination, parking data may come from OpenStreetMap/Overpass and supported municipal or national open-data sources such as MobiData BW/ParkAPI, ParkenDD, RDW, Stad Gent, Stadt St.Gallen, Open Transport Data Switzerland/SBB P+Rail, Brussels Open Data, Dublin City Council, Helsinki Parkkihubi, Singapore data.gov.sg, Hong Kong DATA.GOV.HK, City of Melbourne and Madrid Open Data. Optional credentialed providers include Golemio, Transport for NSW and Taiwan TDX.
+Depending on destination, parking data may come from OpenStreetMap/Overpass and supported municipal or national open-data sources such as MobiData BW/ParkAPI, ParkenDD, RDW, Stad Gent, Stadt St.Gallen, Open Transport Data Switzerland/SBB P+Rail, Brussels Open Data, Dublin City Council, Helsinki Parkkihubi, Strasbourg Open Data, Montpellier NGSI-LD, Málaga Open Data, Singapore data.gov.sg, Hong Kong DATA.GOV.HK, City of Melbourne and Madrid Open Data. Optional credentialed providers include Golemio, Transport for NSW and Taiwan TDX.
 
 Each provider's original attribution/licence remains applicable. The integration exposes provider/source information on normalized results where available. Map rendering uses MapLibre and OpenFreeMap.
 

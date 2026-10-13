@@ -6,17 +6,23 @@ from .golemio import GolemioParkingProvider
 from .helsinki import HelsinkiParkingProvider
 from .hong_kong import HongKongParkingProvider
 from .madrid import MadridParkingProvider
+from .malaga import MalagaParkingProvider
+from .montpellier import MontpellierParkingProvider
 from .melbourne import MelbourneParkingProvider
 from .netherlands_rdw import NetherlandsRdwProvider
 from .parkapi import ParkApiProvider
 from .parkendd import ParkenDdProvider
 from .singapore import SingaporeHdbProvider
+from .strasbourg import StrasbourgParkingProvider
 from .st_gallen import StGallenParkingProvider
 from .swiss import SwissParkingProvider
 from .tfnsw import TfNswParkingProvider
 from .tdx import TaiwanTdxParkingProvider
 
 PROVIDERS: tuple[ParkingProvider, ...] = (
+    StrasbourgParkingProvider(),
+    MontpellierParkingProvider(),
+    MalagaParkingProvider(),
     SwissParkingProvider(),
     StGallenParkingProvider(),
     MadridParkingProvider(),

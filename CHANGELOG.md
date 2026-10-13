@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.7.0
+
+### Added
+
+- Added **Eurométropole de Strasbourg Open Data** realtime parking occupancy. The official feed publishes total/free spaces, operating state and coordinates and is refreshed every 3 minutes.
+- Added **Montpellier Méditerranée Métropole NGSI-LD OffStreetParking** using the municipality's current 2026 API portal. The provider reads standardized location, name, layout, total spaces, available spaces, opening status, address and observed timestamps.
+- Added **Ayuntamiento de Málaga Open Data** municipal parking occupancy by joining the official minute-updated occupancy CSV with its official parking catalog for IDs, names, addresses and coordinates.
+- Málaga live rows that do not have an official catalog coordinate are intentionally skipped rather than assigned guessed locations.
+
+### Changed
+
+- Strasbourg live parking requests refresh every 3 minutes while current availability is present.
+- Montpellier live parking requests refresh every 5 minutes and availability is only treated as realtime while the NGSI-LD `observedAt` timestamp is fresh.
+- Málaga municipal occupancy refreshes every 60 seconds while matching catalogued parking is available.
+- All three providers are automatic and require no API key.
+- Provider failures remain isolated: successful OSM or other provider results stay visible while a failed regional source is retried.
+
+### Data integrity
+
+- Strasbourg status code `0` is treated as realtime unavailable rather than as zero free spaces.
+- Montpellier stale `availableSpotNumber` values are not exposed as current live vacancy.
+- Málaga only reports the published `libres` count; total capacity is not invented when it is absent from the official live/catalog feeds.
+
+
 ## v0.6.0
 
 ### Added
