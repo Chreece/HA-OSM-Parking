@@ -188,6 +188,15 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             provider
             for provider in PROVIDERS
             if provider.applies(lat, lon)
+            and (
+                not getattr(provider, "enabled_option", None)
+                or bool(
+                    provider_options.get(
+                        getattr(provider, "enabled_option"),
+                        True,
+                    )
+                )
+            )
             and all(
                 str(provider_options.get(key, "")).strip()
                 for key in getattr(provider, "required_options", ())
