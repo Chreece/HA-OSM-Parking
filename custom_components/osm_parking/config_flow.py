@@ -108,6 +108,14 @@ def _distance_schema(
         if current
         else vol.Required(CONF_DESTINATION_ENTITY)
     )
+    distance = settings.get(CONF_RADIUS_M, DEFAULT_RADIUS_M)
+    # Invalid frontend input must re-render a valid form, never crash while
+    # computing the default for an error response (NaN/inf/text are possible).
+    distance_default = (
+        int(distance)
+        if valid_positive_integer(distance, 100, 10000)
+        else DEFAULT_RADIUS_M
+    )
     return vol.Schema({
         marker: selector.SelectSelector(
             selector.SelectSelectorConfig(
@@ -119,7 +127,7 @@ def _distance_schema(
         ),
         vol.Required(
             CONF_RADIUS_M,
-            default=int(settings.get(CONF_RADIUS_M, DEFAULT_RADIUS_M)),
+            default=distance_default,
         ): selector.NumberSelector(
             selector.NumberSelectorConfig(
                 min=100, max=10000, step=100, unit_of_measurement="m",
