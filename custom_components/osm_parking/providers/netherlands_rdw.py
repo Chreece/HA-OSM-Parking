@@ -40,6 +40,7 @@ class NetherlandsRdwProvider:
         lat: float,
         lon: float,
         radius_m: int,
+        options: dict[str, Any] | None = None,
     ) -> ProviderFetchResult:
         """Fetch nearby RDW garages and P+R locations."""
         results = await asyncio.gather(
