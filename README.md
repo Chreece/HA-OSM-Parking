@@ -22,6 +22,9 @@
 
 ## Highlights
 
+- Worldwide OpenStreetMap / Overpass baseline plus automatic municipal and national open-data providers.
+- Live free-space/occupancy data is shown when a supported provider exposes it.
+- Zero-key public providers work automatically; Prague, NSW and Taiwan providers can be enabled with optional free developer credentials.
 - OSM/static operation is event-driven; periodic refresh is enabled only while realtime provider data is active or while a failed source is recovering.
 - Handles Home Assistant startup cleanly while the destination entity is still restoring.
 - Searches a configurable radius and sorts the final results by distance.
