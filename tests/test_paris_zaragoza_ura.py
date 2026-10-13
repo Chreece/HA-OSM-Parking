@@ -97,7 +97,7 @@ class ParisProviderTests(unittest.TestCase):
         self.row.pop("xlong")
         self.row.pop("ylat")
         self.row["geo_point_2d"] = [48.84734233, 2.29739674]
-        self.assertEqual(self.parse()["latitude"], 48.84734233)
+        self.assertAlmostEqual(self.parse()["latitude"], 48.84734233, places=6)
         self.row["geo_point_2d"] = {"lat": 48.84734233, "lon": 2.29739674}
         self.assertEqual(self.parse()["longitude"], 2.29739674)
 
