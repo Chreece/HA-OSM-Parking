@@ -1,0 +1,60 @@
+{
+  "title": "Парковка OSM",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Парковка OSM",
+        "description": "Выберите сущность назначения из совместимых сущностей, найденных ниже. Совместимая сущность должна содержать числовые атрибуты latitude + longitude или lat + lon/lng. Поиск обновляется при изменении назначения или запуске Home Assistant.",
+        "data": {
+          "destination_entity": "Сущность назначения",
+          "radius_m": "Радиус поиска",
+          "include_restricted": "Включать ограниченные/частные парковки",
+          "category_paid_enabled": "Включать платные парковки",
+          "category_open_enabled": "Включать открытые / наземные парковки",
+          "category_street_enabled": "Включать уличную парковку",
+          "category_underground_enabled": "Включать подземные парковки",
+          "category_multi_storey_enabled": "Включать многоуровневые парковки",
+          "category_park_and_ride_enabled": "Включать Park & Ride",
+          "category_other_enabled": "Включать другие парковки",
+          "max_results": "Максимум результатов на категорию"
+        },
+        "data_description": {
+          "destination_entity": "Автоматически отображаются только совместимые сущности. Ожидаемые атрибуты: latitude + longitude или lat + lon/lng. Пример: latitude 50.9385, longitude 6.9829."
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "Выбранная сущность недоступна или сейчас не содержит корректных координат."
+    },
+    "abort": {
+      "already_configured": "Эта сущность назначения уже настроена."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Параметры парковки OSM",
+        "description": "Выберите совместимую в данный момент сущность назначения и настройте поиск. Поддерживаются latitude + longitude или lat + lon/lng.",
+        "data": {
+          "destination_entity": "Сущность назначения",
+          "radius_m": "Радиус поиска",
+          "include_restricted": "Включать ограниченные/частные парковки",
+          "category_paid_enabled": "Включать платные парковки",
+          "category_open_enabled": "Включать открытые / наземные парковки",
+          "category_street_enabled": "Включать уличную парковку",
+          "category_underground_enabled": "Включать подземные парковки",
+          "category_multi_storey_enabled": "Включать многоуровневые парковки",
+          "category_park_and_ride_enabled": "Включать Park & Ride",
+          "category_other_enabled": "Включать другие парковки",
+          "max_results": "Максимум результатов на категорию"
+        },
+        "data_description": {
+          "destination_entity": "Автоматически отображаются только совместимые сущности. Ожидаемые атрибуты: latitude + longitude или lat + lon/lng. Пример: latitude 50.9385, longitude 6.9829."
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "Выбранная сущность недоступна или сейчас не содержит корректных координат."
+    }
+  }
+}
