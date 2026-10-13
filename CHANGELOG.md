@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.4.0
+
+### Added
+
+- Introduced an extensible multi-provider parking architecture while keeping OpenStreetMap / Overpass as the worldwide baseline.
+- Added **ParkAPI / MobiData BW** support for nearby car parking in Central Europe, including realtime capacity, free spaces, opening status and provider metadata when supplied.
+- Added **Hong Kong DATA.GOV.HK** support using the official one-stop car park information and realtime vacancy API.
+- Added **Singapore HDB / data.gov.sg** support by combining the HDB Carpark Information dataset with the official realtime Carpark Availability API.
+- Added built-in SVY21 (EPSG:3414) to WGS84 conversion for Singapore HDB parking coordinates.
+- Added normalized provider metadata to parking suggestions: provider, provider ID, realtime availability, capacity, free spaces, update timestamp and provider URL.
+- The Lovelace card now shows realtime free/total spaces, source/provider information and realtime update timestamps.
+
+### Changed
+
+- Supplemental provider requests are automatically selected by destination geography; irrelevant providers are not queried.
+- Results from OpenStreetMap and supplemental providers are merged conservatively by proximity and name similarity to avoid duplicate parking facilities.
+- Realtime/provider metadata is merged into the corresponding OSM parking result when both sources describe the same facility.
+- OpenStreetMap failure no longer necessarily makes the whole integration fail: if a regional provider still returns usable parking, OSM Parking shows that partial data and retries missing sources automatically.
+- Partial provider failures now use temporary 5-minute recovery polling and stop once all non-live providers recover.
+- Live data polling is enabled only while realtime provider data is active: Singapore uses a 60-second feed cadence, while ParkAPI and Hong Kong are refreshed every 5 minutes.
+- Static/OSM-only destinations remain event-driven with no successful background polling.
+
+### Notes
+
+- OpenStreetMap remains the global fallback and primary worldwide source.
+- ParkAPI/MobiData BW, Singapore data.gov.sg and Hong Kong DATA.GOV.HK are public/open data sources and require no user API credentials for the implemented access paths.
+- More providers can now be added behind the normalized provider interface without changing the card data model.
+
+
 ## v0.3.11
 
 ### Fixed
