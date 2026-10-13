@@ -3,28 +3,62 @@
   "config": {
     "step": {
       "user": {
-        "title": "Parcheggio OSM",
-        "description": "Scegli un'entità di destinazione tra quelle compatibili rilevate qui sotto. Un'entità compatibile deve esporre attributi numerici latitude + longitude oppure lat + lon/lng. La ricerca viene aggiornata quando cambia la destinazione o all'avvio di Home Assistant.",
+        "title": "1/4 · Destinazione e distanza",
+        "description": "Scegli l’entità di destinazione e la distanza entro cui cercare. Le altre opzioni seguono.",
         "data": {
           "destination_entity": "Entità di destinazione",
-          "radius_m": "Raggio di ricerca",
-          "include_restricted": "Includi parcheggi riservati/privati",
-          "category_paid_enabled": "Includi parcheggi a pagamento",
-          "category_open_enabled": "Includi parcheggi aperti / di superficie",
-          "category_street_enabled": "Includi parcheggi su strada",
-          "category_underground_enabled": "Includi parcheggi sotterranei",
-          "category_multi_storey_enabled": "Includi parcheggi multipiano",
-          "category_park_and_ride_enabled": "Includi Park & Ride",
-          "category_other_enabled": "Includi altri parcheggi",
-          "max_results": "Risultati massimi per categoria"
+          "radius_m": "Raggio di ricerca"
         },
         "data_description": {
           "destination_entity": "Vengono elencate automaticamente solo le entità compatibili. Attributi richiesti: latitude + longitude oppure lat + lon/lng. Esempio: latitude 50.9385, longitude 6.9829."
         }
+      },
+      "categories": {
+        "title": "2/4 · Tipi di parcheggio",
+        "description": "Scegli uno o più tipi di parcheggio, il massimo per categoria e, se vuoi, parcheggi privati o zone regolamentate di Atene.",
+        "data": {
+          "parking_types": "Tipi di parcheggio",
+          "max_results": "Risultati massimi per categoria",
+          "include_restricted": "Includi parcheggi riservati/privati",
+          "athens_zones_enabled": "Mostra zone di sosta regolamentata di Atene (servizio GIS sperimentale)"
+        },
+        "data_description": {
+          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+        }
+      },
+      "providers": {
+        "title": "3/4 · Provider aggiuntivi",
+        "description": "OpenStreetMap e i provider pubblici senza chiave funzionano automaticamente. Seleziona quelli che richiedono credenziali API (spesso gratuite). Nessuna selezione salta il quarto passo.",
+        "data": {
+          "credential_providers": "Provider che richiedono una chiave API"
+        }
+      },
+      "credentials": {
+        "title": "4/4 · Credenziali API",
+        "description": "Inserisci le chiavi per: {selected_providers}. Le chiavi salvate restano valide se lasci vuoti i campi e non vengono mai mostrate.",
+        "data": {
+          "golemio_api_key": "Chiave API Golemio",
+          "tfnsw_api_key": "Chiave API TfNSW",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret",
+          "ura_access_key": "Chiave API URA Singapore"
+        },
+        "data_description": {
+          "golemio_api_key": "Chiave sviluppatore gratuita opzionale da api.golemio.cz/api-keys. Usata solo per destinazioni a Praga.",
+          "tfnsw_api_key": "Chiave Transport for NSW Open Data opzionale. Usata solo per destinazioni in NSW.",
+          "tdx_client_id": "TDX Client ID opzionale dal centro membri TDX. Sono richiesti sia Client ID sia Client Secret.",
+          "tdx_client_secret": "TDX Client Secret opzionale. Viene salvato in Home Assistant e oscurato nei diagnostici.",
+          "ura_access_key": "Chiave facoltativa del portale ufficiale URA per ottenere un token giornaliero. Oscurata nella diagnostica."
+        }
       }
     },
     "error": {
-      "invalid_destination_entity": "L'entità selezionata non è disponibile o al momento non espone coordinate valide."
+      "invalid_destination_entity": "L'entità selezionata non è disponibile o al momento non espone coordinate valide.",
+      "no_parking_types": "Seleziona almeno un tipo di parcheggio.",
+      "invalid_provider_selection": "Seleziona solo i provider elencati.",
+      "invalid_radius": "La distanza deve essere tra 100 e 10.000 metri.",
+      "invalid_max_results": "Il massimo per categoria deve essere tra 1 e 25.",
+      "missing_credentials": "Inserisci la credenziale mancante o disattiva il provider."
     },
     "abort": {
       "already_configured": "Questa entità di destinazione è già configurata."
@@ -33,44 +67,83 @@
   "options": {
     "step": {
       "init": {
-        "title": "Opzioni Parcheggio OSM",
-        "description": "Configura la ricerca e i provider regionali opzionali. I provider pubblici senza chiave sono automatici. Quelli con credenziali vengono usati solo se abilitati, configurati e se la destinazione è coperta.",
+        "title": "1/4 · Destinazione e distanza",
+        "description": "Scegli l’entità di destinazione e la distanza entro cui cercare. Le altre opzioni seguono.",
         "data": {
           "destination_entity": "Entità di destinazione",
-          "radius_m": "Raggio di ricerca",
-          "include_restricted": "Includi parcheggi riservati/privati",
-          "category_paid_enabled": "Includi parcheggi a pagamento",
-          "category_open_enabled": "Includi parcheggi aperti / di superficie",
-          "category_street_enabled": "Includi parcheggi su strada",
-          "category_underground_enabled": "Includi parcheggi sotterranei",
-          "category_multi_storey_enabled": "Includi parcheggi multipiano",
-          "category_park_and_ride_enabled": "Includi Park & Ride",
-          "category_other_enabled": "Includi altri parcheggi",
+          "radius_m": "Raggio di ricerca"
+        },
+        "data_description": {
+          "destination_entity": "Vengono elencate automaticamente solo le entità compatibili. Attributi richiesti: latitude + longitude oppure lat + lon/lng. Esempio: latitude 50.9385, longitude 6.9829."
+        }
+      },
+      "categories": {
+        "title": "2/4 · Tipi di parcheggio",
+        "description": "Scegli uno o più tipi di parcheggio, il massimo per categoria e, se vuoi, parcheggi privati o zone regolamentate di Atene.",
+        "data": {
+          "parking_types": "Tipi di parcheggio",
           "max_results": "Risultati massimi per categoria",
-          "golemio_enabled": "Abilita provider Golemio di Praga",
+          "include_restricted": "Includi parcheggi riservati/privati",
+          "athens_zones_enabled": "Mostra zone di sosta regolamentata di Atene (servizio GIS sperimentale)"
+        },
+        "data_description": {
+          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+        }
+      },
+      "providers": {
+        "title": "3/4 · Provider aggiuntivi",
+        "description": "OpenStreetMap e i provider pubblici senza chiave funzionano automaticamente. Seleziona quelli che richiedono credenziali API (spesso gratuite). Nessuna selezione salta il quarto passo.",
+        "data": {
+          "credential_providers": "Provider che richiedono una chiave API"
+        }
+      },
+      "credentials": {
+        "title": "4/4 · Credenziali API",
+        "description": "Inserisci le chiavi per: {selected_providers}. Le chiavi salvate restano valide se lasci vuoti i campi e non vengono mai mostrate.",
+        "data": {
           "golemio_api_key": "Chiave API Golemio",
-          "tfnsw_enabled": "Abilita provider Transport for NSW",
           "tfnsw_api_key": "Chiave API TfNSW",
-          "tdx_enabled": "Abilita provider Taiwan TDX",
           "tdx_client_id": "TDX Client ID",
           "tdx_client_secret": "TDX Client Secret",
-          "athens_zones_enabled": "Mostra zone di sosta regolamentata di Atene (servizio GIS sperimentale)",
-          "ura_enabled": "Abilita i parcheggi URA di Singapore (chiave necessaria)",
           "ura_access_key": "Chiave API URA Singapore"
         },
         "data_description": {
-          "destination_entity": "Vengono elencate automaticamente solo le entità compatibili. Attributi richiesti: latitude + longitude oppure lat + lon/lng. Esempio: latitude 50.9385, longitude 6.9829.",
           "golemio_api_key": "Chiave sviluppatore gratuita opzionale da api.golemio.cz/api-keys. Usata solo per destinazioni a Praga.",
           "tfnsw_api_key": "Chiave Transport for NSW Open Data opzionale. Usata solo per destinazioni in NSW.",
           "tdx_client_id": "TDX Client ID opzionale dal centro membri TDX. Sono richiesti sia Client ID sia Client Secret.",
           "tdx_client_secret": "TDX Client Secret opzionale. Viene salvato in Home Assistant e oscurato nei diagnostici.",
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs.",
           "ura_access_key": "Chiave facoltativa del portale ufficiale URA per ottenere un token giornaliero. Oscurata nella diagnostica."
         }
       }
     },
     "error": {
-      "invalid_destination_entity": "L'entità selezionata non è disponibile o al momento non espone coordinate valide."
+      "invalid_destination_entity": "L'entità selezionata non è disponibile o al momento non espone coordinate valide.",
+      "no_parking_types": "Seleziona almeno un tipo di parcheggio.",
+      "invalid_provider_selection": "Seleziona solo i provider elencati.",
+      "invalid_radius": "La distanza deve essere tra 100 e 10.000 metri.",
+      "invalid_max_results": "Il massimo per categoria deve essere tra 1 e 25.",
+      "missing_credentials": "Inserisci la credenziale mancante o disattiva il provider."
+    }
+  },
+  "selector": {
+    "parking_types": {
+      "options": {
+        "paid": "Includi parcheggi a pagamento",
+        "open": "Includi parcheggi aperti / di superficie",
+        "street": "Includi parcheggi su strada",
+        "underground": "Includi parcheggi sotterranei",
+        "multi_storey": "Includi parcheggi multipiano",
+        "park_and_ride": "Includi Park & Ride",
+        "other": "Includi altri parcheggi"
+      }
+    },
+    "credential_providers": {
+      "options": {
+        "golemio": "Abilita provider Golemio di Praga",
+        "tfnsw": "Abilita provider Transport for NSW",
+        "tdx": "Abilita provider Taiwan TDX",
+        "ura": "Abilita i parcheggi URA di Singapore (chiave necessaria)"
+      }
     }
   }
 }
