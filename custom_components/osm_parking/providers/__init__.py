@@ -7,6 +7,8 @@ from .helsinki import HelsinkiParkingProvider
 from .hong_kong import HongKongParkingProvider
 from .madrid import MadridParkingProvider
 from .malaga import MalagaParkingProvider
+from .lyon import LyonParkingProvider
+from .nantes import NantesParkAndRideProvider, NantesPublicParkingProvider
 from .montpellier import MontpellierParkingProvider
 from .melbourne import MelbourneParkingProvider
 from .netherlands_rdw import NetherlandsRdwProvider
@@ -20,6 +22,9 @@ from .tfnsw import TfNswParkingProvider
 from .tdx import TaiwanTdxParkingProvider
 
 PROVIDERS: tuple[ParkingProvider, ...] = (
+    LyonParkingProvider(),
+    NantesPublicParkingProvider(),
+    NantesParkAndRideProvider(),
     StrasbourgParkingProvider(),
     MontpellierParkingProvider(),
     MalagaParkingProvider(),

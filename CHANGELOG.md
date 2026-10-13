@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.8.0
+
+### Added
+
+- Official **Métropole de Lyon** 2026 OGC API Features provider: live vacancy, capacity, coordinates, tariffs, operator and accessibility metadata.
+- Two independent, key-free **Nantes Naolib** providers: public garages and Park & Ride sites.
+- Offline provider contract tests for valid/stale statuses, impossible counts, coordinates, provider separation and absence of invented live data.
+
+### Changed
+
+- Lyon and Nantes feeds refresh about every 2 minutes when facilities are in range; OSM/static-only locations still do not poll.
+- Development-branch pushes no longer trigger validation Actions. Pull requests and main updates remain validated.
+
+### Data integrity
+
+- Lyon availability must be fresh within 15 minutes and cannot exceed published capacity.
+- Nantes Naolib status 0 is invalid, 1 is closed, 2 is for subscribers only, and 5 is publicly open. Live vacancy requires the official timestamp to be fresh within 15 minutes.
+- Nantes published capacity refers to short-stay users rather than every bay including season-ticket subscribers.
+- Invalid coordinates or negative/inconsistent counts never become parking suggestions.
+
 ## v0.7.0
 
 ### Added

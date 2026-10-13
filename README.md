@@ -177,6 +177,9 @@ OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worl
 | Strasbourg Open Data | Strasbourg Eurométropole structured car parks | Yes, 3-minute feed | None |
 | Montpellier NGSI-LD Open Data | Montpellier Métropole structured car parks | Yes | None |
 | Málaga Open Data | Málaga municipal public car parks | Yes, 1-minute feed | None |
+| Métropole de Lyon Open Data | Greater Lyon public car parks | Yes when source is fresh | None |
+| Nantes Naolib public garages | Nantes public garages | Yes, 2-minute feed | None |
+| Nantes Naolib Park & Ride | Nantes Métropole P+R | Yes, 2-minute feed | None |
 | Prague Golemio Parking v3 | Prague | Yes | Optional free API key |
 | Transport for NSW Car Park API | NSW supported facilities | Yes | Optional Open Data API key |
 | Taiwan TDX Parking | Taiwan | Yes | Optional Client ID + Client Secret |
@@ -198,6 +201,7 @@ Credentials are stored in the Home Assistant config entry and are redacted from 
 - **OSM/static data only:** startup + destination changes; no successful periodic polling.
 - **Melbourne / Singapore / Madrid / St.Gallen / Málaga live data:** approximately 60-second refresh while live data is active.
 - **Strasbourg live data:** 3-minute refresh, matching the official source cadence.
+- **Lyon and Nantes live feeds:** 2-minute refresh while covered facilities are in range, including when upstream availability is temporarily invalid.
 - **Montpellier / ParkAPI / ParkenDD / Hong Kong / Ghent / Dublin / Helsinki / Golemio / TfNSW or TDX live data:** provider-specific live refresh, generally 1–5 minutes.
 - **Swiss estimated occupancy:** 30-minute refresh while estimated occupancy is available.
 - **Any partial provider outage:** temporary 5-minute recovery refreshes until the missing source recovers.
@@ -212,6 +216,8 @@ Realtime data is only labelled live when the upstream source is usable and suffi
 Swiss `currentEstimatedOccupancy` values are shown as **estimated occupancy**, not as exact free spaces. St.Gallen free-space values are only treated as live when the upstream update timestamp is fresh.
 
 Montpellier `availableSpotNumber` is only shown as realtime while its NGSI-LD `observedAt` timestamp is fresh. Strasbourg status code `0` is treated as unavailable realtime data. Málaga only exposes the municipality's published free-space count and does not infer total capacity.
+
+Lyon exact vacancy is only labelled realtime while its official last_update timestamp is within 15 minutes. Nantes Naolib only exposes free spaces when grp_statut is 5 (open) and grp_horodatage is within 15 minutes; code 0 is invalid, 1 closed, and 2 subscribers only. Its grp_exploitation capacity covers short-stay customers, not subscriber bays.
 
 Helsinki's public statistics intentionally suppress exact occupancy when the real count is three or less. OSM Parking preserves that privacy behavior and does **not** reverse-engineer an exact free-space count from a suppressed value.
 

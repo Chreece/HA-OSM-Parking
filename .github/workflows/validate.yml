@@ -2,6 +2,7 @@ name: Validate
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -49,6 +50,9 @@ jobs:
 
           print("LOCAL_CONST_IMPORTS=PASS")
           PY
+
+      - name: Test provider data contracts
+        run: python3 -m unittest discover -s tests -v
 
       - name: Validate dashboard card JavaScript
         run: node --check custom_components/osm_parking/frontend/osm-parking-map-card.js
