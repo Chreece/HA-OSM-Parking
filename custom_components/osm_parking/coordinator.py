@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from collections import defaultdict
 from datetime import timedelta
+from difflib import SequenceMatcher
 import logging
 import math
 from typing import Any
@@ -32,6 +33,7 @@ from .const import (
     DEFAULT_RADIUS_M,
     enabled_key,
 )
+from .providers import PROVIDERS, ProviderFetchResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -99,10 +101,17 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     @callback
     def _async_refresh_finished(self) -> None:
-        """Poll only while the last real data refresh is failing."""
+        """Use periodic polling only for live data or failed refresh recovery."""
         if self.last_update_success:
             self._failed_refreshes = 0
-            if self.update_interval is not None:
+            live_refresh_seconds = int(
+                (self.data or {}).get("live_refresh_seconds") or 0
+            )
+            if live_refresh_seconds > 0:
+                self.update_interval = timedelta(seconds=live_refresh_seconds)
+                if self._listeners and not self.hass.is_stopping:
+                    self._schedule_refresh()
+            elif self.update_interval is not None:
                 self.update_interval = None
                 self._async_unsub_refresh()
             return
@@ -170,11 +179,65 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self._option(CONF_INCLUDE_RESTRICTED, DEFAULT_INCLUDE_RESTRICTED)
         )
 
-        payload, source = await self._query_overpass(lat, lon, radius)
-        suggestions = self._build_suggestions(
-            payload, lat, lon, radius, include_restricted
+        session = async_get_clientsession(self.hass)
+        applicable_providers = [
+            provider for provider in PROVIDERS if provider.applies(lat, lon)
+        ]
+
+        fetches = [
+            self._query_overpass(lat, lon, radius),
+            *[
+                provider.async_fetch(session, lat, lon, radius)
+                for provider in applicable_providers
+            ],
+        ]
+        fetch_results = await asyncio.gather(*fetches, return_exceptions=True)
+
+        overpass_result = fetch_results[0]
+        source: str | None = None
+        raw_result_count = 0
+        provider_errors: dict[str, str] = {}
+        providers_used: list[str] = []
+        suggestions: list[dict[str, Any]] = []
+        overpass_error: str | None = None
+        live_refresh_seconds: list[int] = []
+
+        if isinstance(overpass_result, BaseException):
+            overpass_error = str(overpass_result)
+        else:
+            payload, source = overpass_result
+            raw_result_count = len(payload.get("elements", []))
+            suggestions = self._build_suggestions(
+                payload, lat, lon, radius, include_restricted
+            )
+            providers_used.append("openstreetmap")
+
+        provider_suggestion_count = 0
+        for provider, result in zip(
+            applicable_providers,
+            fetch_results[1:],
+            strict=True,
+        ):
+            if isinstance(result, BaseException):
+                provider_errors[provider.uid] = str(result)
+                continue
+
+            provider_result: ProviderFetchResult = result
+            providers_used.append(provider_result.provider)
+            provider_suggestion_count += len(provider_result.suggestions)
+            suggestions = self._merge_provider_suggestions(
+                suggestions,
+                provider_result.suggestions,
+            )
+            if provider_result.live_refresh_seconds:
+                live_refresh_seconds.append(provider_result.live_refresh_seconds)
+
+        if overpass_error and provider_suggestion_count == 0:
+            raise UpdateFailed(overpass_error)
+
+        realtime_result_count = sum(
+            1 for item in suggestions if item.get("has_realtime_data")
         )
-        raw_result_count = len(payload.get("elements", []))
 
         buckets: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for item in suggestions:
@@ -207,7 +270,15 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "max_results_per_category": self._category_limit(),
             "source": source,
             "raw_result_count": raw_result_count,
-            "error": None,
+            "provider_result_count": provider_suggestion_count,
+            "providers_used": providers_used,
+            "provider_errors": provider_errors,
+            "partial_data": bool(overpass_error or provider_errors),
+            "realtime_result_count": realtime_result_count,
+            "live_refresh_seconds": (
+                min(live_refresh_seconds) if live_refresh_seconds else None
+            ),
+            "error": overpass_error if overpass_error else None,
             "error_code": None,
             "auto_retry": False,
             "retry_after_seconds": None,
@@ -234,6 +305,12 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "max_results_per_category": self._category_limit(),
             "source": None,
             "raw_result_count": 0,
+            "provider_result_count": 0,
+            "providers_used": [],
+            "provider_errors": {},
+            "partial_data": False,
+            "realtime_result_count": 0,
+            "live_refresh_seconds": None,
             "error": error,
             "error_code": error_code,
             "auto_retry": False,
@@ -269,7 +346,7 @@ out center tags qt;
                         endpoint,
                         data={"data": query},
                         timeout=15,
-                        headers={"User-Agent": "HomeAssistant-OSM-Parking/0.3.6"},
+                        headers={"User-Agent": "HomeAssistant-OSM-Parking/0.4.0"},
                     ) as response:
                         if response.status in OVERPASS_RETRYABLE_STATUS:
                             errors.append(
@@ -364,6 +441,10 @@ out center tags qt;
             price, pricing = self._pricing(tags)
 
             item: dict[str, Any] = {
+                "provider": "osm",
+                "provider_name": "OpenStreetMap",
+                "data_sources": ["openstreetmap"],
+                "has_realtime_data": False,
                 "osm_type": osm_type,
                 "osm_id": osm_id,
                 "name": name,
@@ -404,6 +485,112 @@ out center tags qt;
             result.append(item)
 
         return result
+
+    def _merge_provider_suggestions(
+        self,
+        current: list[dict[str, Any]],
+        incoming: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Merge supplemental providers without duplicating the same facility."""
+        merged = list(current)
+
+        for candidate in incoming:
+            duplicate = self._find_duplicate(merged, candidate)
+            if duplicate is None:
+                candidate.setdefault(
+                    "data_sources",
+                    [str(candidate.get("provider") or "unknown")],
+                )
+                merged.append(candidate)
+                continue
+
+            source_name = str(candidate.get("provider") or "unknown")
+            sources = list(duplicate.get("data_sources") or [])
+            if source_name not in sources:
+                sources.append(source_name)
+            duplicate["data_sources"] = sources
+
+            # Realtime and provider-specific values are authoritative when
+            # available, while OSM links and descriptive metadata are retained.
+            for key in (
+                "has_realtime_data",
+                "free_capacity",
+                "realtime_updated_at",
+                "opening_status",
+                "provider",
+                "provider_name",
+                "provider_id",
+                "provider_source_id",
+                "provider_url",
+            ):
+                if key in candidate:
+                    duplicate[key] = candidate[key]
+
+            for key in (
+                "capacity",
+                "operator",
+                "address",
+                "opening_hours",
+                "price",
+            ):
+                if candidate.get(key) not in (None, "") and duplicate.get(key) in (
+                    None,
+                    "",
+                ):
+                    duplicate[key] = candidate[key]
+
+            if candidate.get("fee") == "yes" and duplicate.get("fee") != "yes":
+                duplicate["fee"] = "yes"
+                duplicate["category"] = CATEGORY_PAID
+            elif candidate.get("category") == CATEGORY_PARK_AND_RIDE:
+                duplicate["category"] = CATEGORY_PARK_AND_RIDE
+
+        return merged
+
+    def _find_duplicate(
+        self,
+        existing: list[dict[str, Any]],
+        candidate: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        """Find a likely duplicate by tight proximity and name similarity."""
+        try:
+            candidate_lat = float(candidate["latitude"])
+            candidate_lon = float(candidate["longitude"])
+        except (KeyError, TypeError, ValueError):
+            return None
+
+        candidate_name = self._normalized_name(str(candidate.get("name") or ""))
+
+        for item in existing:
+            try:
+                distance = self._haversine_m(
+                    candidate_lat,
+                    candidate_lon,
+                    float(item["latitude"]),
+                    float(item["longitude"]),
+                )
+            except (KeyError, TypeError, ValueError):
+                continue
+
+            if distance > 60:
+                continue
+
+            item_name = self._normalized_name(str(item.get("name") or ""))
+            name_similarity = (
+                SequenceMatcher(None, candidate_name, item_name).ratio()
+                if candidate_name and item_name
+                else 0.0
+            )
+
+            if distance <= 15 or name_similarity >= 0.72:
+                return item
+
+        return None
+
+    @staticmethod
+    def _normalized_name(name: str) -> str:
+        """Normalize facility names for conservative duplicate matching."""
+        return "".join(ch for ch in name.casefold() if ch.isalnum())
 
     @staticmethod
     def _bounding_box(
