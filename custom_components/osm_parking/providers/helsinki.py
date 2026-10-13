@@ -29,6 +29,7 @@ class HelsinkiParkingProvider:
         lat: float,
         lon: float,
         radius_m: int,
+        options: dict[str, Any] | None = None,
     ) -> ProviderFetchResult:
         """Fetch parking polygons and current parking-area statistics."""
         areas_payload = await self._fetch_pages(
