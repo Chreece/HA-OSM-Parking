@@ -82,6 +82,12 @@ class TurkishContracts(unittest.TestCase):
         self.assertEqual(item["availability_checked_at"], "FETCHED")
         self.assertEqual(item["fee"], "unknown")
 
+    def test_ispark_turkish_uppercase_parking_types(self):
+        self.istanbul["parkType"] = "KAPALI OTOPARK"
+        self.assertEqual(self.parse_ispark()["category"], "multi_storey")
+        self.istanbul["parkType"] = "AÇIK OTOPARK"
+        self.assertEqual(self.parse_ispark()["category"], "open")
+
     def test_ispark_closed_not_showing_public_free(self):
         self.istanbul["isOpen"] = 0
         self.assertNotIn("free_capacity", self.parse_ispark())
