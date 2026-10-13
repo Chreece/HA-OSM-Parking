@@ -56,7 +56,7 @@
 
 ## Languages
 
-The integration setup/options UI currently includes translations for:
+The integration setup/options UI and bundled Lovelace card currently include translations for:
 
 - English
 - Greek
@@ -72,6 +72,8 @@ The integration setup/options UI currently includes translations for:
 - Turkish
 - Simplified Chinese
 - Japanese
+
+The card follows the current Home Assistant UI language automatically and falls back to English when the selected language is not available.
 
 ## Installation
 
