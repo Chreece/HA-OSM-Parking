@@ -6,6 +6,8 @@ from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
+from .const import PROVIDER_SECRET_KEYS
+
 TO_REDACT = {
     "destination_latitude",
     "destination_longitude",
@@ -13,6 +15,7 @@ TO_REDACT = {
     "longitude",
     "navigation_url",
     "geo_uri",
+    *PROVIDER_SECRET_KEYS,
 }
 
 
