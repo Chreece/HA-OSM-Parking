@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.9.0
+
+### Added
+
+- Added **Métropole Européenne de Lille official WFS** parking availability, including published names, addresses, coordinates, total/free spaces, status and producer timestamp.
+- Added **SMMAG / M Mobilités Grenoble** parking provider joining its official geographic catalogue to its independent live availability feed by parking ID. Includes garage, surface and Park & Ride categorization where available.
+- Added 17 standalone contract tests exercising both new sources, covering local timestamps, joins, missing data, invalid counts, stale feeds, future timestamps and geographic filtering.
+
+### Changed
+
+- Lille live-source refresh is every 5 minutes when nearby facilities are present. Grenoble is every 2 minutes; its mostly static catalog is cached for 6 hours.
+- All existing 0.8.0 providers, dashboard behavior, per-category options and regional failure isolation remain in place.
+
+### Data integrity
+
+- Lille open status must be explicitly recognized; undocumented/closed statuses are not silently treated as free public parking. Stale data older than 15 minutes cannot be reported live.
+- Grenoble vacancy requires a matching official catalog ID and a producer Unix timestamp no older than 10 minutes. Missing/invalid readings never become zero vacancy.
+- Live counts must be nonnegative integers and cannot exceed known published capacity. Invalid coordinates and out-of-radius sites are dropped.
+- Realtime source assertions are validated by unit tests; live API reachability still depends on the providers' public services at runtime.
+
 ## v0.8.0
 
 ### Added

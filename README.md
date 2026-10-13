@@ -180,6 +180,8 @@ OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worl
 | Métropole de Lyon Open Data | Greater Lyon public car parks | Yes when source is fresh | None |
 | Nantes Naolib public garages | Nantes public garages | Yes, 2-minute feed | None |
 | Nantes Naolib Park & Ride | Nantes Métropole P+R | Yes, 2-minute feed | None |
+| Métropole Européenne de Lille Open Data | Lille Métropole | Yes when upstream reports a fresh, known-open state | None |
+| SMMAG / M Mobilités | Grenoble-area garages and P+R | Yes when official joined measurements are fresh | None |
 | Prague Golemio Parking v3 | Prague | Yes | Optional free API key |
 | Transport for NSW Car Park API | NSW supported facilities | Yes | Optional Open Data API key |
 | Taiwan TDX Parking | Taiwan | Yes | Optional Client ID + Client Secret |
@@ -202,6 +204,8 @@ Credentials are stored in the Home Assistant config entry and are redacted from 
 - **Melbourne / Singapore / Madrid / St.Gallen / Málaga live data:** approximately 60-second refresh while live data is active.
 - **Strasbourg live data:** 3-minute refresh, matching the official source cadence.
 - **Lyon and Nantes live feeds:** 2-minute refresh while covered facilities are in range, including when upstream availability is temporarily invalid.
+- **Lille MEL:** 5-minute refresh when parking facilities are in range, matching the official 5-minute publication cadence.
+- **Grenoble SMMAG:** 2-minute refresh when nearby parking is present; the static site catalogue is cached for six hours.
 - **Montpellier / ParkAPI / ParkenDD / Hong Kong / Ghent / Dublin / Helsinki / Golemio / TfNSW or TDX live data:** provider-specific live refresh, generally 1–5 minutes.
 - **Swiss estimated occupancy:** 30-minute refresh while estimated occupancy is available.
 - **Any partial provider outage:** temporary 5-minute recovery refreshes until the missing source recovers.
@@ -218,6 +222,10 @@ Swiss `currentEstimatedOccupancy` values are shown as **estimated occupancy**, n
 Montpellier `availableSpotNumber` is only shown as realtime while its NGSI-LD `observedAt` timestamp is fresh. Strasbourg status code `0` is treated as unavailable realtime data. Málaga only exposes the municipality's published free-space count and does not infer total capacity.
 
 Lyon exact vacancy is only labelled realtime while its official last_update timestamp is within 15 minutes. Nantes Naolib only exposes free spaces when grp_statut is 5 (open) and grp_horodatage is within 15 minutes; code 0 is invalid, 1 closed, and 2 subscribers only. Its grp_exploitation capacity covers short-stay customers, not subscriber bays.
+
+Lille MEL vacancy uses its official WFS total/free fields and dtdate timestamp. Records older than 15 minutes, undocumented status values, closed sites or impossible counts are not presented as live.
+
+Grenoble SMMAG uses the official static parking GeoJSON catalogue joined to the separate M Mobilités live feed by parking ID. Only producer-time-stamped measurements no older than 10 minutes with nonnegative, plausible counts are live; a missing reading does not mean zero vacancies. Only counted facilities can contribute live values. Licence: ODbL 1.0; retain attribution to M Mobilités / SMMAG.
 
 Helsinki's public statistics intentionally suppress exact occupancy when the real count is three or less. OSM Parking preserves that privacy behavior and does **not** reverse-engineer an exact free-space count from a suppressed value.
 
@@ -269,7 +277,7 @@ When reporting a data-fetch problem, include the Home Assistant log entry and di
 
 ## Data and attribution
 
-Depending on destination, parking data may come from OpenStreetMap/Overpass and supported municipal or national open-data sources such as MobiData BW/ParkAPI, ParkenDD, RDW, Stad Gent, Stadt St.Gallen, Open Transport Data Switzerland/SBB P+Rail, Brussels Open Data, Dublin City Council, Helsinki Parkkihubi, Strasbourg Open Data, Montpellier NGSI-LD, Málaga Open Data, Singapore data.gov.sg, Hong Kong DATA.GOV.HK, City of Melbourne and Madrid Open Data. Optional credentialed providers include Golemio, Transport for NSW and Taiwan TDX.
+Depending on destination, parking data may come from OpenStreetMap/Overpass and supported municipal or national open-data sources such as MobiData BW/ParkAPI, ParkenDD, RDW, Stad Gent, Stadt St.Gallen, Open Transport Data Switzerland/SBB P+Rail, Brussels Open Data, Dublin City Council, Helsinki Parkkihubi, Strasbourg Open Data, Montpellier NGSI-LD, Málaga Open Data, Lille MEL Open Data, Grenoble SMMAG, Singapore data.gov.sg, Hong Kong DATA.GOV.HK, City of Melbourne and Madrid Open Data. Optional credentialed providers include Golemio, Transport for NSW and Taiwan TDX.
 
 Each provider's original attribution/licence remains applicable. The integration exposes provider/source information on normalized results where available. Map rendering uses MapLibre and OpenFreeMap.
 
