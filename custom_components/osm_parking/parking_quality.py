@@ -135,8 +135,9 @@ def normalize_facility(
             else:
                 item["availability_freshness"] = "verified"
         elif kind == "live":
-            # Some official endpoints document realtime output but omit a
-            # producer timestamp; retain the claim but disclose uncertainty.
+            # Without a producer timestamp it cannot outrank time-verified
+            # measurements: preserve counts but classify as REPORTED.
+            kind = "reported"
             item["availability_freshness"] = "unverified"
         else:
             item["availability_freshness"] = "unverified"

@@ -77,7 +77,12 @@ class OsmParkingSensor(CoordinatorEntity[OsmParkingCoordinator], SensorEntity):
         error = str(self.coordinator.last_exception or "Unknown update error")
         attrs["status"] = "error"
         attrs["suggestions"] = []
+        attrs["parking_zones"] = []
+        attrs["parking_zone_count"] = 0
         attrs["raw_result_count"] = 0
+        attrs["realtime_result_count"] = 0
+        attrs["reported_result_count"] = 0
+        attrs["estimated_result_count"] = 0
         attrs["error"] = error
         attrs["error_code"] = self._error_code(error)
         attrs["auto_retry"] = True

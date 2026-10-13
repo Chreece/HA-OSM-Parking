@@ -104,6 +104,8 @@ class SourceQualityContracts(unittest.TestCase):
     def test_missing_timestamp_legacy_claim_is_disclosed(self):
         item = quality.normalize_facility(facility("older", kind="live", free=2))
         self.assertEqual(item["availability_freshness"], "unverified")
+        self.assertEqual(item["availability_kind"], "reported")
+        self.assertFalse(item["has_realtime_data"])
 
     def test_nearby_distinct_garages_not_merged(self):
         a = facility("source_a", name="Central Garage")

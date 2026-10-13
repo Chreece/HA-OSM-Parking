@@ -259,7 +259,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if provider_result.live_refresh_seconds:
                 live_refresh_seconds.append(provider_result.live_refresh_seconds)
 
-        if overpass_error and provider_suggestion_count == 0:
+        if overpass_error and provider_suggestion_count == 0 and not parking_zones:
             raise UpdateFailed(overpass_error)
 
         realtime_result_count = sum(

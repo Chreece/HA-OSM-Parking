@@ -792,7 +792,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
             <div class="title"></div>
             <div class="subtitle"></div>
           </div>
-          <div class="headright"><span class="version">v0.9.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
+          <div class="headright"><span class="version">v1.0.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
         <div class="status-panel" hidden>
           <div class="status-head">
