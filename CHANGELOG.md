@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.3.7
+
+### Fixed
+
+- Fixed intermittent Lovelace **Configuration error** screens that required a hard browser refresh.
+- The bundled dashboard card now registers through Home Assistant's Lovelace resource collection in storage mode instead of relying on an un-awaited frontend extra-module import.
+- The card resource URL is cache-busted by both release version and Home Assistant process, allowing the browser to recover from a failed/stale ES-module import after a backend restart.
+- The static card route is registered before the Lovelace resource is created or updated.
+- YAML resource mode retains the frontend extra-module loader as a compatibility fallback.
+
+### Changed
+
+- Added `lovelace` as an explicit integration dependency so resource registration happens only after Lovelace is ready.
+
+
 ## v0.3.6
 
 ### Changed
