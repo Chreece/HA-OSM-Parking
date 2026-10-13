@@ -34,7 +34,7 @@
     "step": {
       "init": {
         "title": "Opzioni Parcheggio OSM",
-        "description": "Scegli tra le entità di destinazione attualmente compatibili e configura la ricerca. Sono supportati gli attributi latitude + longitude oppure lat + lon/lng.",
+        "description": "Configura la ricerca e i provider regionali opzionali. I provider pubblici senza chiave sono automatici. Quelli con credenziali vengono usati solo se abilitati, configurati e se la destinazione è coperta.",
         "data": {
           "destination_entity": "Entità di destinazione",
           "radius_m": "Raggio di ricerca",
@@ -46,10 +46,21 @@
           "category_multi_storey_enabled": "Includi parcheggi multipiano",
           "category_park_and_ride_enabled": "Includi Park & Ride",
           "category_other_enabled": "Includi altri parcheggi",
-          "max_results": "Risultati massimi per categoria"
+          "max_results": "Risultati massimi per categoria",
+          "golemio_enabled": "Abilita provider Golemio di Praga",
+          "golemio_api_key": "Chiave API Golemio",
+          "tfnsw_enabled": "Abilita provider Transport for NSW",
+          "tfnsw_api_key": "Chiave API TfNSW",
+          "tdx_enabled": "Abilita provider Taiwan TDX",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret"
         },
         "data_description": {
-          "destination_entity": "Vengono elencate automaticamente solo le entità compatibili. Attributi richiesti: latitude + longitude oppure lat + lon/lng. Esempio: latitude 50.9385, longitude 6.9829."
+          "destination_entity": "Vengono elencate automaticamente solo le entità compatibili. Attributi richiesti: latitude + longitude oppure lat + lon/lng. Esempio: latitude 50.9385, longitude 6.9829.",
+          "golemio_api_key": "Chiave sviluppatore gratuita opzionale da api.golemio.cz/api-keys. Usata solo per destinazioni a Praga.",
+          "tfnsw_api_key": "Chiave Transport for NSW Open Data opzionale. Usata solo per destinazioni in NSW.",
+          "tdx_client_id": "TDX Client ID opzionale dal centro membri TDX. Sono richiesti sia Client ID sia Client Secret.",
+          "tdx_client_secret": "TDX Client Secret opzionale. Viene salvato in Home Assistant e oscurato nei diagnostici."
         }
       }
     },
