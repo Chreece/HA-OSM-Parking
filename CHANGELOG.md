@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.2.0
+
+### Added
+
+- Replaced the crowded single-page setup and options form with a **four-step wizard**: destination/distance, parking categories, credentialed-provider multiselect, and conditional credential entry.
+- Parking categories now have one searchable multiselect rather than seven separate toggles; the existing maximum-per-category, restricted parking, and experimental Athens zone settings remain available in step two.
+- Credential-requiring providers can be enabled together with a multiselect in step three; only their relevant API key or client ID/secret fields appear in step four.
+- Added 14-language step titles, descriptions, selector option labels and validation errors.
+- Added offline wizard-navigation and persistence regression tests covering initial setup, editing, validation, conditional screens, and credential secrecy.
+
+### Changed
+
+- No API credentials screen is shown when zero credential-requiring providers are selected.
+- OpenStreetMap and all municipal providers that require no credentials remain fully automatic and are not cluttering the provider selector.
+- Previously saved credentials are never prefilled or sent back to the frontend. Leaving a field blank keeps its secret; disabling a provider retains its key for easy later reactivation.
+- Stored category booleans, provider-enabled flags, distance, destination and API credential keys remain backward-compatible. Reconfiguration saves once at the end and reloads the integration.
+- Compatible source entities are still listed by friendly name, entity ID and coordinates. An unchanged existing source can be edited even while temporarily unavailable; a new source must provide valid coordinates.
+
+### Validation
+
+- All previously implemented data sources, live-vs-reported classification, failure isolation, Athens zone visualization and best-source deduplication stay unchanged.
+- Regression tests verify that malformed selections, missing keys and invalid radii cannot silently save a partial configuration.
+
 ## v1.1.0
 
 ### Added

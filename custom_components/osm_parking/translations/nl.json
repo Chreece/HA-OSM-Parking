@@ -3,28 +3,62 @@
   "config": {
     "step": {
       "user": {
-        "title": "OSM Parkeren",
-        "description": "Kies een bestemmingsentiteit uit de hieronder gedetecteerde compatibele entiteiten. Een compatibele entiteit moet numerieke attributen latitude + longitude of lat + lon/lng bevatten. De zoekopdracht wordt vernieuwd wanneer de bestemming verandert of Home Assistant start.",
+        "title": "1/4 · Bestemming en afstand",
+        "description": "Kies een doelentiteit en de afstand waarbinnen parkeerplaatsen gezocht worden.",
         "data": {
           "destination_entity": "Bestemmingsentiteit",
-          "radius_m": "Zoekradius",
-          "include_restricted": "Beperkt/privéparkeren meenemen",
-          "category_paid_enabled": "Betaald parkeren meenemen",
-          "category_open_enabled": "Open / parkeerterreinen meenemen",
-          "category_street_enabled": "Parkeren langs de straat meenemen",
-          "category_underground_enabled": "Ondergrondse parkeergarages meenemen",
-          "category_multi_storey_enabled": "Parkeergarages meenemen",
-          "category_park_and_ride_enabled": "Park & Ride meenemen",
-          "category_other_enabled": "Overige parkeerplaatsen meenemen",
-          "max_results": "Maximumresultaten per categorie"
+          "radius_m": "Zoekradius"
         },
         "data_description": {
           "destination_entity": "Alleen compatibele entiteiten worden automatisch weergegeven. Verwachte attributen: latitude + longitude of lat + lon/lng. Voorbeeld: latitude 50.9385, longitude 6.9829."
         }
+      },
+      "categories": {
+        "title": "2/4 · Parkeersoorten",
+        "description": "Selecteer minimaal één parkeersoort, de limiet per categorie en desgewenst privéparkeren of Atheense parkeerzones.",
+        "data": {
+          "parking_types": "Parkeersoorten",
+          "max_results": "Maximumresultaten per categorie",
+          "include_restricted": "Beperkt/privéparkeren meenemen",
+          "athens_zones_enabled": "Parkeerzones van Athene tonen (experimentele GIS-dienst)"
+        },
+        "data_description": {
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+        }
+      },
+      "providers": {
+        "title": "3/4 · Extra aanbieders",
+        "description": "OpenStreetMap en openbare bronnen zonder sleutel werken automatisch. Kies extra aanbieders waarvoor een API-sleutel nodig is (vaak gratis). Zonder selectie wordt stap 4 overgeslagen.",
+        "data": {
+          "credential_providers": "Aanbieders met API-sleutel"
+        }
+      },
+      "credentials": {
+        "title": "4/4 · API-inloggegevens",
+        "description": "Vul de sleutels in voor: {selected_providers}. Opgeslagen sleutels blijven behouden als velden leeg blijven en worden nooit getoond.",
+        "data": {
+          "golemio_api_key": "Golemio API-sleutel",
+          "tfnsw_api_key": "TfNSW API-sleutel",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret",
+          "ura_access_key": "Toegangssleutel Singapore URA API"
+        },
+        "data_description": {
+          "golemio_api_key": "Optionele gratis ontwikkelaarssleutel van api.golemio.cz/api-keys. Alleen voor bestemmingen in Praag.",
+          "tfnsw_api_key": "Optionele Transport for NSW Open Data API-sleutel. Alleen voor bestemmingen in NSW.",
+          "tdx_client_id": "Optionele TDX Client ID uit het TDX-ledencentrum. Client ID en Client Secret zijn beide vereist.",
+          "tdx_client_secret": "Optioneel TDX Client Secret. Wordt in Home Assistant opgeslagen en uit diagnostiek verwijderd.",
+          "ura_access_key": "Optionele sleutel van het officiële URA-portaal voor dagelijkse tokens. Verborgen in diagnostiek."
+        }
       }
     },
     "error": {
-      "invalid_destination_entity": "De geselecteerde entiteit is niet beschikbaar of bevat momenteel geen geldige coördinaten."
+      "invalid_destination_entity": "De geselecteerde entiteit is niet beschikbaar of bevat momenteel geen geldige coördinaten.",
+      "no_parking_types": "Kies ten minste één parkeersoort.",
+      "invalid_provider_selection": "Kies alleen aanbieders uit de lijst.",
+      "invalid_radius": "Afstand moet tussen 100 en 10.000 meter zijn.",
+      "invalid_max_results": "Maximaal 1 tot 25 resultaten per categorie.",
+      "missing_credentials": "Voer de ontbrekende sleutel in of schakel de aanbieder uit."
     },
     "abort": {
       "already_configured": "Deze bestemmingsentiteit is al geconfigureerd."
@@ -33,44 +67,83 @@
   "options": {
     "step": {
       "init": {
-        "title": "OSM Parkeren-opties",
-        "description": "Configureer de zoekopdracht en optionele regionale providers. Openbare providers zonder sleutel werken automatisch. Providers met credentials worden alleen gebruikt als ze zijn ingeschakeld, geconfigureerd en de bestemming binnen hun dekking valt.",
+        "title": "1/4 · Bestemming en afstand",
+        "description": "Kies een doelentiteit en de afstand waarbinnen parkeerplaatsen gezocht worden.",
         "data": {
           "destination_entity": "Bestemmingsentiteit",
-          "radius_m": "Zoekradius",
-          "include_restricted": "Beperkt/privéparkeren meenemen",
-          "category_paid_enabled": "Betaald parkeren meenemen",
-          "category_open_enabled": "Open / parkeerterreinen meenemen",
-          "category_street_enabled": "Parkeren langs de straat meenemen",
-          "category_underground_enabled": "Ondergrondse parkeergarages meenemen",
-          "category_multi_storey_enabled": "Parkeergarages meenemen",
-          "category_park_and_ride_enabled": "Park & Ride meenemen",
-          "category_other_enabled": "Overige parkeerplaatsen meenemen",
+          "radius_m": "Zoekradius"
+        },
+        "data_description": {
+          "destination_entity": "Alleen compatibele entiteiten worden automatisch weergegeven. Verwachte attributen: latitude + longitude of lat + lon/lng. Voorbeeld: latitude 50.9385, longitude 6.9829."
+        }
+      },
+      "categories": {
+        "title": "2/4 · Parkeersoorten",
+        "description": "Selecteer minimaal één parkeersoort, de limiet per categorie en desgewenst privéparkeren of Atheense parkeerzones.",
+        "data": {
+          "parking_types": "Parkeersoorten",
           "max_results": "Maximumresultaten per categorie",
-          "golemio_enabled": "Prague Golemio-provider inschakelen",
+          "include_restricted": "Beperkt/privéparkeren meenemen",
+          "athens_zones_enabled": "Parkeerzones van Athene tonen (experimentele GIS-dienst)"
+        },
+        "data_description": {
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+        }
+      },
+      "providers": {
+        "title": "3/4 · Extra aanbieders",
+        "description": "OpenStreetMap en openbare bronnen zonder sleutel werken automatisch. Kies extra aanbieders waarvoor een API-sleutel nodig is (vaak gratis). Zonder selectie wordt stap 4 overgeslagen.",
+        "data": {
+          "credential_providers": "Aanbieders met API-sleutel"
+        }
+      },
+      "credentials": {
+        "title": "4/4 · API-inloggegevens",
+        "description": "Vul de sleutels in voor: {selected_providers}. Opgeslagen sleutels blijven behouden als velden leeg blijven en worden nooit getoond.",
+        "data": {
           "golemio_api_key": "Golemio API-sleutel",
-          "tfnsw_enabled": "Transport for NSW-provider inschakelen",
           "tfnsw_api_key": "TfNSW API-sleutel",
-          "tdx_enabled": "Taiwan TDX-provider inschakelen",
           "tdx_client_id": "TDX Client ID",
           "tdx_client_secret": "TDX Client Secret",
-          "athens_zones_enabled": "Parkeerzones van Athene tonen (experimentele GIS-dienst)",
-          "ura_enabled": "Singapore URA-parkeerplaatsen inschakelen (sleutel vereist)",
           "ura_access_key": "Toegangssleutel Singapore URA API"
         },
         "data_description": {
-          "destination_entity": "Alleen compatibele entiteiten worden automatisch weergegeven. Verwachte attributen: latitude + longitude of lat + lon/lng. Voorbeeld: latitude 50.9385, longitude 6.9829.",
           "golemio_api_key": "Optionele gratis ontwikkelaarssleutel van api.golemio.cz/api-keys. Alleen voor bestemmingen in Praag.",
           "tfnsw_api_key": "Optionele Transport for NSW Open Data API-sleutel. Alleen voor bestemmingen in NSW.",
           "tdx_client_id": "Optionele TDX Client ID uit het TDX-ledencentrum. Client ID en Client Secret zijn beide vereist.",
           "tdx_client_secret": "Optioneel TDX Client Secret. Wordt in Home Assistant opgeslagen en uit diagnostiek verwijderd.",
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions.",
           "ura_access_key": "Optionele sleutel van het officiële URA-portaal voor dagelijkse tokens. Verborgen in diagnostiek."
         }
       }
     },
     "error": {
-      "invalid_destination_entity": "De geselecteerde entiteit is niet beschikbaar of bevat momenteel geen geldige coördinaten."
+      "invalid_destination_entity": "De geselecteerde entiteit is niet beschikbaar of bevat momenteel geen geldige coördinaten.",
+      "no_parking_types": "Kies ten minste één parkeersoort.",
+      "invalid_provider_selection": "Kies alleen aanbieders uit de lijst.",
+      "invalid_radius": "Afstand moet tussen 100 en 10.000 meter zijn.",
+      "invalid_max_results": "Maximaal 1 tot 25 resultaten per categorie.",
+      "missing_credentials": "Voer de ontbrekende sleutel in of schakel de aanbieder uit."
+    }
+  },
+  "selector": {
+    "parking_types": {
+      "options": {
+        "paid": "Betaald parkeren meenemen",
+        "open": "Open / parkeerterreinen meenemen",
+        "street": "Parkeren langs de straat meenemen",
+        "underground": "Ondergrondse parkeergarages meenemen",
+        "multi_storey": "Parkeergarages meenemen",
+        "park_and_ride": "Park & Ride meenemen",
+        "other": "Overige parkeerplaatsen meenemen"
+      }
+    },
+    "credential_providers": {
+      "options": {
+        "golemio": "Prague Golemio-provider inschakelen",
+        "tfnsw": "Transport for NSW-provider inschakelen",
+        "tdx": "Taiwan TDX-provider inschakelen",
+        "ura": "Singapore URA-parkeerplaatsen inschakelen (sleutel vereist)"
+      }
     }
   }
 }

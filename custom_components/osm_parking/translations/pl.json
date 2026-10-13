@@ -3,28 +3,62 @@
   "config": {
     "step": {
       "user": {
-        "title": "Parking OSM",
-        "description": "Wybierz encję docelową spośród wykrytych poniżej zgodnych encji. Zgodna encja musi udostępniać liczbowe atrybuty latitude + longitude albo lat + lon/lng. Wyszukiwanie jest odświeżane po zmianie celu lub uruchomieniu Home Assistant.",
+        "title": "1/4 · Cel i odległość",
+        "description": "Wybierz encję docelową oraz odległość wyszukiwania miejsc parkingowych.",
         "data": {
           "destination_entity": "Encja docelowa",
-          "radius_m": "Promień wyszukiwania",
-          "include_restricted": "Uwzględnij parking ograniczony/prywatny",
-          "category_paid_enabled": "Uwzględnij parking płatny",
-          "category_open_enabled": "Uwzględnij parking otwarty / naziemny",
-          "category_street_enabled": "Uwzględnij parkowanie przy ulicy",
-          "category_underground_enabled": "Uwzględnij parking podziemny",
-          "category_multi_storey_enabled": "Uwzględnij parking wielopoziomowy",
-          "category_park_and_ride_enabled": "Uwzględnij Park & Ride",
-          "category_other_enabled": "Uwzględnij inne parkingi",
-          "max_results": "Maksymalna liczba wyników na kategorię"
+          "radius_m": "Promień wyszukiwania"
         },
         "data_description": {
           "destination_entity": "Automatycznie wyświetlane są tylko zgodne encje. Wymagane atrybuty: latitude + longitude albo lat + lon/lng. Przykład: latitude 50.9385, longitude 6.9829."
         }
+      },
+      "categories": {
+        "title": "2/4 · Rodzaje parkingów",
+        "description": "Wybierz co najmniej jeden rodzaj parkingu, limit wyników dla kategorii oraz opcjonalnie miejsca prywatne lub strefy Aten.",
+        "data": {
+          "parking_types": "Rodzaje parkingów",
+          "max_results": "Maksymalna liczba wyników na kategorię",
+          "include_restricted": "Uwzględnij parking ograniczony/prywatny",
+          "athens_zones_enabled": "Pokaż strefy parkowania Aten (eksperymentalna usługa GIS)"
+        },
+        "data_description": {
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+        }
+      },
+      "providers": {
+        "title": "3/4 · Dodatkowi dostawcy",
+        "description": "OpenStreetMap i publiczne źródła bez klucza działają automatycznie. Wybierz dodatkowych dostawców wymagających klucza API (często dostępnego za darmo). Bez wyboru krok 4 zostanie pominięty.",
+        "data": {
+          "credential_providers": "Dostawcy wymagający klucza API"
+        }
+      },
+      "credentials": {
+        "title": "4/4 · Dane dostępu API",
+        "description": "Podaj dane dostępowe dla: {selected_providers}. Zapisane klucze pozostaną aktywne przy pustych polach i nigdy nie będą wyświetlane.",
+        "data": {
+          "golemio_api_key": "Klucz API Golemio",
+          "tfnsw_api_key": "Klucz API TfNSW",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret",
+          "ura_access_key": "Klucz API Singapore URA"
+        },
+        "data_description": {
+          "golemio_api_key": "Opcjonalny bezpłatny klucz deweloperski z api.golemio.cz/api-keys. Tylko dla Pragi.",
+          "tfnsw_api_key": "Opcjonalny klucz Transport for NSW Open Data. Tylko dla NSW.",
+          "tdx_client_id": "Opcjonalny TDX Client ID z centrum członkowskiego TDX. Wymagane są Client ID i Client Secret.",
+          "tdx_client_secret": "Opcjonalny TDX Client Secret. Jest przechowywany w Home Assistant i ukrywany w diagnostyce.",
+          "ura_access_key": "Opcjonalny klucz z portalu URA do uzyskania dziennego tokenu. Ukrywany w diagnostyce."
+        }
       }
     },
     "error": {
-      "invalid_destination_entity": "Wybrana encja jest niedostępna lub obecnie nie udostępnia prawidłowych współrzędnych."
+      "invalid_destination_entity": "Wybrana encja jest niedostępna lub obecnie nie udostępnia prawidłowych współrzędnych.",
+      "no_parking_types": "Wybierz co najmniej jeden rodzaj parkingu.",
+      "invalid_provider_selection": "Wybierz tylko dostawców z listy.",
+      "invalid_radius": "Odległość musi wynosić od 100 do 10 000 metrów.",
+      "invalid_max_results": "Maksymalnie od 1 do 25 wyników dla kategorii.",
+      "missing_credentials": "Podaj brakujący klucz lub wyłącz dostawcę."
     },
     "abort": {
       "already_configured": "Ta encja docelowa jest już skonfigurowana."
@@ -33,44 +67,83 @@
   "options": {
     "step": {
       "init": {
-        "title": "Opcje Parking OSM",
-        "description": "Skonfiguruj wyszukiwanie i opcjonalnych dostawców regionalnych. Publiczne źródła bez klucza działają automatycznie. Źródła wymagające danych logowania są używane tylko po włączeniu i dla właściwego obszaru.",
+        "title": "1/4 · Cel i odległość",
+        "description": "Wybierz encję docelową oraz odległość wyszukiwania miejsc parkingowych.",
         "data": {
           "destination_entity": "Encja docelowa",
-          "radius_m": "Promień wyszukiwania",
-          "include_restricted": "Uwzględnij parking ograniczony/prywatny",
-          "category_paid_enabled": "Uwzględnij parking płatny",
-          "category_open_enabled": "Uwzględnij parking otwarty / naziemny",
-          "category_street_enabled": "Uwzględnij parkowanie przy ulicy",
-          "category_underground_enabled": "Uwzględnij parking podziemny",
-          "category_multi_storey_enabled": "Uwzględnij parking wielopoziomowy",
-          "category_park_and_ride_enabled": "Uwzględnij Park & Ride",
-          "category_other_enabled": "Uwzględnij inne parkingi",
+          "radius_m": "Promień wyszukiwania"
+        },
+        "data_description": {
+          "destination_entity": "Automatycznie wyświetlane są tylko zgodne encje. Wymagane atrybuty: latitude + longitude albo lat + lon/lng. Przykład: latitude 50.9385, longitude 6.9829."
+        }
+      },
+      "categories": {
+        "title": "2/4 · Rodzaje parkingów",
+        "description": "Wybierz co najmniej jeden rodzaj parkingu, limit wyników dla kategorii oraz opcjonalnie miejsca prywatne lub strefy Aten.",
+        "data": {
+          "parking_types": "Rodzaje parkingów",
           "max_results": "Maksymalna liczba wyników na kategorię",
-          "golemio_enabled": "Włącz dostawcę Golemio dla Pragi",
+          "include_restricted": "Uwzględnij parking ograniczony/prywatny",
+          "athens_zones_enabled": "Pokaż strefy parkowania Aten (eksperymentalna usługa GIS)"
+        },
+        "data_description": {
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+        }
+      },
+      "providers": {
+        "title": "3/4 · Dodatkowi dostawcy",
+        "description": "OpenStreetMap i publiczne źródła bez klucza działają automatycznie. Wybierz dodatkowych dostawców wymagających klucza API (często dostępnego za darmo). Bez wyboru krok 4 zostanie pominięty.",
+        "data": {
+          "credential_providers": "Dostawcy wymagający klucza API"
+        }
+      },
+      "credentials": {
+        "title": "4/4 · Dane dostępu API",
+        "description": "Podaj dane dostępowe dla: {selected_providers}. Zapisane klucze pozostaną aktywne przy pustych polach i nigdy nie będą wyświetlane.",
+        "data": {
           "golemio_api_key": "Klucz API Golemio",
-          "tfnsw_enabled": "Włącz dostawcę Transport for NSW",
           "tfnsw_api_key": "Klucz API TfNSW",
-          "tdx_enabled": "Włącz dostawcę Taiwan TDX",
           "tdx_client_id": "TDX Client ID",
           "tdx_client_secret": "TDX Client Secret",
-          "athens_zones_enabled": "Pokaż strefy parkowania Aten (eksperymentalna usługa GIS)",
-          "ura_enabled": "Włącz parkingi Singapore URA (wymagany klucz)",
           "ura_access_key": "Klucz API Singapore URA"
         },
         "data_description": {
-          "destination_entity": "Automatycznie wyświetlane są tylko zgodne encje. Wymagane atrybuty: latitude + longitude albo lat + lon/lng. Przykład: latitude 50.9385, longitude 6.9829.",
           "golemio_api_key": "Opcjonalny bezpłatny klucz deweloperski z api.golemio.cz/api-keys. Tylko dla Pragi.",
           "tfnsw_api_key": "Opcjonalny klucz Transport for NSW Open Data. Tylko dla NSW.",
           "tdx_client_id": "Opcjonalny TDX Client ID z centrum członkowskiego TDX. Wymagane są Client ID i Client Secret.",
           "tdx_client_secret": "Opcjonalny TDX Client Secret. Jest przechowywany w Home Assistant i ukrywany w diagnostyce.",
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions.",
           "ura_access_key": "Opcjonalny klucz z portalu URA do uzyskania dziennego tokenu. Ukrywany w diagnostyce."
         }
       }
     },
     "error": {
-      "invalid_destination_entity": "Wybrana encja jest niedostępna lub obecnie nie udostępnia prawidłowych współrzędnych."
+      "invalid_destination_entity": "Wybrana encja jest niedostępna lub obecnie nie udostępnia prawidłowych współrzędnych.",
+      "no_parking_types": "Wybierz co najmniej jeden rodzaj parkingu.",
+      "invalid_provider_selection": "Wybierz tylko dostawców z listy.",
+      "invalid_radius": "Odległość musi wynosić od 100 do 10 000 metrów.",
+      "invalid_max_results": "Maksymalnie od 1 do 25 wyników dla kategorii.",
+      "missing_credentials": "Podaj brakujący klucz lub wyłącz dostawcę."
+    }
+  },
+  "selector": {
+    "parking_types": {
+      "options": {
+        "paid": "Uwzględnij parking płatny",
+        "open": "Uwzględnij parking otwarty / naziemny",
+        "street": "Uwzględnij parkowanie przy ulicy",
+        "underground": "Uwzględnij parking podziemny",
+        "multi_storey": "Uwzględnij parking wielopoziomowy",
+        "park_and_ride": "Uwzględnij Park & Ride",
+        "other": "Uwzględnij inne parkingi"
+      }
+    },
+    "credential_providers": {
+      "options": {
+        "golemio": "Włącz dostawcę Golemio dla Pragi",
+        "tfnsw": "Włącz dostawcę Transport for NSW",
+        "tdx": "Włącz dostawcę Taiwan TDX",
+        "ura": "Włącz parkingi Singapore URA (wymagany klucz)"
+      }
     }
   }
 }

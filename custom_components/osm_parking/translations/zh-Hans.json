@@ -3,28 +3,62 @@
   "config": {
     "step": {
       "user": {
-        "title": "OSM 停车",
-        "description": "从下方检测到的兼容实体中选择一个目的地实体。兼容实体必须提供数值型 latitude + longitude，或 lat + lon/lng 属性。目的地变化或 Home Assistant 启动时会刷新停车搜索。",
+        "title": "1/4 · 目的地与距离",
+        "description": "选择目的地实体和停车搜索距离。其他设置将在后续步骤中配置。",
         "data": {
           "destination_entity": "目的地实体",
-          "radius_m": "搜索半径",
-          "include_restricted": "包含受限/私人停车位",
-          "category_paid_enabled": "包含收费停车位",
-          "category_open_enabled": "包含露天 / 地面停车场",
-          "category_street_enabled": "包含路边停车",
-          "category_underground_enabled": "包含地下停车场",
-          "category_multi_storey_enabled": "包含多层停车场",
-          "category_park_and_ride_enabled": "包含 Park & Ride",
-          "category_other_enabled": "包含其他停车位",
-          "max_results": "每个类别的最大结果数"
+          "radius_m": "搜索半径"
         },
         "data_description": {
           "destination_entity": "仅自动列出兼容实体。所需属性：latitude + longitude，或 lat + lon/lng。示例：latitude 50.9385，longitude 6.9829。"
         }
+      },
+      "categories": {
+        "title": "2/4 · 停车类型",
+        "description": "选择至少一种停车类型、每类最大结果数，以及是否包含私人车位或雅典管制停车区域。",
+        "data": {
+          "parking_types": "停车类型",
+          "max_results": "每个类别的最大结果数",
+          "include_restricted": "包含受限/私人停车位",
+          "athens_zones_enabled": "显示雅典受管制停车区域（实验性 GIS 服务）"
+        },
+        "data_description": {
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+        }
+      },
+      "providers": {
+        "title": "3/4 · 其他数据提供方",
+        "description": "OpenStreetMap 和免密钥的公共数据源会自动启用。请选择其他需要 API 密钥的提供方（不少提供免费开发者密钥）。未选择时跳过第 4 步。",
+        "data": {
+          "credential_providers": "需要 API 密钥的提供方"
+        }
+      },
+      "credentials": {
+        "title": "4/4 · API 凭据",
+        "description": "请输入以下提供方的凭据：{selected_providers}。留空将保留已保存的密钥，密钥不会显示在表单中。",
+        "data": {
+          "golemio_api_key": "Golemio API 密钥",
+          "tfnsw_api_key": "TfNSW API 密钥",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret",
+          "ura_access_key": "新加坡 URA API 访问密钥"
+        },
+        "data_description": {
+          "golemio_api_key": "可选的免费开发者密钥，可从 api.golemio.cz/api-keys 获取。仅用于布拉格目的地。",
+          "tfnsw_api_key": "可选的 Transport for NSW Open Data API 密钥。仅用于 NSW 目的地。",
+          "tdx_client_id": "可选的 TDX Client ID，可从 TDX 会员中心获取。Client ID 和 Client Secret 均为必需。",
+          "tdx_client_secret": "可选的 TDX Client Secret。保存在 Home Assistant 配置项中，并从诊断信息中隐藏。",
+          "ura_access_key": "来自 URA 官方门户的可选密钥，用于获取每日令牌，并在诊断信息中隐藏。"
+        }
       }
     },
     "error": {
-      "invalid_destination_entity": "所选实体不可用，或当前未提供有效坐标。"
+      "invalid_destination_entity": "所选实体不可用，或当前未提供有效坐标。",
+      "no_parking_types": "请至少选择一种停车类型。",
+      "invalid_provider_selection": "仅可选择列表中的提供方。",
+      "invalid_radius": "搜索距离须在 100 至 10,000 米之间。",
+      "invalid_max_results": "每类结果上限须在 1 至 25 之间。",
+      "missing_credentials": "请输入缺少的凭据或禁用该提供方。"
     },
     "abort": {
       "already_configured": "此目的地实体已配置。"
@@ -33,44 +67,83 @@
   "options": {
     "step": {
       "init": {
-        "title": "OSM 停车选项",
-        "description": "配置搜索和可选的区域数据源。无需密钥的公共数据源会自动使用。需要凭据的数据源仅在已启用、已配置且目的地位于覆盖范围内时调用。",
+        "title": "1/4 · 目的地与距离",
+        "description": "选择目的地实体和停车搜索距离。其他设置将在后续步骤中配置。",
         "data": {
           "destination_entity": "目的地实体",
-          "radius_m": "搜索半径",
-          "include_restricted": "包含受限/私人停车位",
-          "category_paid_enabled": "包含收费停车位",
-          "category_open_enabled": "包含露天 / 地面停车场",
-          "category_street_enabled": "包含路边停车",
-          "category_underground_enabled": "包含地下停车场",
-          "category_multi_storey_enabled": "包含多层停车场",
-          "category_park_and_ride_enabled": "包含 Park & Ride",
-          "category_other_enabled": "包含其他停车位",
+          "radius_m": "搜索半径"
+        },
+        "data_description": {
+          "destination_entity": "仅自动列出兼容实体。所需属性：latitude + longitude，或 lat + lon/lng。示例：latitude 50.9385，longitude 6.9829。"
+        }
+      },
+      "categories": {
+        "title": "2/4 · 停车类型",
+        "description": "选择至少一种停车类型、每类最大结果数，以及是否包含私人车位或雅典管制停车区域。",
+        "data": {
+          "parking_types": "停车类型",
           "max_results": "每个类别的最大结果数",
-          "golemio_enabled": "启用布拉格 Golemio 提供商",
+          "include_restricted": "包含受限/私人停车位",
+          "athens_zones_enabled": "显示雅典受管制停车区域（实验性 GIS 服务）"
+        },
+        "data_description": {
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+        }
+      },
+      "providers": {
+        "title": "3/4 · 其他数据提供方",
+        "description": "OpenStreetMap 和免密钥的公共数据源会自动启用。请选择其他需要 API 密钥的提供方（不少提供免费开发者密钥）。未选择时跳过第 4 步。",
+        "data": {
+          "credential_providers": "需要 API 密钥的提供方"
+        }
+      },
+      "credentials": {
+        "title": "4/4 · API 凭据",
+        "description": "请输入以下提供方的凭据：{selected_providers}。留空将保留已保存的密钥，密钥不会显示在表单中。",
+        "data": {
           "golemio_api_key": "Golemio API 密钥",
-          "tfnsw_enabled": "启用 Transport for NSW 提供商",
           "tfnsw_api_key": "TfNSW API 密钥",
-          "tdx_enabled": "启用台湾 TDX 提供商",
           "tdx_client_id": "TDX Client ID",
           "tdx_client_secret": "TDX Client Secret",
-          "athens_zones_enabled": "显示雅典受管制停车区域（实验性 GIS 服务）",
-          "ura_enabled": "启用新加坡 URA 停车场（需要访问密钥）",
           "ura_access_key": "新加坡 URA API 访问密钥"
         },
         "data_description": {
-          "destination_entity": "仅自动列出兼容实体。所需属性：latitude + longitude，或 lat + lon/lng。示例：latitude 50.9385，longitude 6.9829。",
           "golemio_api_key": "可选的免费开发者密钥，可从 api.golemio.cz/api-keys 获取。仅用于布拉格目的地。",
           "tfnsw_api_key": "可选的 Transport for NSW Open Data API 密钥。仅用于 NSW 目的地。",
           "tdx_client_id": "可选的 TDX Client ID，可从 TDX 会员中心获取。Client ID 和 Client Secret 均为必需。",
           "tdx_client_secret": "可选的 TDX Client Secret。保存在 Home Assistant 配置项中，并从诊断信息中隐藏。",
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions.",
           "ura_access_key": "来自 URA 官方门户的可选密钥，用于获取每日令牌，并在诊断信息中隐藏。"
         }
       }
     },
     "error": {
-      "invalid_destination_entity": "所选实体不可用，或当前未提供有效坐标。"
+      "invalid_destination_entity": "所选实体不可用，或当前未提供有效坐标。",
+      "no_parking_types": "请至少选择一种停车类型。",
+      "invalid_provider_selection": "仅可选择列表中的提供方。",
+      "invalid_radius": "搜索距离须在 100 至 10,000 米之间。",
+      "invalid_max_results": "每类结果上限须在 1 至 25 之间。",
+      "missing_credentials": "请输入缺少的凭据或禁用该提供方。"
+    }
+  },
+  "selector": {
+    "parking_types": {
+      "options": {
+        "paid": "包含收费停车位",
+        "open": "包含露天 / 地面停车场",
+        "street": "包含路边停车",
+        "underground": "包含地下停车场",
+        "multi_storey": "包含多层停车场",
+        "park_and_ride": "包含 Park & Ride",
+        "other": "包含其他停车位"
+      }
+    },
+    "credential_providers": {
+      "options": {
+        "golemio": "启用布拉格 Golemio 提供商",
+        "tfnsw": "启用 Transport for NSW 提供商",
+        "tdx": "启用台湾 TDX 提供商",
+        "ura": "启用新加坡 URA 停车场（需要访问密钥）"
+      }
     }
   }
 }

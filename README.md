@@ -26,7 +26,7 @@
 - Source-quality ranking, deduplication and provider provenance with live, reported, estimated, predicted and static distinctions.
 - Optional Athens municipal controlled-parking zone overlays (off by default).
 - Live free-space/occupancy data is shown when a supported provider exposes it.
-- Zero-key public providers work automatically; Prague, NSW and Taiwan providers can be enabled with optional free developer credentials.
+- Zero-key public providers work automatically; Prague, NSW, Taiwan and Singapore URA providers support optional API credentials through a four-step wizard.
 - OSM/static operation is event-driven; periodic refresh is enabled only while realtime provider data is active or while a failed source is recovering.
 - Handles Home Assistant startup cleanly while the destination entity is still restoring.
 - Searches a configurable radius and sorts the final results by distance.
@@ -99,6 +99,19 @@ custom_components/osm_parking
 ```
 
 into your Home Assistant `config/custom_components/` directory and restart Home Assistant.
+
+## Four-step guided setup and editing
+
+The initial integration setup and **Settings → Devices & services → OSM Parking → Configure** both use the same short four-step wizard:
+
+1. **Destination and distance:** Choose an entity that provides coordinates and set the parking search radius (100–10,000 m).
+2. **Parking types:** Multiselect paid, surface, street, underground, multi-storey, Park & Ride and other parking. Choose the maximum results per category (1–25), whether to include private/restricted parking, and whether to enable the optional Athens controlled-parking zone overlay.
+3. **Providers that require credentials:** Multiselect any additional providers to enable: Prague Golemio, Transport for NSW, Taiwan TDX and Singapore URA. These are not necessarily paid services; most have free developer/API-key options. **OpenStreetMap and all key-free municipal providers are automatic** and need no selection.
+4. **Provider credentials (only when needed):** Only password fields for the providers selected in step 3 appear. Taiwan TDX requires a Client ID and Client Secret; others require one key each. When no credentialed provider is selected, this final screen is skipped.
+
+The wizard **only saves after its last relevant step**. If you reopen the integration options, your previous destination, radius, parking types, zone choice and enabled credentialed providers are preselected. Existing API keys are **never shown or prefilled**; leaving an existing key field blank preserves the stored value. Deselecting a provider disables it without deleting its stored key, so it can be re-enabled later without re-entering credentials.
+
+All 14 setup languages support the four step titles, field labels, parking type and provider option labels, credential descriptions and validation errors. This change retains the same underlying config entry fields as older versions, so existing installations need no data migration.
 
 ## Destination entity
 

@@ -1,5 +1,17 @@
+"""Four-step setup and options wizard for OSM Parking.
+
+1. Destination and search distance.
+2. Parking types and filters.
+3. Credential-requiring providers (multiselect).
+4. Only the credentials needed for selected providers, if any.
+
+Changes are committed only when the wizard finishes. Existing credentials are
+never prefilled and are preserved even when their provider is deselected.
+"""
+
 from __future__ import annotations
 
+import math
 from typing import Any
 
 import voluptuous as vol
@@ -11,223 +23,280 @@ from homeassistant.helpers import selector
 
 from .const import (
     CATEGORIES,
-    CONF_DESTINATION_ENTITY,
     CONF_ATHENS_ZONES_ENABLED,
-    CONF_GOLEMIO_API_KEY,
-    CONF_GOLEMIO_ENABLED,
+    CONF_DESTINATION_ENTITY,
     CONF_INCLUDE_RESTRICTED,
     CONF_MAX_RESULTS,
     CONF_RADIUS_M,
-    CONF_TDX_CLIENT_ID,
-    CONF_TDX_CLIENT_SECRET,
-    CONF_TDX_ENABLED,
-    CONF_URA_ENABLED,
-    CONF_URA_ACCESS_KEY,
-    CONF_TFNSW_API_KEY,
-    CONF_TFNSW_ENABLED,
     DEFAULT_INCLUDE_RESTRICTED,
     DEFAULT_MAX_PER_CATEGORY,
     DEFAULT_RADIUS_M,
     DOMAIN,
-    PROVIDER_SECRET_KEYS,
-    enabled_key,
 )
-
-
-def _category_schema(defaults: dict[str, Any]) -> dict[Any, Any]:
-    """Build category enable/disable controls."""
-    schema: dict[Any, Any] = {}
-    for category in CATEGORIES:
-        schema[
-            vol.Optional(
-                enabled_key(category),
-                default=bool(defaults.get(enabled_key(category), True)),
-            )
-        ] = selector.BooleanSelector()
-    return schema
+from .flow_helpers import (
+    CONF_CREDENTIAL_PROVIDERS,
+    CONF_PARKING_TYPES,
+    CREDENTIAL_PROVIDERS,
+    PROVIDER_NAMES,
+    category_flags,
+    credential_keys,
+    credential_provider_flags,
+    prepared_credentials,
+    selected_categories,
+    selected_credential_providers,
+    valid_multiselect,
+    valid_positive_integer,
+)
 
 
 def _first_float(
     attrs: dict[str, Any], names: tuple[str, ...]
 ) -> float | None:
-    """Return the first valid numeric attribute."""
+    """Return the first finite numeric attribute from the supported aliases."""
     for name in names:
-        if name not in attrs:
+        if name not in attrs or isinstance(attrs[name], bool):
             continue
         try:
-            return float(attrs[name])
-        except (TypeError, ValueError):
+            result = float(attrs[name])
+            if math.isfinite(result):
+                return result
+        except (TypeError, ValueError, OverflowError):
             continue
     return None
 
 
 def _state_coordinates(state: State | None) -> tuple[float, float] | None:
-    """Return valid destination coordinates from a state."""
+    """Read latitude/longitude only from a usable, non-restoring entity."""
     if state is None:
         return None
-
     if str(state.state or "").strip().lower() in {
-        "",
-        "unknown",
-        "unavailable",
-        "none",
+        "", "unknown", "unavailable", "none",
     }:
         return None
-
     lat = _first_float(state.attributes, ("latitude", "lat"))
     lon = _first_float(state.attributes, ("longitude", "lon", "lng"))
-    if lat is None or lon is None:
-        return None
-    if not -90 <= lat <= 90 or not -180 <= lon <= 180:
+    if lat is None or lon is None or not -90 <= lat <= 90 or not -180 <= lon <= 180:
         return None
     return lat, lon
 
 
 def _destination_options(hass: HomeAssistant) -> list[selector.SelectOptionDict]:
-    """Return all currently usable destination entities."""
-    options: list[selector.SelectOptionDict] = []
-
+    """List all compatible destination entities with coordinates in the label."""
+    choices: list[selector.SelectOptionDict] = []
     for state in hass.states.async_all():
-        coordinates = _state_coordinates(state)
-        if coordinates is None:
+        coords = _state_coordinates(state)
+        if coords is None:
             continue
-
-        lat, lon = coordinates
-        friendly_name = str(
-            state.attributes.get("friendly_name") or state.entity_id
-        )
-        options.append(
+        lat, lon = coords
+        name = str(state.attributes.get("friendly_name") or state.entity_id)
+        choices.append(
             selector.SelectOptionDict(
                 value=state.entity_id,
-                label=(
-                    f"{friendly_name} ({state.entity_id}) "
-                    f"— {lat:.5f}, {lon:.5f}"
-                ),
+                label=f"{name} ({state.entity_id}) — {lat:.5f}, {lon:.5f}",
             )
         )
+    return sorted(choices, key=lambda entry: entry["label"].casefold())
 
-    return sorted(options, key=lambda item: item["label"].casefold())
 
-
-def _schema(
-    hass: HomeAssistant,
-    defaults: dict[str, Any],
-    *,
-    include_provider_credentials: bool = False,
+def _distance_schema(
+    hass: HomeAssistant, settings: dict[str, Any]
 ) -> vol.Schema:
-    """Build the complete configuration form."""
-    destination_options = _destination_options(hass)
-    current_destination = str(
-        defaults.get(CONF_DESTINATION_ENTITY, "")
-    ).strip()
-
-    destination_field = (
-        vol.Required(CONF_DESTINATION_ENTITY, default=current_destination)
-        if current_destination
+    """Wizard step 1: destination and distance, nothing else."""
+    current = str(settings.get(CONF_DESTINATION_ENTITY) or "").strip()
+    marker = (
+        vol.Required(CONF_DESTINATION_ENTITY, default=current)
+        if current
         else vol.Required(CONF_DESTINATION_ENTITY)
     )
-
-    fields: dict[Any, Any] = {
-        destination_field: selector.SelectSelector(
+    distance = settings.get(CONF_RADIUS_M, DEFAULT_RADIUS_M)
+    # Invalid frontend input must re-render a valid form, never crash while
+    # computing the default for an error response (NaN/inf/text are possible).
+    distance_default = (
+        int(distance)
+        if valid_positive_integer(distance, 100, 10000)
+        else DEFAULT_RADIUS_M
+    )
+    return vol.Schema({
+        marker: selector.SelectSelector(
             selector.SelectSelectorConfig(
-                options=destination_options,
+                options=_destination_options(hass),
                 mode=selector.SelectSelectorMode.DROPDOWN,
-                custom_value=bool(current_destination),
+                # Preserve an existing entity while it is restoring.
+                custom_value=bool(current),
             )
         ),
         vol.Required(
             CONF_RADIUS_M,
-            default=int(defaults.get(CONF_RADIUS_M, DEFAULT_RADIUS_M)),
+            default=distance_default,
         ): selector.NumberSelector(
             selector.NumberSelectorConfig(
-                min=100,
-                max=10000,
-                step=100,
-                unit_of_measurement="m",
+                min=100, max=10000, step=100, unit_of_measurement="m",
                 mode=selector.NumberSelectorMode.BOX,
+            )
+        ),
+    })
+
+
+def _categories_schema(settings: dict[str, Any]) -> vol.Schema:
+    """Wizard step 2: simple multiselect and common parking filters."""
+    return vol.Schema({
+        vol.Required(
+            CONF_PARKING_TYPES,
+            default=selected_categories(settings),
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=list(CATEGORIES),
+                mode=selector.SelectSelectorMode.DROPDOWN,
+                translation_key=CONF_PARKING_TYPES,
+                multiple=True,
+            )
+        ),
+        vol.Required(
+            CONF_MAX_RESULTS,
+            default=int(settings.get(CONF_MAX_RESULTS, DEFAULT_MAX_PER_CATEGORY)),
+        ): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=1, max=25, step=1, mode=selector.NumberSelectorMode.BOX,
             )
         ),
         vol.Required(
             CONF_INCLUDE_RESTRICTED,
-            default=bool(
-                defaults.get(CONF_INCLUDE_RESTRICTED, DEFAULT_INCLUDE_RESTRICTED)
-            ),
+            default=bool(settings.get(
+                CONF_INCLUDE_RESTRICTED, DEFAULT_INCLUDE_RESTRICTED,
+            )),
         ): selector.BooleanSelector(),
         vol.Required(
-            CONF_MAX_RESULTS,
-            default=int(defaults.get(CONF_MAX_RESULTS, DEFAULT_MAX_PER_CATEGORY)),
-        ): selector.NumberSelector(
-            selector.NumberSelectorConfig(
-                min=1,
-                max=25,
-                step=1,
-                mode=selector.NumberSelectorMode.BOX,
+            CONF_ATHENS_ZONES_ENABLED,
+            default=bool(settings.get(CONF_ATHENS_ZONES_ENABLED, False)),
+        ): selector.BooleanSelector(),
+    })
+
+
+def _providers_schema(settings: dict[str, Any]) -> vol.Schema:
+    """Wizard step 3: key-protected providers (none is a valid choice)."""
+    return vol.Schema({
+        vol.Optional(
+            CONF_CREDENTIAL_PROVIDERS,
+            default=selected_credential_providers(settings),
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=list(CREDENTIAL_PROVIDERS),
+                mode=selector.SelectSelectorMode.DROPDOWN,
+                translation_key=CONF_CREDENTIAL_PROVIDERS,
+                multiple=True,
             )
         ),
-    }
-    fields.update(_category_schema(defaults))
+    })
 
-    if include_provider_credentials:
-        fields.update(
-            {
-                vol.Optional(
-                    CONF_ATHENS_ZONES_ENABLED,
-                    default=bool(defaults.get(CONF_ATHENS_ZONES_ENABLED, False)),
-                ): selector.BooleanSelector(),
-                vol.Optional(
-                    CONF_GOLEMIO_ENABLED,
-                    default=bool(defaults.get(CONF_GOLEMIO_ENABLED, True)),
-                ): selector.BooleanSelector(),
-                vol.Optional(CONF_GOLEMIO_API_KEY): selector.TextSelector(
-                    selector.TextSelectorConfig(
-                        type=selector.TextSelectorType.PASSWORD,
-                        autocomplete="new-password",
-                    )
-                ),
-                vol.Optional(
-                    CONF_TFNSW_ENABLED,
-                    default=bool(defaults.get(CONF_TFNSW_ENABLED, True)),
-                ): selector.BooleanSelector(),
-                vol.Optional(CONF_TFNSW_API_KEY): selector.TextSelector(
-                    selector.TextSelectorConfig(
-                        type=selector.TextSelectorType.PASSWORD,
-                        autocomplete="new-password",
-                    )
-                ),
-                vol.Optional(
-                    CONF_URA_ENABLED,
-                    default=bool(defaults.get(CONF_URA_ENABLED, True)),
-                ): selector.BooleanSelector(),
-                vol.Optional(CONF_URA_ACCESS_KEY): selector.TextSelector(
-                    selector.TextSelectorConfig(
-                        type=selector.TextSelectorType.PASSWORD,
-                        autocomplete="new-password",
-                    )
-                ),
-                vol.Optional(
-                    CONF_TDX_ENABLED,
-                    default=bool(defaults.get(CONF_TDX_ENABLED, True)),
-                ): selector.BooleanSelector(),
-                vol.Optional(CONF_TDX_CLIENT_ID): selector.TextSelector(
-                    selector.TextSelectorConfig(
-                        type=selector.TextSelectorType.PASSWORD,
-                        autocomplete="new-password",
-                    )
-                ),
-                vol.Optional(CONF_TDX_CLIENT_SECRET): selector.TextSelector(
-                    selector.TextSelectorConfig(
-                        type=selector.TextSelectorType.PASSWORD,
-                        autocomplete="new-password",
-                    )
-                ),
-            }
+
+def _credentials_schema(
+    chosen: list[str], settings: dict[str, Any]
+) -> vol.Schema:
+    """Wizard step 4: selected passwords only, with no pre-filled secrets."""
+    fields: dict[Any, Any] = {}
+    for key in credential_keys(chosen):
+        existing = str(settings.get(key) or "").strip()
+        marker = vol.Optional(key) if existing else vol.Required(key)
+        fields[marker] = selector.TextSelector(
+            selector.TextSelectorConfig(
+                type=selector.TextSelectorType.PASSWORD,
+                autocomplete="new-password",
+            )
         )
-
     return vol.Schema(fields)
 
 
-class OsmParkingConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle the OSM Parking config flow."""
+class _WizardSteps:
+    """Same second, third and fourth step for setup and options."""
+
+    _pending: dict[str, Any]
+    _chosen: list[str]
+
+    async def async_step_categories(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure parking types, maximum count and optional zone overlay."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            chosen = user_input.get(CONF_PARKING_TYPES, [])
+            maximum = user_input.get(CONF_MAX_RESULTS, DEFAULT_MAX_PER_CATEGORY)
+            if not valid_multiselect(chosen, CATEGORIES, allow_empty=False):
+                errors["base"] = "no_parking_types"
+            elif not valid_positive_integer(maximum, 1, 25):
+                errors[CONF_MAX_RESULTS] = "invalid_max_results"
+            else:
+                self._pending.update(category_flags(chosen))
+                self._pending[CONF_MAX_RESULTS] = int(maximum)
+                self._pending[CONF_INCLUDE_RESTRICTED] = bool(
+                    user_input.get(CONF_INCLUDE_RESTRICTED, False)
+                )
+                self._pending[CONF_ATHENS_ZONES_ENABLED] = bool(
+                    user_input.get(CONF_ATHENS_ZONES_ENABLED, False)
+                )
+                return await self.async_step_providers()
+
+        return self.async_show_form(
+            step_id="categories",
+            data_schema=_categories_schema(self._pending),
+            errors=errors,
+        )
+
+    async def async_step_providers(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Multi-select providers that require keys, independently of region."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            chosen = user_input.get(CONF_CREDENTIAL_PROVIDERS, [])
+            if not valid_multiselect(
+                chosen, tuple(CREDENTIAL_PROVIDERS), allow_empty=True,
+            ):
+                errors["base"] = "invalid_provider_selection"
+            else:
+                self._chosen = chosen
+                self._pending.update(credential_provider_flags(chosen))
+                if chosen:
+                    return await self.async_step_credentials()
+                # Skip an empty credential page when no provider needs one.
+                return self._finish_entry()
+
+        return self.async_show_form(
+            step_id="providers",
+            data_schema=_providers_schema(self._pending),
+            errors=errors,
+        )
+
+    async def async_step_credentials(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Only selected secrets; blank means retain existing credentials."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            changes, missing = prepared_credentials(
+                self._pending, user_input, self._chosen,
+            )
+            if not missing:
+                self._pending.update(changes)
+                return self._finish_entry()
+            errors.update({key: "missing_credentials" for key in missing})
+
+        return self.async_show_form(
+            step_id="credentials",
+            data_schema=_credentials_schema(self._chosen, self._pending),
+            description_placeholders={
+                "selected_providers": ", ".join(
+                    PROVIDER_NAMES[provider] for provider in self._chosen
+                ),
+            },
+            errors=errors,
+        )
+
+    def _finish_entry(self) -> ConfigFlowResult:
+        raise NotImplementedError
+
+
+class OsmParkingConfigFlow(_WizardSteps, config_entries.ConfigFlow, domain=DOMAIN):
+    """Create a parking destination using the new guided setup."""
 
     VERSION = 2
     MINOR_VERSION = 5
@@ -235,83 +304,83 @@ class OsmParkingConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Create a new parking search."""
+        """Step 1: destination and maximum search distance."""
         errors: dict[str, str] = {}
-
         if user_input is not None:
-            data = dict(user_input)
-            destination_entity = str(data[CONF_DESTINATION_ENTITY]).strip()
-
-            if _state_coordinates(self.hass.states.get(destination_entity)) is None:
+            entity_id = str(user_input.get(CONF_DESTINATION_ENTITY) or "").strip()
+            distance = user_input.get(CONF_RADIUS_M, DEFAULT_RADIUS_M)
+            if _state_coordinates(self.hass.states.get(entity_id)) is None:
                 errors[CONF_DESTINATION_ENTITY] = "invalid_destination_entity"
+            elif not valid_positive_integer(distance, 100, 10000):
+                errors[CONF_RADIUS_M] = "invalid_radius"
             else:
-                await self.async_set_unique_id(destination_entity)
+                await self.async_set_unique_id(entity_id)
                 self._abort_if_unique_id_configured()
-                return self.async_create_entry(
-                    title=destination_entity,
-                    data=data,
-                )
+                self._pending = {
+                    CONF_DESTINATION_ENTITY: entity_id,
+                    CONF_RADIUS_M: int(distance),
+                }
+                self._chosen = []
+                return await self.async_step_categories()
 
         return self.async_show_form(
             step_id="user",
-            data_schema=_schema(self.hass, user_input or {}),
+            data_schema=_distance_schema(self.hass, user_input or {}),
             errors=errors,
+        )
+
+    def _finish_entry(self) -> ConfigFlowResult:
+        """Write config entry exactly once at completion."""
+        return self.async_create_entry(
+            title=self._pending[CONF_DESTINATION_ENTITY],
+            data=self._pending,
         )
 
     @staticmethod
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
     ) -> OptionsFlowWithReload:
-        """Return the options flow."""
         return OsmParkingOptionsFlow()
 
 
-class OsmParkingOptionsFlow(OptionsFlowWithReload):
-    """Handle editable OSM Parking options."""
+class OsmParkingOptionsFlow(_WizardSteps, OptionsFlowWithReload):
+    """Edit an existing config entry without losing its stored settings."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Show and save options."""
+        """Step 1 (options): destination and distance."""
+        if not hasattr(self, "_pending"):
+            self._pending = {
+                **self.config_entry.data,
+                **self.config_entry.options,
+            }
+            self._chosen = []
         errors: dict[str, str] = {}
-        defaults = {**self.config_entry.data, **self.config_entry.options}
-
         if user_input is not None:
-            destination_entity = str(
-                user_input[CONF_DESTINATION_ENTITY]
+            entity_id = str(user_input.get(CONF_DESTINATION_ENTITY) or "").strip()
+            prior_entity = str(
+                self._pending.get(CONF_DESTINATION_ENTITY) or ""
             ).strip()
-            current_destination = str(
-                defaults.get(CONF_DESTINATION_ENTITY, "")
-            ).strip()
-
-            if (
-                destination_entity != current_destination
-                and _state_coordinates(
-                    self.hass.states.get(destination_entity)
-                ) is None
+            distance = user_input.get(CONF_RADIUS_M, DEFAULT_RADIUS_M)
+            if not entity_id or (
+                entity_id != prior_entity
+                and _state_coordinates(self.hass.states.get(entity_id)) is None
             ):
                 errors[CONF_DESTINATION_ENTITY] = "invalid_destination_entity"
+            elif not valid_positive_integer(distance, 100, 10000):
+                errors[CONF_RADIUS_M] = "invalid_radius"
             else:
-                data = dict(user_input)
-                # Password selectors are intentionally never pre-filled.
-                # Leaving one blank keeps the previously stored credential.
-                for key in PROVIDER_SECRET_KEYS:
-                    value = str(data.get(key, "") or "").strip()
-                    if value:
-                        data[key] = value
-                    elif defaults.get(key):
-                        data[key] = defaults[key]
-                    else:
-                        data.pop(key, None)
-                return self.async_create_entry(data=data)
-            defaults = {**defaults, **user_input}
+                self._pending[CONF_DESTINATION_ENTITY] = entity_id
+                self._pending[CONF_RADIUS_M] = int(distance)
+                return await self.async_step_categories()
 
         return self.async_show_form(
             step_id="init",
-            data_schema=_schema(
-                self.hass,
-                defaults,
-                include_provider_credentials=True,
-            ),
+            data_schema=_distance_schema(self.hass, self._pending),
             errors=errors,
         )
+
+    def _finish_entry(self) -> ConfigFlowResult:
+        """OptionsFlowWithReload applies the result after the final step."""
+        return self.async_create_entry(data=self._pending)

@@ -295,10 +295,19 @@ class ConfigurationContracts(unittest.TestCase):
         for file in [ROOT / "strings.json", *(ROOT / "translations").glob("*.json")]:
             with self.subTest(file=file.name):
                 obj = json.loads(file.read_text(encoding="utf-8"))
-                options = obj["options"]["step"]["init"]
-                self.assertTrue(options["data"]["ura_enabled"])
-                self.assertTrue(options["data"]["ura_access_key"])
-                self.assertTrue(options["data_description"]["ura_access_key"])
+                # v1.2.0 moved URA out of the first options screen.
+                # The provider is selected on step 3 and its key on step 4.
+                steps = obj["options"]["step"]
+                self.assertTrue(
+                    steps["providers"]["data"]["credential_providers"]
+                )
+                self.assertTrue(
+                    obj["selector"]["credential_providers"]["options"]["ura"]
+                )
+                self.assertTrue(steps["credentials"]["data"]["ura_access_key"])
+                self.assertTrue(
+                    steps["credentials"]["data_description"]["ura_access_key"]
+                )
 
 
 if __name__ == "__main__":

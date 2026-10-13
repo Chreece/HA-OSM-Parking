@@ -3,28 +3,62 @@
   "config": {
     "step": {
       "user": {
-        "title": "Парковка OSM",
-        "description": "Выберите сущность назначения из совместимых сущностей, найденных ниже. Совместимая сущность должна содержать числовые атрибуты latitude + longitude или lat + lon/lng. Поиск обновляется при изменении назначения или запуске Home Assistant.",
+        "title": "1/4 · Пункт назначения и расстояние",
+        "description": "Выберите сущность назначения и расстояние поиска парковочных мест.",
         "data": {
           "destination_entity": "Сущность назначения",
-          "radius_m": "Радиус поиска",
-          "include_restricted": "Включать ограниченные/частные парковки",
-          "category_paid_enabled": "Включать платные парковки",
-          "category_open_enabled": "Включать открытые / наземные парковки",
-          "category_street_enabled": "Включать уличную парковку",
-          "category_underground_enabled": "Включать подземные парковки",
-          "category_multi_storey_enabled": "Включать многоуровневые парковки",
-          "category_park_and_ride_enabled": "Включать Park & Ride",
-          "category_other_enabled": "Включать другие парковки",
-          "max_results": "Максимум результатов на категорию"
+          "radius_m": "Радиус поиска"
         },
         "data_description": {
           "destination_entity": "Автоматически отображаются только совместимые сущности. Ожидаемые атрибуты: latitude + longitude или lat + lon/lng. Пример: latitude 50.9385, longitude 6.9829."
         }
+      },
+      "categories": {
+        "title": "2/4 · Типы парковок",
+        "description": "Выберите хотя бы один тип парковки, лимит для категории и, при необходимости, частные парковки или зоны Афин.",
+        "data": {
+          "parking_types": "Типы парковок",
+          "max_results": "Максимум результатов на категорию",
+          "include_restricted": "Включать ограниченные/частные парковки",
+          "athens_zones_enabled": "Показывать зоны регулируемой парковки Афин (экспериментальный GIS-сервис)"
+        },
+        "data_description": {
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+        }
+      },
+      "providers": {
+        "title": "3/4 · Дополнительные источники",
+        "description": "OpenStreetMap и общедоступные источники без ключа работают автоматически. Выберите дополнительные источники с ключом API (часто бесплатным). Без выбора шаг 4 пропускается.",
+        "data": {
+          "credential_providers": "Источники с ключом API"
+        }
+      },
+      "credentials": {
+        "title": "4/4 · Учётные данные API",
+        "description": "Введите ключи для: {selected_providers}. Сохранённые ключи остаются при пустых полях и никогда не отображаются.",
+        "data": {
+          "golemio_api_key": "API-ключ Golemio",
+          "tfnsw_api_key": "API-ключ TfNSW",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret",
+          "ura_access_key": "Ключ доступа API URA Сингапура"
+        },
+        "data_description": {
+          "golemio_api_key": "Необязательный бесплатный ключ разработчика с api.golemio.cz/api-keys. Используется только для Праги.",
+          "tfnsw_api_key": "Необязательный ключ Transport for NSW Open Data. Используется только для NSW.",
+          "tdx_client_id": "Необязательный TDX Client ID из центра участников TDX. Нужны и Client ID, и Client Secret.",
+          "tdx_client_secret": "Необязательный TDX Client Secret. Хранится в Home Assistant и скрывается в диагностике.",
+          "ura_access_key": "Дополнительный ключ официального URA-портала для ежедневного токена. Скрывается в диагностике."
+        }
       }
     },
     "error": {
-      "invalid_destination_entity": "Выбранная сущность недоступна или сейчас не содержит корректных координат."
+      "invalid_destination_entity": "Выбранная сущность недоступна или сейчас не содержит корректных координат.",
+      "no_parking_types": "Выберите хотя бы один тип парковки.",
+      "invalid_provider_selection": "Выберите только источники из списка.",
+      "invalid_radius": "Расстояние должно быть от 100 до 10 000 метров.",
+      "invalid_max_results": "Для категории можно выбрать от 1 до 25 результатов.",
+      "missing_credentials": "Введите недостающий ключ или отключите источник."
     },
     "abort": {
       "already_configured": "Эта сущность назначения уже настроена."
@@ -33,44 +67,83 @@
   "options": {
     "step": {
       "init": {
-        "title": "Параметры парковки OSM",
-        "description": "Настройте поиск и дополнительные региональные источники. Публичные источники без ключей работают автоматически. Источники с учётными данными используются только если они включены, настроены и пункт назначения находится в зоне покрытия.",
+        "title": "1/4 · Пункт назначения и расстояние",
+        "description": "Выберите сущность назначения и расстояние поиска парковочных мест.",
         "data": {
           "destination_entity": "Сущность назначения",
-          "radius_m": "Радиус поиска",
-          "include_restricted": "Включать ограниченные/частные парковки",
-          "category_paid_enabled": "Включать платные парковки",
-          "category_open_enabled": "Включать открытые / наземные парковки",
-          "category_street_enabled": "Включать уличную парковку",
-          "category_underground_enabled": "Включать подземные парковки",
-          "category_multi_storey_enabled": "Включать многоуровневые парковки",
-          "category_park_and_ride_enabled": "Включать Park & Ride",
-          "category_other_enabled": "Включать другие парковки",
+          "radius_m": "Радиус поиска"
+        },
+        "data_description": {
+          "destination_entity": "Автоматически отображаются только совместимые сущности. Ожидаемые атрибуты: latitude + longitude или lat + lon/lng. Пример: latitude 50.9385, longitude 6.9829."
+        }
+      },
+      "categories": {
+        "title": "2/4 · Типы парковок",
+        "description": "Выберите хотя бы один тип парковки, лимит для категории и, при необходимости, частные парковки или зоны Афин.",
+        "data": {
+          "parking_types": "Типы парковок",
           "max_results": "Максимум результатов на категорию",
-          "golemio_enabled": "Включить Golemio для Праги",
+          "include_restricted": "Включать ограниченные/частные парковки",
+          "athens_zones_enabled": "Показывать зоны регулируемой парковки Афин (экспериментальный GIS-сервис)"
+        },
+        "data_description": {
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+        }
+      },
+      "providers": {
+        "title": "3/4 · Дополнительные источники",
+        "description": "OpenStreetMap и общедоступные источники без ключа работают автоматически. Выберите дополнительные источники с ключом API (часто бесплатным). Без выбора шаг 4 пропускается.",
+        "data": {
+          "credential_providers": "Источники с ключом API"
+        }
+      },
+      "credentials": {
+        "title": "4/4 · Учётные данные API",
+        "description": "Введите ключи для: {selected_providers}. Сохранённые ключи остаются при пустых полях и никогда не отображаются.",
+        "data": {
           "golemio_api_key": "API-ключ Golemio",
-          "tfnsw_enabled": "Включить Transport for NSW",
           "tfnsw_api_key": "API-ключ TfNSW",
-          "tdx_enabled": "Включить Taiwan TDX",
           "tdx_client_id": "TDX Client ID",
           "tdx_client_secret": "TDX Client Secret",
-          "athens_zones_enabled": "Показывать зоны регулируемой парковки Афин (экспериментальный GIS-сервис)",
-          "ura_enabled": "Включить парковки URA Сингапура (нужен ключ)",
           "ura_access_key": "Ключ доступа API URA Сингапура"
         },
         "data_description": {
-          "destination_entity": "Автоматически отображаются только совместимые сущности. Ожидаемые атрибуты: latitude + longitude или lat + lon/lng. Пример: latitude 50.9385, longitude 6.9829.",
           "golemio_api_key": "Необязательный бесплатный ключ разработчика с api.golemio.cz/api-keys. Используется только для Праги.",
           "tfnsw_api_key": "Необязательный ключ Transport for NSW Open Data. Используется только для NSW.",
           "tdx_client_id": "Необязательный TDX Client ID из центра участников TDX. Нужны и Client ID, и Client Secret.",
           "tdx_client_secret": "Необязательный TDX Client Secret. Хранится в Home Assistant и скрывается в диагностике.",
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions.",
           "ura_access_key": "Дополнительный ключ официального URA-портала для ежедневного токена. Скрывается в диагностике."
         }
       }
     },
     "error": {
-      "invalid_destination_entity": "Выбранная сущность недоступна или сейчас не содержит корректных координат."
+      "invalid_destination_entity": "Выбранная сущность недоступна или сейчас не содержит корректных координат.",
+      "no_parking_types": "Выберите хотя бы один тип парковки.",
+      "invalid_provider_selection": "Выберите только источники из списка.",
+      "invalid_radius": "Расстояние должно быть от 100 до 10 000 метров.",
+      "invalid_max_results": "Для категории можно выбрать от 1 до 25 результатов.",
+      "missing_credentials": "Введите недостающий ключ или отключите источник."
+    }
+  },
+  "selector": {
+    "parking_types": {
+      "options": {
+        "paid": "Включать платные парковки",
+        "open": "Включать открытые / наземные парковки",
+        "street": "Включать уличную парковку",
+        "underground": "Включать подземные парковки",
+        "multi_storey": "Включать многоуровневые парковки",
+        "park_and_ride": "Включать Park & Ride",
+        "other": "Включать другие парковки"
+      }
+    },
+    "credential_providers": {
+      "options": {
+        "golemio": "Включить Golemio для Праги",
+        "tfnsw": "Включить Transport for NSW",
+        "tdx": "Включить Taiwan TDX",
+        "ura": "Включить парковки URA Сингапура (нужен ключ)"
+      }
     }
   }
 }
