@@ -1,5 +1,32 @@
 # Changelog
 
+## v1.0.0
+
+### Added
+
+- Official **İstanbul İBB/İSPARK** key-free facility and reported vacancy provider.
+- Official **İzmir Municipality/İZUM** key-free facility and reported vacancy provider, including accessible spaces when supplied.
+- Optional **City of Athens controlled-parking zones** from municipal GeoServer WFS; default disabled because the public service can fail.
+- New data-quality and facility-deduplication engine with source provenance, matching safeguards and stronger-source selection.
+- Zone polygons rendered separately from parking markers, with signage cautions and localized labels.
+- Expanded offline regression contracts for quality ranking, Turkish API schemas and Greek controlled-zone geometries.
+- A worldwide provider candidate research and access/licence matrix.
+
+### Changed
+
+- Fresh publisher-timestamped live counts outrank reported counts without observation time, estimated occupancy, predicted values and static metadata.
+- No legacy live claim without a publisher timestamp is displayed as timestamp-verified live.
+- Nearby but distinct garages, individual physical bays and street parking are preserved instead of merged by proximity alone.
+- Merging retains useful location/price/operator metadata without overwriting the winning free-space measurement.
+- Dashboard distinguishes reported counts, actual measurement time and download time.
+- A failed refresh clears stale zone polygons, counts and parking suggestions.
+
+### Data integrity
+
+- Impossible/negative/fractional vacancy values and stale timestamps are rejected.
+- Zone shapes never enter physical-facility counts and do not imply fees, restrictions or available spots.
+- İstanbul, İzmir and Athens runtime municipal service reachability is not guaranteed by offline tests and must be checked on the target Home Assistant installation.
+
 ## v0.9.0
 
 ### Added
