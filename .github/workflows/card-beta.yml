@@ -1,0 +1,185 @@
+name: Card redesign beta
+
+on:
+  push:
+    branches: ["beta/card-redesign"]
+
+concurrency:
+  group: osm-parking-card-beta
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  beta:
+    name: Validate and publish card beta
+    if: github.repository == 'Chreece/HA-OSM-Parking' && github.ref == 'refs/heads/beta/card-redesign'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VERSION: 1.3.0b1
+      TAG: v1.3.0b1
+      BASE: 9bdbaea3db1e1961d4da4702ebbcb989ef5015ee
+    steps:
+      - name: Check out beta only
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Materialize readable sources and build full beta module
+        run: python tools/build_card_beta.py
+
+      - name: Compile integration and run existing contracts
+        run: |
+          python -m compileall -q custom_components/osm_parking
+          python -m unittest discover -s tests -v
+
+      - name: Validate JavaScript and beta version contract
+        run: |
+          node --check custom_components/osm_parking/frontend/osm-parking-map-card.js
+          node --check tools/card-preview/modern-card-extension.js
+          python - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          root = Path('custom_components/osm_parking')
+          version = os.environ['VERSION']
+          assert json.loads((root/'manifest.json').read_text())['version'] == version
+          assert f'CARD_VERSION = "{version}"' in (root/'__init__.py').read_text()
+          card = (root/'frontend/osm-parking-map-card.js').read_text()
+          assert f'<span class="version">v{version}</span>' in card
+          assert card.count('class OsmParkingMapCardCompact extends OsmParkingMapCardV070') == 1
+          assert "customElements.define('osm-parking-map-card', OsmParkingMapCardCompact);" in card
+          assert '1.3.0b1' == version
+          print('BETA_VERSION_AND_MODULE_CONTRACT=PASS')
+          PY
+
+      - name: Install browser test dependencies
+        run: |
+          python -m pip install playwright==1.57.0
+          python -m playwright install --with-deps chromium
+
+      - name: Browser test the complete compiled card
+        env:
+          OSM_BETA_BUNDLE: custom_components/osm_parking/frontend/osm-parking-map-card.js
+        run: |
+          python tools/card-preview/tests/browser_tests.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('tools/card-preview/preview/test-report.json').read_text())
+          assert report['passed'] == 60, report
+          assert report['page_errors'] == [], report
+          assert report['method'].startswith('Complete release JavaScript'), report
+          print('FULL_CARD_BROWSER_CONTRACTS=60_PASS')
+          PY
+
+      - name: HACS validation
+        uses: hacs/action@main
+        with:
+          category: integration
+
+      - name: Hassfest validation
+        uses: home-assistant/actions/hassfest@master
+
+      - name: Preserve browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-beta-browser-evidence
+          path: |
+            tools/card-preview/preview/test-report.json
+            tools/card-preview/preview/*.png
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Commit assembled source on beta branch only
+        id: built
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/beta/card-redesign'
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$BASE"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- \
+            custom_components/osm_parking/frontend/osm-parking-map-card.js \
+            custom_components/osm_parking/manifest.json \
+            custom_components/osm_parking/__init__.py \
+            CHANGELOG.md docs/card-redesign-beta.md \
+            tools/card-preview/modern-card-extension.js \
+            tools/card-preview/tests/browser_tests.py \
+            tools/card-preview/preview/index.html \
+            tools/card-preview/preview/mock-map.js
+          if git ls-files tools/beta-bootstrap | grep -q .; then
+            git add -u -- tools/beta-bootstrap
+          fi
+          if ! git diff --cached --quiet; then
+            git commit -m "Build $TAG: bundled card redesign [skip ci]"
+          fi
+          remote_sha="$(git ls-remote origin refs/heads/beta/card-redesign | cut -f1)"
+          built_sha="$(git rev-parse HEAD)"
+          if [ "$remote_sha" = "$GITHUB_SHA" ]; then
+            git push origin HEAD:refs/heads/beta/card-redesign
+          else
+            # A retry may find the identical generated tree already pushed.
+            # Never force-push over another user's changes.
+            git fetch origin refs/heads/beta/card-redesign
+            test "$(git rev-parse FETCH_HEAD^{tree})" = "$(git rev-parse HEAD^{tree})"
+            built_sha="$remote_sha"
+          fi
+          echo "sha=$built_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Create installation ZIP and checksum
+        run: |
+          python - <<'PY'
+          import hashlib, os, zipfile
+          from pathlib import Path
+          archive = Path(f'osm-parking-v{os.environ["VERSION"]}.zip')
+          with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as z:
+              for path in sorted(Path('custom_components/osm_parking').rglob('*')):
+                  if path.is_file() and '__pycache__' not in path.parts and path.suffix != '.pyc':
+                      z.write(path, path.as_posix())
+          digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+          Path('SHA256SUMS.txt').write_text(f'{digest}  {archive.name}\n')
+          print(digest, archive.name)
+          PY
+
+      - name: Publish beta, never latest stable
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILT_SHA: ${{ steps.built.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release exists; refusing to replace an existing beta.'
+            gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isPrerelease,isDraft,tagName \
+              --jq 'select(.isPrerelease == true and .isDraft == false) | .tagName' | grep -Fx "$TAG"
+          else
+            gh release create "$TAG" \
+              "osm-parking-v$VERSION.zip" SHA256SUMS.txt \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$BUILT_SHA" \
+              --title "OSM Parking $TAG — Card redesign beta" \
+              --notes-file docs/card-redesign-beta.md \
+              --prerelease --latest=false
+          fi
+          test "$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)" = 'v1.2.0'
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$BASE"
+          echo 'BETA_PUBLISHED_STABLE_UNCHANGED=PASS'
+
+      - name: Preserve installable beta artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: osm-parking-v1.3.0b1
+          path: |
+            osm-parking-v1.3.0b1.zip
+            SHA256SUMS.txt
+          retention-days: 30
