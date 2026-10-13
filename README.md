@@ -41,23 +41,30 @@
 
 ## Screenshots
 
-### Desktop dashboard example
+The redesigned card keeps the map compact and puts parking results, search, filters and sorting within easy reach.
+
+### Desktop — dark mode
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Chreece/HA-OSM-Parking/main/assets/screenshots/dashboard-desktop.svg"
-       alt="OSM Parking dashboard card on Home Assistant desktop"
-       width="100%">
+  <img src="https://raw.githubusercontent.com/Chreece/HA-OSM-Parking/main/assets/screenshots/card-desktop-dark.png" alt="New OSM Parking card in dark mode with compact map, search, sorting and parking result cards — sample data" width="720">
 </p>
 
-### Mobile dashboard example
+### Desktop — light mode
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Chreece/HA-OSM-Parking/main/assets/screenshots/dashboard-mobile.svg"
-       alt="OSM Parking dashboard card on Home Assistant mobile"
-       width="520">
+  <img src="https://raw.githubusercontent.com/Chreece/HA-OSM-Parking/main/assets/screenshots/card-desktop-light.png" alt="New OSM Parking card in light mode with the same compact map and result layout — sample data" width="720">
 </p>
 
-> Example dashboard views using the bundled OSM Parking map card. Parking availability, names, categories, pricing and OpenStreetMap data vary by location.
+### Mobile — Greek interface and expanded filters
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Chreece/HA-OSM-Parking/main/assets/screenshots/card-mobile-greek-dark.png" alt="Greek mobile parking card with compact dark map, distance sorting, availability labels and navigation — sample data" width="360">
+  <img src="https://raw.githubusercontent.com/Chreece/HA-OSM-Parking/main/assets/screenshots/card-mobile-greek-filters.png" alt="Greek mobile card with parking-type, cost, data-quality, source and distance filters expanded — sample data" width="360">
+</p>
+
+> Browser renders of the actual shipped card using the standalone preview, sample parking records, preview icons and a local schematic map fixture. These are **not** live Home Assistant or municipal parking readings. In your installation the card uses its configured map style and real integration results.
+
+Screenshots can be regenerated with `python3 tools/card/readme_screenshots.py` after installing the browser dependencies used by `.github/workflows/card-visual.yml`. Capture details and SHA-256 fingerprints are recorded in [`assets/screenshots/card-screenshots.json`](assets/screenshots/card-screenshots.json).
 
 ## Languages
 
@@ -149,7 +156,8 @@ The integration serves and registers its card automatically. Point the card at t
 type: custom:osm-parking-map-card
 entity: sensor.parking_suggestions
 title: Parking suggestions
-height: 450
+map_height: 220
+theme_mode: auto
 show_list: true
 show_destination: true
 show_price: true
