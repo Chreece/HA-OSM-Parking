@@ -65,7 +65,7 @@ jobs:
           cp card-evidence/desktop-dark.png card-evidence/desktop-light.png card-evidence/mobile-greek-dark.png card-evidence/mobile-greek-filters.png assets/screenshots/explorer/
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add custom_components/osm_parking/frontend/osm-parking-map-card.js custom_components/osm_parking/manifest.json custom_components/osm_parking/__init__.py README.md CHANGELOG.md assets/screenshots/explorer
+          git add custom_components/osm_parking/frontend/osm-parking-map-card.js custom_components/osm_parking/manifest.json custom_components/osm_parking/__init__.py README.md CHANGELOG.md assets/screenshots/explorer tests/card/browser_check.py
           git add -A tools/card
           if ! git diff --cached --quiet; then
             git commit -m 'Build verified compact parking explorer v1.3.0 and browser previews'
