@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 from collections import defaultdict
 from datetime import timedelta
-from difflib import SequenceMatcher
 import logging
 import math
 from typing import Any
@@ -34,6 +33,7 @@ from .const import (
     enabled_key,
 )
 from .providers import PROVIDERS, ProviderFetchResult
+from .parking_quality import merge_facilities
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -232,9 +232,9 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         else:
             payload, source = overpass_result
             raw_result_count = len(payload.get("elements", []))
-            suggestions = self._build_suggestions(
+            suggestions = merge_facilities([], self._build_suggestions(
                 payload, lat, lon, radius, include_restricted
-            )
+            ))
             providers_used.append("openstreetmap")
 
         provider_suggestion_count = 0
@@ -261,7 +261,13 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             raise UpdateFailed(overpass_error)
 
         realtime_result_count = sum(
-            1 for item in suggestions if item.get("has_realtime_data")
+            1 for item in suggestions if item.get("availability_kind") == "live"
+        )
+        reported_result_count = sum(
+            1 for item in suggestions if item.get("availability_kind") == "reported"
+        )
+        estimated_result_count = sum(
+            1 for item in suggestions if item.get("availability_kind") == "estimated"
         )
 
         # Live providers need periodic refreshes. Partial-provider failures also
@@ -306,6 +312,8 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "provider_errors": provider_errors,
             "partial_data": bool(overpass_error or provider_errors),
             "realtime_result_count": realtime_result_count,
+            "reported_result_count": reported_result_count,
+            "estimated_result_count": estimated_result_count,
             "live_refresh_seconds": (
                 min(live_refresh_seconds) if live_refresh_seconds else None
             ),
@@ -341,6 +349,8 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "provider_errors": {},
             "partial_data": False,
             "realtime_result_count": 0,
+            "reported_result_count": 0,
+            "estimated_result_count": 0,
             "live_refresh_seconds": None,
             "error": error,
             "error_code": error_code,
@@ -517,182 +527,13 @@ out center tags qt;
 
         return result
 
-    @staticmethod
-    def _provider_quality(item: dict[str, Any]) -> int:
-        """Rank data precision so weaker sources cannot overwrite stronger ones."""
-        if item.get("has_realtime_data"):
-            return 3
-        if (
-            item.get("has_estimated_occupancy")
-            or item.get("estimated_occupancy_ratio") is not None
-        ):
-            return 2
-        if str(item.get("provider") or "") not in {"", "osm", "openstreetmap"}:
-            return 1
-        return 0
-
     def _merge_provider_suggestions(
         self,
         current: list[dict[str, Any]],
         incoming: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
-        """Merge providers without letting static data overwrite live data."""
-        merged = list(current)
-
-        for candidate in incoming:
-            duplicate = self._find_duplicate(merged, candidate)
-            if duplicate is None:
-                candidate.setdefault(
-                    "data_sources",
-                    [str(candidate.get("provider") or "unknown")],
-                )
-                merged.append(candidate)
-                continue
-
-            source_name = str(candidate.get("provider") or "unknown")
-            sources = list(duplicate.get("data_sources") or [])
-            if source_name not in sources:
-                sources.append(source_name)
-            duplicate["data_sources"] = sources
-
-            current_quality = self._provider_quality(duplicate)
-            candidate_quality = self._provider_quality(candidate)
-            current_provider = str(duplicate.get("provider") or "")
-
-            prefer_candidate = (
-                candidate_quality > current_quality
-                or (
-                    candidate_quality == current_quality
-                    and current_provider in {"", "osm", "openstreetmap"}
-                )
-            )
-
-            if prefer_candidate:
-                for key in (
-                    "provider",
-                    "provider_name",
-                    "provider_id",
-                    "provider_source_id",
-                    "provider_url",
-                    "source_attribution",
-                ):
-                    if candidate.get(key) not in (None, ""):
-                        duplicate[key] = candidate[key]
-
-            # Never let a later static source erase a real live state.
-            if candidate.get("has_realtime_data"):
-                duplicate["has_realtime_data"] = True
-                for key in (
-                    "free_capacity",
-                    "occupied_capacity",
-                    "closed_capacity",
-                    "realtime_updated_at",
-                    "opening_status",
-                ):
-                    if key in candidate:
-                        duplicate[key] = candidate[key]
-            else:
-                duplicate.setdefault("has_realtime_data", False)
-
-            # Estimated occupancy is distinct from exact live vacancy. Preserve
-            # it as enrichment without pretending it is an exact free-space
-            # count or replacing a stronger realtime provider.
-            for key in (
-                "has_estimated_occupancy",
-                "estimated_occupancy_ratio",
-                "estimated_occupancy_percent",
-                "estimated_occupancy_level",
-            ):
-                if key in candidate and (
-                    key not in duplicate or candidate_quality >= current_quality
-                ):
-                    duplicate[key] = candidate[key]
-
-            for key in (
-                "capacity",
-                "operator",
-                "address",
-                "opening_hours",
-                "price",
-                "ev_capacity",
-                "ev_free_capacity",
-                "accessible_capacity",
-                "accessible_free_capacity",
-            ):
-                value = candidate.get(key)
-                if value in (None, ""):
-                    continue
-                if (
-                    duplicate.get(key) in (None, "")
-                    or (key == "capacity" and prefer_candidate)
-                ):
-                    duplicate[key] = value
-
-            if candidate.get("fee") == "yes" and duplicate.get("fee") != "yes":
-                duplicate["fee"] = "yes"
-                duplicate["category"] = CATEGORY_PAID
-            elif candidate.get("category") == CATEGORY_PARK_AND_RIDE:
-                duplicate["category"] = CATEGORY_PARK_AND_RIDE
-
-        return merged
-
-    def _find_duplicate(
-        self,
-        existing: list[dict[str, Any]],
-        candidate: dict[str, Any],
-    ) -> dict[str, Any] | None:
-        """Find a likely duplicate by tight proximity and name similarity."""
-        try:
-            candidate_lat = float(candidate["latitude"])
-            candidate_lon = float(candidate["longitude"])
-        except (KeyError, TypeError, ValueError):
-            return None
-
-        if candidate.get("merge_with_other_sources") is False:
-            return None
-
-        candidate_provider = str(candidate.get("provider") or "")
-        candidate_name = self._normalized_name(str(candidate.get("name") or ""))
-
-        for item in existing:
-            if item.get("merge_with_other_sources") is False:
-                continue
-            item_provider = str(item.get("provider") or "")
-            if (
-                candidate_provider
-                and item_provider
-                and candidate_provider == item_provider
-            ):
-                continue
-            try:
-                distance = self._haversine_m(
-                    candidate_lat,
-                    candidate_lon,
-                    float(item["latitude"]),
-                    float(item["longitude"]),
-                )
-            except (KeyError, TypeError, ValueError):
-                continue
-
-            if distance > 60:
-                continue
-
-            item_name = self._normalized_name(str(item.get("name") or ""))
-            name_similarity = (
-                SequenceMatcher(None, candidate_name, item_name).ratio()
-                if candidate_name and item_name
-                else 0.0
-            )
-
-            if distance <= 15 or name_similarity >= 0.72:
-                return item
-
-        return None
-
-    @staticmethod
-    def _normalized_name(name: str) -> str:
-        """Normalize facility names for conservative duplicate matching."""
-        return "".join(ch for ch in name.casefold() if ch.isalnum())
+        """Normalize and deduplicate; the best valid measurement always wins."""
+        return merge_facilities(current, incoming)
 
     @staticmethod
     def _bounding_box(
