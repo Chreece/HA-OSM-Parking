@@ -53,14 +53,16 @@
           "tfnsw_api_key": "TfNSW API key",
           "tdx_enabled": "Enable Taiwan TDX provider",
           "tdx_client_id": "TDX Client ID",
-          "tdx_client_secret": "TDX Client Secret"
+          "tdx_client_secret": "TDX Client Secret",
+          "athens_zones_enabled": "Enable Athens controlled-parking zones (experimental GIS service)"
         },
         "data_description": {
           "destination_entity": "Only compatible entities are pre-listed. Expected attributes: latitude + longitude, or lat + lon/lng. Example: latitude 50.9385, longitude 6.9829.",
           "golemio_api_key": "Optional free developer key from api.golemio.cz/api-keys. Used only for destinations in Prague.",
           "tfnsw_api_key": "Optional Transport for NSW Open Data API key. Used only for destinations in NSW.",
           "tdx_client_id": "Optional TDX Client ID from the TDX member center. Client ID and Client Secret are both required.",
-          "tdx_client_secret": "Optional TDX Client Secret. It is stored in the Home Assistant config entry and redacted from diagnostics."
+          "tdx_client_secret": "Optional TDX Client Secret. It is stored in the Home Assistant config entry and redacted from diagnostics.",
+          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
         }
       }
     },
