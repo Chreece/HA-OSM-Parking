@@ -1,0 +1,60 @@
+{
+  "title": "OSM Park",
+  "config": {
+    "step": {
+      "user": {
+        "title": "OSM Park",
+        "description": "Aşağıda algılanan uyumlu varlıklardan bir hedef varlık seçin. Uyumlu bir varlık sayısal latitude + longitude veya lat + lon/lng özniteliklerini sağlamalıdır. Arama hedef değiştiğinde veya Home Assistant başladığında yenilenir.",
+        "data": {
+          "destination_entity": "Hedef varlık",
+          "radius_m": "Arama yarıçapı",
+          "include_restricted": "Kısıtlı/özel park alanlarını dahil et",
+          "category_paid_enabled": "Ücretli park alanlarını dahil et",
+          "category_open_enabled": "Açık / yüzey park alanlarını dahil et",
+          "category_street_enabled": "Sokak parkını dahil et",
+          "category_underground_enabled": "Yeraltı parklarını dahil et",
+          "category_multi_storey_enabled": "Çok katlı otoparkları dahil et",
+          "category_park_and_ride_enabled": "Park & Ride dahil et",
+          "category_other_enabled": "Diğer park alanlarını dahil et",
+          "max_results": "Kategori başına azami sonuç"
+        },
+        "data_description": {
+          "destination_entity": "Yalnızca uyumlu varlıklar otomatik olarak listelenir. Beklenen öznitelikler: latitude + longitude veya lat + lon/lng. Örnek: latitude 50.9385, longitude 6.9829."
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "Seçilen varlık kullanılamıyor veya şu anda geçerli koordinatlar sağlamıyor."
+    },
+    "abort": {
+      "already_configured": "Bu hedef varlık zaten yapılandırılmış."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "OSM Park seçenekleri",
+        "description": "Şu anda uyumlu olan bir hedef varlık seçin ve aramayı yapılandırın. Desteklenen koordinat öznitelikleri latitude + longitude veya lat + lon/lng'dir.",
+        "data": {
+          "destination_entity": "Hedef varlık",
+          "radius_m": "Arama yarıçapı",
+          "include_restricted": "Kısıtlı/özel park alanlarını dahil et",
+          "category_paid_enabled": "Ücretli park alanlarını dahil et",
+          "category_open_enabled": "Açık / yüzey park alanlarını dahil et",
+          "category_street_enabled": "Sokak parkını dahil et",
+          "category_underground_enabled": "Yeraltı parklarını dahil et",
+          "category_multi_storey_enabled": "Çok katlı otoparkları dahil et",
+          "category_park_and_ride_enabled": "Park & Ride dahil et",
+          "category_other_enabled": "Diğer park alanlarını dahil et",
+          "max_results": "Kategori başına azami sonuç"
+        },
+        "data_description": {
+          "destination_entity": "Yalnızca uyumlu varlıklar otomatik olarak listelenir. Beklenen öznitelikler: latitude + longitude veya lat + lon/lng. Örnek: latitude 50.9385, longitude 6.9829."
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "Seçilen varlık kullanılamıyor veya şu anda geçerli koordinatlar sağlamıyor."
+    }
+  }
+}
