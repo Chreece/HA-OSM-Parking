@@ -1,0 +1,60 @@
+{
+  "title": "OSM Parking",
+  "config": {
+    "step": {
+      "user": {
+        "title": "OSM Parking",
+        "description": "下に検出された対応エンティティから目的地エンティティを選択してください。対応エンティティには、数値の latitude + longitude、または lat + lon/lng 属性が必要です。目的地の変更時または Home Assistant の起動時に駐車場検索が更新されます。",
+        "data": {
+          "destination_entity": "目的地エンティティ",
+          "radius_m": "検索半径",
+          "include_restricted": "制限付き / 私有駐車場を含める",
+          "category_paid_enabled": "有料駐車場を含める",
+          "category_open_enabled": "屋外 / 平面駐車場を含める",
+          "category_street_enabled": "路上駐車を含める",
+          "category_underground_enabled": "地下駐車場を含める",
+          "category_multi_storey_enabled": "立体駐車場を含める",
+          "category_park_and_ride_enabled": "Park & Ride を含める",
+          "category_other_enabled": "その他の駐車場を含める",
+          "max_results": "カテゴリごとの最大結果数"
+        },
+        "data_description": {
+          "destination_entity": "対応エンティティのみが自動表示されます。必要な属性: latitude + longitude、または lat + lon/lng。例: latitude 50.9385、longitude 6.9829。"
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "選択したエンティティは利用できないか、現在有効な座標を提供していません。"
+    },
+    "abort": {
+      "already_configured": "この目的地エンティティはすでに設定されています。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "OSM Parking オプション",
+        "description": "現在利用可能な対応目的地エンティティから選択して検索を設定します。対応する座標属性は latitude + longitude、または lat + lon/lng です。",
+        "data": {
+          "destination_entity": "目的地エンティティ",
+          "radius_m": "検索半径",
+          "include_restricted": "制限付き / 私有駐車場を含める",
+          "category_paid_enabled": "有料駐車場を含める",
+          "category_open_enabled": "屋外 / 平面駐車場を含める",
+          "category_street_enabled": "路上駐車を含める",
+          "category_underground_enabled": "地下駐車場を含める",
+          "category_multi_storey_enabled": "立体駐車場を含める",
+          "category_park_and_ride_enabled": "Park & Ride を含める",
+          "category_other_enabled": "その他の駐車場を含める",
+          "max_results": "カテゴリごとの最大結果数"
+        },
+        "data_description": {
+          "destination_entity": "対応エンティティのみが自動表示されます。必要な属性: latitude + longitude、または lat + lon/lng。例: latitude 50.9385、longitude 6.9829。"
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "選択したエンティティは利用できないか、現在有効な座標を提供していません。"
+    }
+  }
+}
