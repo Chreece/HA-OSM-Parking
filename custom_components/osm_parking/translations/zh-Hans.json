@@ -34,7 +34,7 @@
     "step": {
       "init": {
         "title": "OSM 停车选项",
-        "description": "从当前兼容的目的地实体中选择并配置搜索。支持的坐标属性为 latitude + longitude，或 lat + lon/lng。",
+        "description": "配置搜索和可选的区域数据源。无需密钥的公共数据源会自动使用。需要凭据的数据源仅在已启用、已配置且目的地位于覆盖范围内时调用。",
         "data": {
           "destination_entity": "目的地实体",
           "radius_m": "搜索半径",
@@ -46,10 +46,21 @@
           "category_multi_storey_enabled": "包含多层停车场",
           "category_park_and_ride_enabled": "包含 Park & Ride",
           "category_other_enabled": "包含其他停车位",
-          "max_results": "每个类别的最大结果数"
+          "max_results": "每个类别的最大结果数",
+          "golemio_enabled": "启用布拉格 Golemio 提供商",
+          "golemio_api_key": "Golemio API 密钥",
+          "tfnsw_enabled": "启用 Transport for NSW 提供商",
+          "tfnsw_api_key": "TfNSW API 密钥",
+          "tdx_enabled": "启用台湾 TDX 提供商",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret"
         },
         "data_description": {
-          "destination_entity": "仅自动列出兼容实体。所需属性：latitude + longitude，或 lat + lon/lng。示例：latitude 50.9385，longitude 6.9829。"
+          "destination_entity": "仅自动列出兼容实体。所需属性：latitude + longitude，或 lat + lon/lng。示例：latitude 50.9385，longitude 6.9829。",
+          "golemio_api_key": "可选的免费开发者密钥，可从 api.golemio.cz/api-keys 获取。仅用于布拉格目的地。",
+          "tfnsw_api_key": "可选的 Transport for NSW Open Data API 密钥。仅用于 NSW 目的地。",
+          "tdx_client_id": "可选的 TDX Client ID，可从 TDX 会员中心获取。Client ID 和 Client Secret 均为必需。",
+          "tdx_client_secret": "可选的 TDX Client Secret。保存在 Home Assistant 配置项中，并从诊断信息中隐藏。"
         }
       }
     },
