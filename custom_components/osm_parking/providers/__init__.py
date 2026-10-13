@@ -1,5 +1,7 @@
 from .base import ParkingProvider, ProviderFetchResult
+from .brussels import BrusselsParkingProvider
 from .ghent import GhentParkingProvider
+from .dublin import DublinParkingProvider
 from .golemio import GolemioParkingProvider
 from .helsinki import HelsinkiParkingProvider
 from .hong_kong import HongKongParkingProvider
@@ -11,6 +13,8 @@ from .tfnsw import TfNswParkingProvider
 from .tdx import TaiwanTdxParkingProvider
 
 PROVIDERS: tuple[ParkingProvider, ...] = (
+    BrusselsParkingProvider(),
+    DublinParkingProvider(),
     TaiwanTdxParkingProvider(),
     GolemioParkingProvider(),
     TfNswParkingProvider(),
