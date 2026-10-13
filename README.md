@@ -139,6 +139,18 @@ show_price: true
 
 The map shows the destination, numbered parking markers, distance, category, access, price information when known, and navigation/OSM actions.
 
+## Card error and recovery states
+
+The bundled card distinguishes between different failure conditions instead of only showing a generic unavailable sensor:
+
+- **Destination source unavailable** — open/fix the selected source entity; OSM Parking refreshes when it becomes valid again.
+- **Destination coordinates missing** — the source must expose `latitude` + `longitude`, `lat` + `lon`, or `lat` + `lng`.
+- **Overpass temporarily unavailable** — this is normally an external service issue. OSM Parking retries automatically and the card shows the active retry interval plus a **Retry now** action.
+- **No parking found** — the request succeeded; increase the radius or enable additional parking categories if appropriate.
+- **Map dependency failed to load** — the card retries MapLibre from a fallback CDN and can retry in-place without requiring a hard page reload.
+
+Technical error details are available in a collapsible section when useful.
+
 ## Parking categories and result limits
 
 The integration can independently enable:
