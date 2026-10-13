@@ -500,7 +500,7 @@ const OSM_PARKING_STATUS_I18N = {
   },
 };
 
-class OsmParkingMapCardV040 extends HTMLElement {
+class OsmParkingMapCardV050 extends HTMLElement {
   static getStubConfig() {
     return {
       entity: 'sensor.parking_suggestions',
@@ -599,7 +599,7 @@ class OsmParkingMapCardV040 extends HTMLElement {
             <div class="title"></div>
             <div class="subtitle"></div>
           </div>
-          <div class="headright"><span class="version">v0.4.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
+          <div class="headright"><span class="version">v0.5.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
         <div class="status-panel" hidden>
           <div class="status-head">
@@ -1344,7 +1344,7 @@ class OsmParkingMapCardV040 extends HTMLElement {
 }
 
 if (!customElements.get('osm-parking-map-card')) {
-  customElements.define('osm-parking-map-card', OsmParkingMapCardV040);
+  customElements.define('osm-parking-map-card', OsmParkingMapCardV050);
   window.customCards = window.customCards || [];
   window.customCards.push({
     type: 'osm-parking-map-card',
