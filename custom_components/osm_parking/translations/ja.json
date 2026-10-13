@@ -53,14 +53,16 @@
           "tfnsw_api_key": "TfNSW API キー",
           "tdx_enabled": "台湾 TDX を有効化",
           "tdx_client_id": "TDX Client ID",
-          "tdx_client_secret": "TDX Client Secret"
+          "tdx_client_secret": "TDX Client Secret",
+          "athens_zones_enabled": "アテネ駐車規制区域を表示（試験的 GIS サービス）"
         },
         "data_description": {
           "destination_entity": "対応エンティティのみが自動表示されます。必要な属性: latitude + longitude、または lat + lon/lng。例: latitude 50.9385、longitude 6.9829。",
           "golemio_api_key": "api.golemio.cz/api-keys で取得できる任意の無料開発者キー。プラハの目的地でのみ使用します。",
           "tfnsw_api_key": "任意の Transport for NSW Open Data API キー。NSW の目的地でのみ使用します。",
           "tdx_client_id": "TDX 会員センターの任意の TDX Client ID。Client ID と Client Secret の両方が必要です。",
-          "tdx_client_secret": "任意の TDX Client Secret。Home Assistant の設定エントリに保存され、診断ではマスクされます。"
+          "tdx_client_secret": "任意の TDX Client Secret。Home Assistant の設定エントリに保存され、診断ではマスクされます。",
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
         }
       }
     },
