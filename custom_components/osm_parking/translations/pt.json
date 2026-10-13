@@ -34,7 +34,7 @@
     "step": {
       "init": {
         "title": "Opções de Estacionamento OSM",
-        "description": "Escolha uma entidade de destino atualmente compatível e configure a pesquisa. São suportados latitude + longitude ou lat + lon/lng.",
+        "description": "Configure a pesquisa e fornecedores regionais opcionais. Os fornecedores públicos sem chave são automáticos. Os fornecedores com credenciais só são usados quando ativados, configurados e a destination está na área de cobertura.",
         "data": {
           "destination_entity": "Entidade de destino",
           "radius_m": "Raio de pesquisa",
@@ -46,10 +46,21 @@
           "category_multi_storey_enabled": "Incluir estacionamento de vários pisos",
           "category_park_and_ride_enabled": "Incluir Park & Ride",
           "category_other_enabled": "Incluir outros estacionamentos",
-          "max_results": "Máximo de resultados por categoria"
+          "max_results": "Máximo de resultados por categoria",
+          "golemio_enabled": "Ativar fornecedor Golemio de Praga",
+          "golemio_api_key": "Chave API Golemio",
+          "tfnsw_enabled": "Ativar fornecedor Transport for NSW",
+          "tfnsw_api_key": "Chave API TfNSW",
+          "tdx_enabled": "Ativar fornecedor Taiwan TDX",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret"
         },
         "data_description": {
-          "destination_entity": "Apenas entidades compatíveis são listadas automaticamente. Atributos esperados: latitude + longitude ou lat + lon/lng. Exemplo: latitude 50.9385, longitude 6.9829."
+          "destination_entity": "Apenas entidades compatíveis são listadas automaticamente. Atributos esperados: latitude + longitude ou lat + lon/lng. Exemplo: latitude 50.9385, longitude 6.9829.",
+          "golemio_api_key": "Chave de programador gratuita opcional de api.golemio.cz/api-keys. Apenas para Praga.",
+          "tfnsw_api_key": "Chave opcional do Transport for NSW Open Data. Apenas para NSW.",
+          "tdx_client_id": "TDX Client ID opcional do centro de membros TDX. São necessários Client ID e Client Secret.",
+          "tdx_client_secret": "TDX Client Secret opcional. É guardado no Home Assistant e ocultado nos diagnósticos."
         }
       }
     },
