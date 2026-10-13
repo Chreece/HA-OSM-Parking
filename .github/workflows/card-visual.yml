@@ -1,0 +1,81 @@
+name: Card visual checks
+
+on:
+  push:
+    branches: [feat/compact-card-redesign]
+    paths: [.github/workflows/card-visual.yml]
+  pull_request:
+    paths:
+      - custom_components/osm_parking/frontend/**
+      - tools/card/**
+      - tests/card/**
+      - .github/workflows/card-visual.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    name: Card browser and layout
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare the initial development batch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/compact-card-redesign'
+        run: |
+          if [ -f tools/card/prepare.py ]; then
+            python3 tools/card/prepare.py
+            rm tools/card/prepare.py
+          fi
+          python3 tools/card/build.py
+      - name: Verify reproducible bundle and regression tests
+        run: |
+          python3 tools/card/build.py --check
+          node --check custom_components/osm_parking/frontend/osm-parking-map-card.js
+          node --test tests/card/filter.test.cjs
+          python3 -m unittest discover -s tests -v
+      - name: Install isolated browser test dependencies
+        run: |
+          npm install --no-save --package-lock=false maplibre-gl@5.6.2
+          python3 -m pip install playwright==1.57.0
+          python3 -m playwright install --with-deps chromium
+      - name: Browser interaction and responsive-layout checks
+        run: python3 tests/card/browser_check.py
+      - name: Record source fingerprints
+        if: always()
+        run: |
+          mkdir -p card-evidence
+          git rev-parse HEAD > card-evidence/tested-source-commit.txt
+          sha256sum custom_components/osm_parking/frontend/osm-parking-map-card.js tools/card/explorer.js tools/card/explorer.css > card-evidence/source-sha256.txt
+      - name: Commit tested generated bundle on the development branch only
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/feat/compact-card-redesign'
+        run: |
+          mkdir -p assets/screenshots/explorer
+          cp card-evidence/desktop-dark.png card-evidence/desktop-light.png card-evidence/mobile-greek-dark.png card-evidence/mobile-greek-filters.png assets/screenshots/explorer/
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add custom_components/osm_parking/frontend/osm-parking-map-card.js custom_components/osm_parking/manifest.json custom_components/osm_parking/__init__.py README.md CHANGELOG.md assets/screenshots/explorer
+          git add -A tools/card
+          if ! git diff --cached --quiet; then
+            git commit -m 'Build verified compact parking explorer v1.3.0 and browser previews'
+            git push origin HEAD:refs/heads/feat/compact-card-redesign
+          fi
+      - name: Upload card visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parking-card-visual-evidence
+          path: |
+            card-evidence/
+            custom_components/osm_parking/frontend/osm-parking-map-card.js
+            tools/card/
+          retention-days: 14
