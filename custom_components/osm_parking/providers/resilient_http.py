@@ -70,9 +70,12 @@ class EndpointPool:
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
+                # Renew an expired cooldown without shortening Retry-After.
                 # No exception bodies, credentials or raw server error pages.
                 errors.append(type(exc).__name__)
-                self._retry_at.setdefault(endpoint.url, monotonic() + 300)
+                self._retry_at[endpoint.url] = max(
+                    self._retry_at.get(endpoint.url, 0), monotonic() + 300,
+                )
                 if all(monotonic() < self._retry_at.get(e.url, 0) for e in self.endpoints):
                     break
         raise SourceUnavailable('No usable equivalent endpoint: ' + ', '.join(errors), max(1, math.ceil(min(self._retry_at.values()) - monotonic())))
