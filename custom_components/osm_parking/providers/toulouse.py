@@ -11,6 +11,19 @@ from .resilient_http import Endpoint, EndpointPool
 PROVIDER_URL = 'https://data.toulouse-metropole.fr/explore/dataset/parcs-de-stationnement/'
 
 
+def _flag(value: Any) -> bool | None:
+    """The municipal inventory publishes T/F strings, not JSON booleans."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        text = value.strip().upper()
+        if text in ('T', 'TRUE', '1'):
+            return True
+        if text in ('F', 'FALSE', '0'):
+            return False
+    return None
+
+
 class ToulouseParkingProvider:
     uid = 'toulouse_bnls'
     name = 'Toulouse Métropole Open Data / BNLS'
@@ -30,7 +43,17 @@ class ToulouseParkingProvider:
 
     @staticmethod
     def _normalize(row, lat, lon, radius):
-        item = ParisBnlsProvider._normalize(row, lat, lon, radius)
+        if not isinstance(row, dict):
+            return None
+        # Keep the reusable BNLS parser, but adapt verified Toulouse fields.
+        record = dict(row)
+        record['gratuit'] = _flag(row.get('gratuit'))
+        users = str(row.get('type_usager') or row.get('type_usagers') or '')
+        record['type_usagers'] = users.casefold().replace('tous', 'public')
+        try:
+            item = ParisBnlsProvider._normalize(record, lat, lon, radius)
+        except (ValueError, TypeError, KeyError, OverflowError):
+            return None
         if item is None or not (43.40 <= item['latitude'] <= 43.80 and 1.15 <= item['longitude'] <= 1.70):
             return None
         item.update(provider='toulouse_bnls', provider_name=ToulouseParkingProvider.name,
@@ -38,6 +61,10 @@ class ToulouseParkingProvider:
                     source_attribution='Toulouse Métropole Open Data')
         if item.get('provider_url') == PARIS_URL:
             item['provider_url'] = PROVIDER_URL
+        if row.get('gestionnaire'):
+            item['operator'] = str(row['gestionnaire'])
+        if _flag(row.get('public')) is False:
+            item['access'] = 'private'
         return item
 
     @staticmethod
