@@ -54,7 +54,9 @@
           "tdx_enabled": "Activer le fournisseur Taiwan TDX",
           "tdx_client_id": "ID client TDX",
           "tdx_client_secret": "Secret client TDX",
-          "athens_zones_enabled": "Afficher les zones réglementées d’Athènes (service SIG expérimental)"
+          "athens_zones_enabled": "Afficher les zones réglementées d’Athènes (service SIG expérimental)",
+          "ura_enabled": "Activer les parkings URA de Singapour (clé requise)",
+          "ura_access_key": "Clé d’accès API URA de Singapour"
         },
         "data_description": {
           "destination_entity": "Seules les entités compatibles sont prélistées. Attributs attendus : latitude + longitude ou lat + lon/lng. Exemple : latitude 50.9385, longitude 6.9829.",
@@ -62,7 +64,8 @@
           "tfnsw_api_key": "Clé API Transport for NSW Open Data optionnelle. Utilisée uniquement pour les destinations en NSW.",
           "tdx_client_id": "ID client TDX optionnel depuis l'espace membre TDX. L'ID et le secret sont tous deux requis.",
           "tdx_client_secret": "Secret client TDX optionnel. Stocké dans l'entrée Home Assistant et masqué dans les diagnostics.",
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs.",
+          "ura_access_key": "Clé facultative du portail URA officiel, utilisée pour obtenir un jeton quotidien. Masquée dans les diagnostics."
         }
       }
     },

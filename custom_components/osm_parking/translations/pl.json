@@ -54,7 +54,9 @@
           "tdx_enabled": "Włącz dostawcę Taiwan TDX",
           "tdx_client_id": "TDX Client ID",
           "tdx_client_secret": "TDX Client Secret",
-          "athens_zones_enabled": "Pokaż strefy parkowania Aten (eksperymentalna usługa GIS)"
+          "athens_zones_enabled": "Pokaż strefy parkowania Aten (eksperymentalna usługa GIS)",
+          "ura_enabled": "Włącz parkingi Singapore URA (wymagany klucz)",
+          "ura_access_key": "Klucz API Singapore URA"
         },
         "data_description": {
           "destination_entity": "Automatycznie wyświetlane są tylko zgodne encje. Wymagane atrybuty: latitude + longitude albo lat + lon/lng. Przykład: latitude 50.9385, longitude 6.9829.",
@@ -62,7 +64,8 @@
           "tfnsw_api_key": "Opcjonalny klucz Transport for NSW Open Data. Tylko dla NSW.",
           "tdx_client_id": "Opcjonalny TDX Client ID z centrum członkowskiego TDX. Wymagane są Client ID i Client Secret.",
           "tdx_client_secret": "Opcjonalny TDX Client Secret. Jest przechowywany w Home Assistant i ukrywany w diagnostyce.",
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions.",
+          "ura_access_key": "Opcjonalny klucz z portalu URA do uzyskania dziennego tokenu. Ukrywany w diagnostyce."
         }
       }
     },

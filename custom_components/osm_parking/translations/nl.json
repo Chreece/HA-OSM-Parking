@@ -54,7 +54,9 @@
           "tdx_enabled": "Taiwan TDX-provider inschakelen",
           "tdx_client_id": "TDX Client ID",
           "tdx_client_secret": "TDX Client Secret",
-          "athens_zones_enabled": "Parkeerzones van Athene tonen (experimentele GIS-dienst)"
+          "athens_zones_enabled": "Parkeerzones van Athene tonen (experimentele GIS-dienst)",
+          "ura_enabled": "Singapore URA-parkeerplaatsen inschakelen (sleutel vereist)",
+          "ura_access_key": "Toegangssleutel Singapore URA API"
         },
         "data_description": {
           "destination_entity": "Alleen compatibele entiteiten worden automatisch weergegeven. Verwachte attributen: latitude + longitude of lat + lon/lng. Voorbeeld: latitude 50.9385, longitude 6.9829.",
@@ -62,7 +64,8 @@
           "tfnsw_api_key": "Optionele Transport for NSW Open Data API-sleutel. Alleen voor bestemmingen in NSW.",
           "tdx_client_id": "Optionele TDX Client ID uit het TDX-ledencentrum. Client ID en Client Secret zijn beide vereist.",
           "tdx_client_secret": "Optioneel TDX Client Secret. Wordt in Home Assistant opgeslagen en uit diagnostiek verwijderd.",
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions.",
+          "ura_access_key": "Optionele sleutel van het officiële URA-portaal voor dagelijkse tokens. Verborgen in diagnostiek."
         }
       }
     },
