@@ -12,6 +12,7 @@
 - Added **Dublin City Council Open Data** by combining the live CPDATA feed with official parking coordinates.
 - Added **Brussels Open Data** public parking facilities.
 - Added **City of Melbourne Parking Bay Sensors** for individual near-realtime on-street bay availability with stale-sensor protection.
+- Added **Madrid Open Data Parking** for official rotational car parks, total capacity, tariffs and realtime free-space counts with timestamp freshness checks.
 - Added optional **Prague Golemio Parking v3** support with a user's free Golemio API key.
 - Added optional **Transport for NSW Car Park API** support with a user's TfNSW Open Data API key.
 - Added optional **Taiwan TDX Parking** support with TDX Client ID / Client Secret and OAuth token caching.
@@ -29,7 +30,7 @@
 
 ### Provider notes
 
-- **No credentials required:** OSM/Overpass, ParkAPI/MobiData BW, ParkenDD, Netherlands RDW, Ghent, Brussels, Dublin, Helsinki, Singapore HDB, Hong Kong DATA.GOV.HK and Melbourne.
+- **No credentials required:** OSM/Overpass, ParkAPI/MobiData BW, ParkenDD, Netherlands RDW, Ghent, Brussels, Dublin, Helsinki, Singapore HDB, Hong Kong DATA.GOV.HK, Melbourne and Madrid.
 - **Optional free developer credentials:** Prague Golemio, Transport for NSW and Taiwan TDX.
 - ParkOut and AthensWay are still intentionally not scraped: no stable documented public third-party API has been identified, so they are not treated as supported providers.
 
