@@ -1,0 +1,51 @@
+{
+  "version": "1.3.1",
+  "capture_source_commit": "3954ad8df3d21c87686c78db18240f39c3880987",
+  "frontend_sha256": "ce5a046919dd6ddb9fb4a5276c309666b8c62dbd67c1524c2572922709772e7f",
+  "method": "Chromium screenshots of the complete shipped card using real MapLibre 5.6.2 and the standalone Home Assistant preview",
+  "sample_parking_records": true,
+  "local_map_fixture": true,
+  "real_home_assistant_runtime": false,
+  "live_municipal_api_validation": false,
+  "preview_icon_substitutes": true,
+  "screenshots": [
+    {
+      "file": "card-desktop-dark.png",
+      "width": 720,
+      "height": 1271,
+      "language": "en",
+      "theme": "dark",
+      "filters_expanded": false,
+      "sha256": "5eff23fd51a6945e7f8b446aaf67be0a3de3aec2b1f17149d8429cb6f531464e"
+    },
+    {
+      "file": "card-desktop-light.png",
+      "width": 720,
+      "height": 1271,
+      "language": "en",
+      "theme": "light",
+      "filters_expanded": false,
+      "sha256": "2827be43725ad79c46e0a832662b5b8cacb22e2bd85d8b2101c3fa0fe6c5a50d"
+    },
+    {
+      "file": "card-mobile-greek-dark.png",
+      "width": 366,
+      "height": 1273,
+      "language": "el",
+      "theme": "dark",
+      "filters_expanded": false,
+      "sha256": "4a90ee1ae2d9c0267a0c7a08f25b4074eba967fb1b89184136d8ea30edc21ee8"
+    },
+    {
+      "file": "card-mobile-greek-filters.png",
+      "width": 366,
+      "height": 1607,
+      "language": "el",
+      "theme": "dark",
+      "filters_expanded": true,
+      "sha256": "25d2c0f5891c4fa4b62f39aa0531632f64c9ca90fa6993232b1e6ebd9adaaa80"
+    }
+  ],
+  "page_errors": [],
+  "passed": true
+}
