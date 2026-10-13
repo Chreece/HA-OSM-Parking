@@ -1,5 +1,39 @@
 # Changelog
 
+## v0.5.0
+
+### Added
+
+- Expanded OSM Parking into a broader worldwide multi-provider integration while retaining OpenStreetMap / Overpass as the universal baseline.
+- Added **Netherlands RDW Open Data** for national public garages and Park & Ride locations.
+- Added **Stad Gent Open Data** for realtime public parking occupancy in Ghent.
+- Added **ParkenDD / ParkAPI** for key-free live parking feeds across supported European cities including Germany, Denmark and Switzerland.
+- Added **Helsinki Parkkihubi** parking-area data and current area statistics, including privacy-safe handling of suppressed low occupancy counts.
+- Added **Dublin City Council Open Data** by combining the live CPDATA feed with official parking coordinates.
+- Added **Brussels Open Data** public parking facilities.
+- Added **City of Melbourne Parking Bay Sensors** for individual near-realtime on-street bay availability with stale-sensor protection.
+- Added optional **Prague Golemio Parking v3** support with a user's free Golemio API key.
+- Added optional **Transport for NSW Car Park API** support with a user's TfNSW Open Data API key.
+- Added optional **Taiwan TDX Parking** support with TDX Client ID / Client Secret and OAuth token caching.
+- Added optional provider credential fields to the Home Assistant Options flow. Credentials are never required for the automatic public providers.
+- Added credential redaction from Home Assistant diagnostics.
+
+### Changed
+
+- Provider implementations now receive optional configuration independently, allowing credentialed providers to coexist with key-free providers without affecting users who do not configure them.
+- Providers requiring credentials are silently skipped until all required credentials are present and the destination is inside their geographic coverage.
+- Realtime polling remains provider-driven: only active live feeds trigger successful periodic refreshes; static/OSM-only locations remain event-driven.
+- Individual parking-bay providers can opt out of geographic deduplication, preventing adjacent physical bays from being collapsed into one result.
+- Partial provider outages do not discard successful results from other sources and remain eligible for automatic recovery retries.
+- Validation no longer runs on every development push; direct-main development is validated once at the end of a batch, while pull requests still validate automatically.
+
+### Provider notes
+
+- **No credentials required:** OSM/Overpass, ParkAPI/MobiData BW, ParkenDD, Netherlands RDW, Ghent, Brussels, Dublin, Helsinki, Singapore HDB, Hong Kong DATA.GOV.HK and Melbourne.
+- **Optional free developer credentials:** Prague Golemio, Transport for NSW and Taiwan TDX.
+- ParkOut and AthensWay are still intentionally not scraped: no stable documented public third-party API has been identified, so they are not treated as supported providers.
+
+
 ## v0.4.0
 
 ### Added
