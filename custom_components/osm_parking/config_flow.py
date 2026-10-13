@@ -6,6 +6,7 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult, OptionsFlowWithReload
+from homeassistant.core import HomeAssistant, State
 from homeassistant.helpers import selector
 
 from .const import (
@@ -35,13 +36,89 @@ def _category_schema(defaults: dict[str, Any]) -> dict[Any, Any]:
     return schema
 
 
-def _schema(defaults: dict[str, Any]) -> vol.Schema:
+def _first_float(
+    attrs: dict[str, Any], names: tuple[str, ...]
+) -> float | None:
+    """Return the first valid numeric attribute."""
+    for name in names:
+        if name not in attrs:
+            continue
+        try:
+            return float(attrs[name])
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _state_coordinates(state: State | None) -> tuple[float, float] | None:
+    """Return valid destination coordinates from a state."""
+    if state is None:
+        return None
+
+    if str(state.state or "").strip().lower() in {
+        "",
+        "unknown",
+        "unavailable",
+        "none",
+    }:
+        return None
+
+    lat = _first_float(state.attributes, ("latitude", "lat"))
+    lon = _first_float(state.attributes, ("longitude", "lon", "lng"))
+    if lat is None or lon is None:
+        return None
+    if not -90 <= lat <= 90 or not -180 <= lon <= 180:
+        return None
+    return lat, lon
+
+
+def _destination_options(hass: HomeAssistant) -> list[selector.SelectOptionDict]:
+    """Return all currently usable destination entities."""
+    options: list[selector.SelectOptionDict] = []
+
+    for state in hass.states.async_all():
+        coordinates = _state_coordinates(state)
+        if coordinates is None:
+            continue
+
+        lat, lon = coordinates
+        friendly_name = str(
+            state.attributes.get("friendly_name") or state.entity_id
+        )
+        options.append(
+            selector.SelectOptionDict(
+                value=state.entity_id,
+                label=(
+                    f"{friendly_name} ({state.entity_id}) "
+                    f"— {lat:.5f}, {lon:.5f}"
+                ),
+            )
+        )
+
+    return sorted(options, key=lambda item: item["label"].casefold())
+
+
+def _schema(hass: HomeAssistant, defaults: dict[str, Any]) -> vol.Schema:
     """Build the complete configuration form."""
+    destination_options = _destination_options(hass)
+    current_destination = str(
+        defaults.get(CONF_DESTINATION_ENTITY, "")
+    ).strip()
+
+    destination_field = (
+        vol.Required(CONF_DESTINATION_ENTITY, default=current_destination)
+        if current_destination
+        else vol.Required(CONF_DESTINATION_ENTITY)
+    )
+
     fields: dict[Any, Any] = {
-        vol.Required(
-            CONF_DESTINATION_ENTITY,
-            default=defaults.get(CONF_DESTINATION_ENTITY, "sensor.termine_geocode"),
-        ): selector.EntitySelector(selector.EntitySelectorConfig()),
+        destination_field: selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=destination_options,
+                mode=selector.SelectSelectorMode.DROPDOWN,
+                custom_value=True,
+            )
+        ),
         vol.Required(
             CONF_RADIUS_M,
             default=int(defaults.get(CONF_RADIUS_M, DEFAULT_RADIUS_M)),
@@ -80,21 +157,33 @@ class OsmParkingConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle the OSM Parking config flow."""
 
     VERSION = 2
-    MINOR_VERSION = 3
+    MINOR_VERSION = 4
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Create a new parking search."""
+        errors: dict[str, str] = {}
+
         if user_input is not None:
             data = dict(user_input)
-            await self.async_set_unique_id(str(data[CONF_DESTINATION_ENTITY]).strip())
-            self._abort_if_unique_id_configured()
-            return self.async_create_entry(
-                title=str(data[CONF_DESTINATION_ENTITY]), data=data
-            )
+            destination_entity = str(data[CONF_DESTINATION_ENTITY]).strip()
 
-        return self.async_show_form(step_id="user", data_schema=_schema({}))
+            if _state_coordinates(self.hass.states.get(destination_entity)) is None:
+                errors[CONF_DESTINATION_ENTITY] = "invalid_destination_entity"
+            else:
+                await self.async_set_unique_id(destination_entity)
+                self._abort_if_unique_id_configured()
+                return self.async_create_entry(
+                    title=destination_entity,
+                    data=data,
+                )
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=_schema(self.hass, user_input or {}),
+            errors=errors,
+        )
 
     @staticmethod
     def async_get_options_flow(
@@ -111,8 +200,21 @@ class OsmParkingOptionsFlow(OptionsFlowWithReload):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Show and save options."""
-        if user_input is not None:
-            return self.async_create_entry(data=dict(user_input))
-
+        errors: dict[str, str] = {}
         defaults = {**self.config_entry.data, **self.config_entry.options}
-        return self.async_show_form(step_id="init", data_schema=_schema(defaults))
+
+        if user_input is not None:
+            destination_entity = str(
+                user_input[CONF_DESTINATION_ENTITY]
+            ).strip()
+            if _state_coordinates(self.hass.states.get(destination_entity)) is None:
+                errors[CONF_DESTINATION_ENTITY] = "invalid_destination_entity"
+            else:
+                return self.async_create_entry(data=dict(user_input))
+            defaults = {**defaults, **user_input}
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=_schema(self.hass, defaults),
+            errors=errors,
+        )
