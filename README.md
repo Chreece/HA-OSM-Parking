@@ -54,6 +54,25 @@
 
 > Example dashboard views using the bundled OSM Parking map card. Parking availability, names, categories, pricing and OpenStreetMap data vary by location.
 
+## Languages
+
+The integration setup/options UI currently includes translations for:
+
+- English
+- Greek
+- German
+- Spanish
+- French
+- Italian
+- Dutch
+- Polish
+- Portuguese
+- Brazilian Portuguese
+- Russian
+- Turkish
+- Simplified Chinese
+- Japanese
+
 ## Installation
 
 ### HACS
