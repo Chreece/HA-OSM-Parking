@@ -1,4 +1,4 @@
-"""One-time visual correction; removed after the verified build is committed."""
+"""One-time visual/lifecycle correction; removed after verified build commit."""
 from pathlib import Path
 root=Path(__file__).resolve().parent
 css=root/'explorer.css'
@@ -13,4 +13,30 @@ osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-attrib {clear:both;flo
 '''
 if fix not in text:
     css.write_text(text+fix,encoding='utf-8')
-print('MAP_CONTROL_WIDTH_CORRECTED')
+source=root/'explorer.js'
+text=source.read_text(encoding='utf-8')
+old="    const map=this._map;if(!map?.isStyleLoaded()) return;"
+new='''    const map=this._map;if(!map) return;
+    // style.load can arrive while GeoJSON sources are still loading. Retry
+    // once at idle instead of losing overlays or repeatedly calling setData.
+    if(!map.isStyleLoaded()) {
+      if(!this._zoneIdlePending) {
+        this._zoneIdlePending=true;
+        map.once('idle',()=>{
+          this._zoneIdlePending=false;
+          if(map===this._map) this._updateZoneOverlay(this._stateObj?.attributes?.parking_zones || []);
+        });
+      }
+      return;
+    }'''
+if old in text:
+    assert text.count(old)==1
+    text=text.replace(old,new)
+else:
+    assert new in text
+old='this._pins?.clear(); this._zoneEvents=false; this._fitSignature=null;'
+new='this._pins?.clear(); this._zoneEvents=false; this._zoneIdlePending=false; this._fitSignature=null;'
+if old in text:text=text.replace(old,new)
+else:assert new in text
+source.write_text(text,encoding='utf-8')
+print('MAP_CONTROLS_AND_STYLE_LIFECYCLE_CORRECTED')
