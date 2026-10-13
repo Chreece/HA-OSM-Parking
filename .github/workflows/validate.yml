@@ -50,6 +50,9 @@ jobs:
           print("LOCAL_CONST_IMPORTS=PASS")
           PY
 
+      - name: Validate dashboard card JavaScript
+        run: node --check custom_components/osm_parking/frontend/osm-parking-map-card.js
+
       - name: Validate frontend version contract
         run: |
           python3 - <<'PY'
