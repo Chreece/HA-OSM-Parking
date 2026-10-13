@@ -26,6 +26,7 @@ class ParkApiProvider:
         lat: float,
         lon: float,
         radius_m: int,
+        options: dict[str, Any] | None = None,
     ) -> ProviderFetchResult:
         """Fetch nearby car parking from ParkAPI v3."""
         params = {
