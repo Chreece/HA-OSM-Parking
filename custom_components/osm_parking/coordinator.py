@@ -239,6 +239,12 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             1 for item in suggestions if item.get("has_realtime_data")
         )
 
+        # Live providers need periodic refreshes. Partial-provider failures also
+        # get a temporary 5-minute recovery cadence; once every active provider
+        # succeeds and no live data remains, polling stops again.
+        if overpass_error or provider_errors:
+            live_refresh_seconds.append(300)
+
         buckets: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for item in suggestions:
             buckets[item["category"]].append(item)
