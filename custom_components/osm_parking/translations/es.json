@@ -1,0 +1,60 @@
+{
+  "title": "Aparcamiento OSM",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Aparcamiento OSM",
+        "description": "Elige una entidad de destino entre las entidades compatibles detectadas abajo. Una entidad compatible debe exponer atributos numéricos latitude + longitude o lat + lon/lng. La búsqueda se actualiza cuando cambia el destino o al iniciar Home Assistant.",
+        "data": {
+          "destination_entity": "Entidad de destino",
+          "radius_m": "Radio de búsqueda",
+          "include_restricted": "Incluir aparcamiento restringido/privado",
+          "category_paid_enabled": "Incluir aparcamiento de pago",
+          "category_open_enabled": "Incluir aparcamiento abierto / en superficie",
+          "category_street_enabled": "Incluir aparcamiento en la calle",
+          "category_underground_enabled": "Incluir aparcamiento subterráneo",
+          "category_multi_storey_enabled": "Incluir aparcamientos de varias plantas",
+          "category_park_and_ride_enabled": "Incluir Park & Ride",
+          "category_other_enabled": "Incluir otros aparcamientos",
+          "max_results": "Máximo de resultados por categoría"
+        },
+        "data_description": {
+          "destination_entity": "Solo se muestran automáticamente las entidades compatibles. Atributos esperados: latitude + longitude o lat + lon/lng. Ejemplo: latitude 50.9385, longitude 6.9829."
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "La entidad seleccionada no está disponible o no expone actualmente coordenadas válidas."
+    },
+    "abort": {
+      "already_configured": "Esta entidad de destino ya está configurada."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de Aparcamiento OSM",
+        "description": "Elige entre las entidades de destino compatibles actualmente y configura la búsqueda. Se admiten los atributos latitude + longitude o lat + lon/lng.",
+        "data": {
+          "destination_entity": "Entidad de destino",
+          "radius_m": "Radio de búsqueda",
+          "include_restricted": "Incluir aparcamiento restringido/privado",
+          "category_paid_enabled": "Incluir aparcamiento de pago",
+          "category_open_enabled": "Incluir aparcamiento abierto / en superficie",
+          "category_street_enabled": "Incluir aparcamiento en la calle",
+          "category_underground_enabled": "Incluir aparcamiento subterráneo",
+          "category_multi_storey_enabled": "Incluir aparcamientos de varias plantas",
+          "category_park_and_ride_enabled": "Incluir Park & Ride",
+          "category_other_enabled": "Incluir otros aparcamientos",
+          "max_results": "Máximo de resultados por categoría"
+        },
+        "data_description": {
+          "destination_entity": "Solo se muestran automáticamente las entidades compatibles. Atributos esperados: latitude + longitude o lat + lon/lng. Ejemplo: latitude 50.9385, longitude 6.9829."
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "La entidad seleccionada no está disponible o no expone actualmente coordenadas válidas."
+    }
+  }
+}
