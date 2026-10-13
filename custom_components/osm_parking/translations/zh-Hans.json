@@ -1,0 +1,60 @@
+{
+  "title": "OSM 停车",
+  "config": {
+    "step": {
+      "user": {
+        "title": "OSM 停车",
+        "description": "从下方检测到的兼容实体中选择一个目的地实体。兼容实体必须提供数值型 latitude + longitude，或 lat + lon/lng 属性。目的地变化或 Home Assistant 启动时会刷新停车搜索。",
+        "data": {
+          "destination_entity": "目的地实体",
+          "radius_m": "搜索半径",
+          "include_restricted": "包含受限/私人停车位",
+          "category_paid_enabled": "包含收费停车位",
+          "category_open_enabled": "包含露天 / 地面停车场",
+          "category_street_enabled": "包含路边停车",
+          "category_underground_enabled": "包含地下停车场",
+          "category_multi_storey_enabled": "包含多层停车场",
+          "category_park_and_ride_enabled": "包含 Park & Ride",
+          "category_other_enabled": "包含其他停车位",
+          "max_results": "每个类别的最大结果数"
+        },
+        "data_description": {
+          "destination_entity": "仅自动列出兼容实体。所需属性：latitude + longitude，或 lat + lon/lng。示例：latitude 50.9385，longitude 6.9829。"
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "所选实体不可用，或当前未提供有效坐标。"
+    },
+    "abort": {
+      "already_configured": "此目的地实体已配置。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "OSM 停车选项",
+        "description": "从当前兼容的目的地实体中选择并配置搜索。支持的坐标属性为 latitude + longitude，或 lat + lon/lng。",
+        "data": {
+          "destination_entity": "目的地实体",
+          "radius_m": "搜索半径",
+          "include_restricted": "包含受限/私人停车位",
+          "category_paid_enabled": "包含收费停车位",
+          "category_open_enabled": "包含露天 / 地面停车场",
+          "category_street_enabled": "包含路边停车",
+          "category_underground_enabled": "包含地下停车场",
+          "category_multi_storey_enabled": "包含多层停车场",
+          "category_park_and_ride_enabled": "包含 Park & Ride",
+          "category_other_enabled": "包含其他停车位",
+          "max_results": "每个类别的最大结果数"
+        },
+        "data_description": {
+          "destination_entity": "仅自动列出兼容实体。所需属性：latitude + longitude，或 lat + lon/lng。示例：latitude 50.9385，longitude 6.9829。"
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "所选实体不可用，或当前未提供有效坐标。"
+    }
+  }
+}
