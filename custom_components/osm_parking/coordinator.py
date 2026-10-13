@@ -83,6 +83,13 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def _option(self, key: str, default: Any) -> Any:
         return self.entry.options.get(key, self.entry.data.get(key, default))
 
+    @property
+    def retry_interval_seconds(self) -> int | None:
+        """Return the active recovery-polling interval in seconds."""
+        if self.last_update_success or self.update_interval is None:
+            return None
+        return int(self.update_interval.total_seconds())
+
     @callback
     def async_reset_retry_cycle(self) -> None:
         """Cancel failure polling before a fresh event-driven refresh."""
@@ -129,6 +136,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return self._waiting_data(
                 destination_entity,
                 "Destination entity is not available yet",
+                error_code="source_unavailable",
             )
 
         display_name = str(state.attributes.get("display_name") or "").strip()
@@ -146,6 +154,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 destination_entity,
                 "Waiting for destination coordinates",
                 destination_name=display_name or friendly_name or destination_entity,
+                error_code="source_coordinates_missing",
             )
         if display_name:
             destination_name = display_name
@@ -199,6 +208,9 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "source": source,
             "raw_result_count": raw_result_count,
             "error": None,
+            "error_code": None,
+            "auto_retry": False,
+            "retry_after_seconds": None,
             "category_counts": category_counts,
             "suggestions": selected,
         }
@@ -209,6 +221,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         error: str,
         *,
         destination_name: str | None = None,
+        error_code: str = "waiting_for_destination",
     ) -> dict[str, Any]:
         """Return a valid coordinator state while the source entity is restoring."""
         return {
@@ -222,6 +235,9 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "source": None,
             "raw_result_count": 0,
             "error": error,
+            "error_code": error_code,
+            "auto_retry": False,
+            "retry_after_seconds": None,
             "category_counts": {category: 0 for category in CATEGORIES},
             "suggestions": [],
         }
