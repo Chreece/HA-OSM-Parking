@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync('custom_components/osm_parking/frontend/osm-parking-map-card.js','utf8');
-const context = vm.createContext({HTMLElement:class{},customElements:{get:()=>undefined,define:()=>{}},window:{},console});
+const context = vm.createContext({HTMLElement:class{},customElements:{get:()=>undefined,define:()=>{}},window:{},console,URL});
 vm.runInContext(source+'\nglobalThis.f={osmNumber,osmKind,osmFree,osmVisible,osmCleanPrefs,OsmParkingExplorerCard,OSM_EXPLORER_I18N};',context);
 const f=context.f;
 const items=[
