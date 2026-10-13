@@ -76,12 +76,17 @@ into your Home Assistant `config/custom_components/` directory and restart Home 
 
 ## Destination entity
 
-Choose any Home Assistant entity that exposes either:
+The setup screen automatically scans Home Assistant and lists the entities that are currently usable as OSM Parking destinations.
+
+A supported entity must have a valid state and numeric coordinate attributes in either of these forms:
 
 - `latitude` + `longitude`
 - `lat` + `lon`
+- `lat` + `lng`
 
-The OSM Parking coordinator subscribes to that configured entity. Parking is fetched once when the integration starts and again only when the destination state/name/coordinates meaningfully change. There is no periodic polling.
+The dropdown shows the friendly name, entity ID and current coordinates, so there is no need to guess which entities are compatible.
+
+The OSM Parking coordinator subscribes to the selected entity. Parking is fetched once when the integration starts and again when the destination state/name/coordinates meaningfully change. Normal successful operation does not poll periodically; failure-only recovery polling is described below.
 
 Example:
 
