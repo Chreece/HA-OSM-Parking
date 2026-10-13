@@ -21,6 +21,8 @@ from .const import (
     CONF_TDX_CLIENT_ID,
     CONF_TDX_CLIENT_SECRET,
     CONF_TDX_ENABLED,
+    CONF_URA_ENABLED,
+    CONF_URA_ACCESS_KEY,
     CONF_TFNSW_API_KEY,
     CONF_TFNSW_ENABLED,
     DEFAULT_INCLUDE_RESTRICTED,
@@ -187,6 +189,16 @@ def _schema(
                     default=bool(defaults.get(CONF_TFNSW_ENABLED, True)),
                 ): selector.BooleanSelector(),
                 vol.Optional(CONF_TFNSW_API_KEY): selector.TextSelector(
+                    selector.TextSelectorConfig(
+                        type=selector.TextSelectorType.PASSWORD,
+                        autocomplete="new-password",
+                    )
+                ),
+                vol.Optional(
+                    CONF_URA_ENABLED,
+                    default=bool(defaults.get(CONF_URA_ENABLED, True)),
+                ): selector.BooleanSelector(),
+                vol.Optional(CONF_URA_ACCESS_KEY): selector.TextSelector(
                     selector.TextSelectorConfig(
                         type=selector.TextSelectorType.PASSWORD,
                         autocomplete="new-password",

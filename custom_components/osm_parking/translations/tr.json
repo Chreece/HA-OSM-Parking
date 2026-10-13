@@ -54,7 +54,9 @@
           "tdx_enabled": "Taiwan TDX sağlayıcısını etkinleştir",
           "tdx_client_id": "TDX Client ID",
           "tdx_client_secret": "TDX Client Secret",
-          "athens_zones_enabled": "Atina kontrollü park bölgelerini göster (deneysel GIS hizmeti)"
+          "athens_zones_enabled": "Atina kontrollü park bölgelerini göster (deneysel GIS hizmeti)",
+          "ura_enabled": "Singapur URA otoparklarını etkinleştir (anahtar gerekli)",
+          "ura_access_key": "Singapur URA API erişim anahtarı"
         },
         "data_description": {
           "destination_entity": "Yalnızca uyumlu varlıklar otomatik olarak listelenir. Beklenen öznitelikler: latitude + longitude veya lat + lon/lng. Örnek: latitude 50.9385, longitude 6.9829.",
@@ -62,7 +64,8 @@
           "tfnsw_api_key": "İsteğe bağlı Transport for NSW Open Data API anahtarı. Yalnızca NSW hedefleri için kullanılır.",
           "tdx_client_id": "TDX üye merkezinden isteğe bağlı TDX Client ID. Client ID ve Client Secret birlikte gereklidir.",
           "tdx_client_secret": "İsteğe bağlı TDX Client Secret. Home Assistant yapılandırma girdisinde saklanır ve tanılama verilerinde gizlenir.",
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs.",
+          "ura_access_key": "Resmî URA portalından isteğe bağlı anahtar. Günlük jeton almak için kullanılır; tanılarda gizlenir."
         }
       }
     },

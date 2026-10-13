@@ -16,12 +16,15 @@ CONF_TFNSW_API_KEY = "tfnsw_api_key"
 CONF_TDX_ENABLED = "tdx_enabled"
 CONF_TDX_CLIENT_ID = "tdx_client_id"
 CONF_TDX_CLIENT_SECRET = "tdx_client_secret"
+CONF_URA_ENABLED = "ura_enabled"
+CONF_URA_ACCESS_KEY = "ura_access_key"
 
 PROVIDER_SECRET_KEYS = (
     CONF_GOLEMIO_API_KEY,
     CONF_TFNSW_API_KEY,
     CONF_TDX_CLIENT_ID,
     CONF_TDX_CLIENT_SECRET,
+    CONF_URA_ACCESS_KEY,
 )
 
 DEFAULT_RADIUS_M = 1500

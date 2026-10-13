@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.1.0
+
+### Added
+
+- **Ville de Paris Open Data / BNLS** parking provider with static WGS84 facility locations, national IDs, fees, accessible/EV capacities and access restrictions.
+- **Ayuntamiento de Zaragoza** static parking inventory, using the official documented municipal REST API and WGS84 verification.
+- **Singapore URA** optional-access-key provider joining official daily car-park details with 3–5-minute parking availability using stable URA car-park IDs, car-only filtering and SVY21 conversion.
+- Translated URA credentials across the 14 supported languages; added offline schema and deduplication tests.
+- Extended the source research to Toulouse, Bordeaux and Galway and differentiated their real-time prospects from static data.
+
+### Changed
+
+- Paris and Zaragoza static catalogs cache for 24 hours without triggering successful periodic polling.
+- URA daily details and token are cached separately; when facilities are in range, reported counts update every 5 minutes.
+- The existing include-restricted-parking setting now filters municipal provider results, not only OpenStreetMap.
+
+### Data integrity
+
+- URA counts without an upstream measurement time remain **reported**; they never outrank fresh publisher-timestamped live values.
+- Zaragoza's estimated street-zone occupancy and VINCI map occupancy are not fabricated from static garage records.
+- Paris capacity is static metadata, never a live vacancy claim.
+- Public-endpoint reachability and URA authentication still require a real Home Assistant runtime test; offline tests do not establish live service availability.
+
 ## v1.0.0
 
 ### Added

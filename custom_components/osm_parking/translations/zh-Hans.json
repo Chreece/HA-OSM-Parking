@@ -54,7 +54,9 @@
           "tdx_enabled": "启用台湾 TDX 提供商",
           "tdx_client_id": "TDX Client ID",
           "tdx_client_secret": "TDX Client Secret",
-          "athens_zones_enabled": "显示雅典受管制停车区域（实验性 GIS 服务）"
+          "athens_zones_enabled": "显示雅典受管制停车区域（实验性 GIS 服务）",
+          "ura_enabled": "启用新加坡 URA 停车场（需要访问密钥）",
+          "ura_access_key": "新加坡 URA API 访问密钥"
         },
         "data_description": {
           "destination_entity": "仅自动列出兼容实体。所需属性：latitude + longitude，或 lat + lon/lng。示例：latitude 50.9385，longitude 6.9829。",
@@ -62,7 +64,8 @@
           "tfnsw_api_key": "可选的 Transport for NSW Open Data API 密钥。仅用于 NSW 目的地。",
           "tdx_client_id": "可选的 TDX Client ID，可从 TDX 会员中心获取。Client ID 和 Client Secret 均为必需。",
           "tdx_client_secret": "可选的 TDX Client Secret。保存在 Home Assistant 配置项中，并从诊断信息中隐藏。",
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions.",
+          "ura_access_key": "来自 URA 官方门户的可选密钥，用于获取每日令牌，并在诊断信息中隐藏。"
         }
       }
     },
