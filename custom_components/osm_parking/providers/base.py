@@ -31,6 +31,7 @@ class ParkingProvider(Protocol):
         lat: float,
         lon: float,
         radius_m: int,
+        options: dict[str, Any] | None = None,
     ) -> ProviderFetchResult:
         """Fetch and normalize nearby parking."""
 
