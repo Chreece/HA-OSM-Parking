@@ -26,6 +26,7 @@ class HongKongParkingProvider:
         lat: float,
         lon: float,
         radius_m: int,
+        options: dict[str, Any] | None = None,
     ) -> ProviderFetchResult:
         """Fetch nearby parking information and realtime vacancy."""
         south, west, north, east = bounding_box(lat, lon, radius_m)
