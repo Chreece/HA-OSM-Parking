@@ -34,7 +34,7 @@
     "step": {
       "init": {
         "title": "Επιλογές στάθμευσης OSM",
-        "description": "Επίλεξε από τις οντότητες προορισμού που είναι αυτή τη στιγμή συμβατές και ρύθμισε την αναζήτηση. Υποστηρίζονται τα γνωρίσματα latitude + longitude ή lat + lon/lng.",
+        "description": "Ρύθμισε την αναζήτηση και τους προαιρετικούς τοπικούς παρόχους. Οι δημόσιοι πάροχοι χωρίς κλειδί λειτουργούν αυτόματα. Οι πάροχοι με διαπιστευτήρια χρησιμοποιούνται μόνο όταν είναι ενεργοί, υπάρχουν τα διαπιστευτήρια και ο προορισμός βρίσκεται στην περιοχή κάλυψής τους.",
         "data": {
           "destination_entity": "Οντότητα προορισμού",
           "radius_m": "Ακτίνα αναζήτησης",
@@ -46,10 +46,21 @@
           "category_multi_storey_enabled": "Συμπερίληψη πολυώροφου πάρκινγκ",
           "category_park_and_ride_enabled": "Συμπερίληψη Park & Ride",
           "category_other_enabled": "Συμπερίληψη άλλης στάθμευσης",
-          "max_results": "Μέγιστα αποτελέσματα ανά κατηγορία"
+          "max_results": "Μέγιστα αποτελέσματα ανά κατηγορία",
+          "golemio_enabled": "Ενεργοποίηση παρόχου Golemio Πράγας",
+          "golemio_api_key": "Κλειδί API Golemio",
+          "tfnsw_enabled": "Ενεργοποίηση παρόχου Transport for NSW",
+          "tfnsw_api_key": "Κλειδί API TfNSW",
+          "tdx_enabled": "Ενεργοποίηση παρόχου Taiwan TDX",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret"
         },
         "data_description": {
-          "destination_entity": "Στη λίστα εμφανίζονται αυτόματα μόνο οι συμβατές οντότητες. Αναμενόμενα γνωρίσματα: latitude + longitude ή lat + lon/lng. Παράδειγμα: latitude 50.9385, longitude 6.9829."
+          "destination_entity": "Στη λίστα εμφανίζονται αυτόματα μόνο οι συμβατές οντότητες. Αναμενόμενα γνωρίσματα: latitude + longitude ή lat + lon/lng. Παράδειγμα: latitude 50.9385, longitude 6.9829.",
+          "golemio_api_key": "Προαιρετικό δωρεάν κλειδί προγραμματιστή από api.golemio.cz/api-keys. Χρησιμοποιείται μόνο για προορισμούς στην Πράγα.",
+          "tfnsw_api_key": "Προαιρετικό κλειδί Transport for NSW Open Data API. Χρησιμοποιείται μόνο για προορισμούς στη Νέα Νότια Ουαλία.",
+          "tdx_client_id": "Προαιρετικό TDX Client ID από το κέντρο μελών TDX. Απαιτούνται και Client ID και Client Secret.",
+          "tdx_client_secret": "Προαιρετικό TDX Client Secret. Αποθηκεύεται στην καταχώρηση του Home Assistant και αποκρύπτεται από τα διαγνωστικά."
         }
       }
     },
