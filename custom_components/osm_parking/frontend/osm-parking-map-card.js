@@ -573,6 +573,11 @@ class OsmParkingMapCardV0311 extends HTMLElement {
       error_code: a.error_code,
       auto_retry: a.auto_retry,
       retry_after_seconds: a.retry_after_seconds,
+      partial_data: a.partial_data,
+      provider_errors: a.provider_errors,
+      providers_used: a.providers_used,
+      realtime_result_count: a.realtime_result_count,
+      live_refresh_seconds: a.live_refresh_seconds,
       suggestions: a.suggestions,
     });
 
