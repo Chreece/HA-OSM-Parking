@@ -1,4 +1,5 @@
 from .base import ParkingProvider, ProviderFetchResult
+from .athens_zones import AthensParkingZonesProvider
 from .brussels import BrusselsParkingProvider
 from .ghent import GhentParkingProvider
 from .dublin import DublinParkingProvider
@@ -26,6 +27,7 @@ from .tfnsw import TfNswParkingProvider
 from .tdx import TaiwanTdxParkingProvider
 
 PROVIDERS: tuple[ParkingProvider, ...] = (
+    AthensParkingZonesProvider(),
     IstanbulIsparkProvider(),
     IzmirIzumProvider(),
     LilleParkingProvider(),

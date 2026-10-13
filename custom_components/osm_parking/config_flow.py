@@ -12,6 +12,7 @@ from homeassistant.helpers import selector
 from .const import (
     CATEGORIES,
     CONF_DESTINATION_ENTITY,
+    CONF_ATHENS_ZONES_ENABLED,
     CONF_GOLEMIO_API_KEY,
     CONF_GOLEMIO_ENABLED,
     CONF_INCLUDE_RESTRICTED,
@@ -167,6 +168,10 @@ def _schema(
     if include_provider_credentials:
         fields.update(
             {
+                vol.Optional(
+                    CONF_ATHENS_ZONES_ENABLED,
+                    default=bool(defaults.get(CONF_ATHENS_ZONES_ENABLED, False)),
+                ): selector.BooleanSelector(),
                 vol.Optional(
                     CONF_GOLEMIO_ENABLED,
                     default=bool(defaults.get(CONF_GOLEMIO_ENABLED, True)),

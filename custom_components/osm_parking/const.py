@@ -7,6 +7,7 @@ CONF_DESTINATION_ENTITY = "destination_entity"
 CONF_RADIUS_M = "radius_m"
 CONF_INCLUDE_RESTRICTED = "include_restricted"
 CONF_MAX_RESULTS = "max_results"
+CONF_ATHENS_ZONES_ENABLED = "athens_zones_enabled"
 
 CONF_GOLEMIO_ENABLED = "golemio_enabled"
 CONF_GOLEMIO_API_KEY = "golemio_api_key"

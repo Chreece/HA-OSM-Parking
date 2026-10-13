@@ -193,7 +193,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 or bool(
                     provider_options.get(
                         getattr(provider, "enabled_option"),
-                        True,
+                        bool(getattr(provider, "enabled_default", True)),
                     )
                 )
             )
@@ -224,6 +224,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         provider_errors: dict[str, str] = {}
         providers_used: list[str] = []
         suggestions: list[dict[str, Any]] = []
+        parking_zones: list[dict[str, Any]] = []
         overpass_error: str | None = None
         live_refresh_seconds: list[int] = []
 
@@ -250,6 +251,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             provider_result: ProviderFetchResult = result
             providers_used.append(provider_result.provider)
             provider_suggestion_count += len(provider_result.suggestions)
+            parking_zones.extend(provider_result.zones)
             suggestions = self._merge_provider_suggestions(
                 suggestions,
                 provider_result.suggestions,
@@ -323,6 +325,8 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "retry_after_seconds": None,
             "category_counts": category_counts,
             "suggestions": selected,
+            "parking_zones": parking_zones,
+            "parking_zone_count": len(parking_zones),
         }
 
     def _waiting_data(
@@ -358,6 +362,8 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "retry_after_seconds": None,
             "category_counts": {category: 0 for category in CATEGORIES},
             "suggestions": [],
+            "parking_zones": [],
+            "parking_zone_count": 0,
         }
 
     async def _query_overpass(
