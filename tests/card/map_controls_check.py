@@ -1,4 +1,4 @@
-"""Guard the map-control width regression visible in mobile preview screenshots."""
+"""Guard map-control geometry and icon regressions inside HA shadow roots."""
 from pathlib import Path
 from functools import partial
 import http.server
@@ -24,12 +24,16 @@ try:
             box=page.locator('.maplibregl-ctrl-group').bounding_box()
             assert box and box['width']<=40 and box['height']<=70,box
             for name in ('zoom-in','zoom-out'):
-                button=page.locator('.maplibregl-ctrl-'+name).bounding_box()
+                node=page.locator('.maplibregl-ctrl-'+name)
+                button=node.bounding_box()
                 assert button and 30<=button['width']<=40 and 30<=button['height']<=40,button
+                assert node.locator('.maplibregl-ctrl-icon').evaluate('(e)=>getComputedStyle(e).display')=='none'
+                assert node.evaluate("(e)=>getComputedStyle(e,'::after').position")=='absolute'
+                assert node.evaluate("(e)=>getComputedStyle(e,'::after').content") in ('"+"','"−"')
         zoom=page.evaluate('window.card._map.getZoom()')
         page.locator('.maplibregl-ctrl-zoom-in').click()
         page.wait_for_function('(previous)=>window.card._map.getZoom()>previous',arg=zoom)
         browser.close()
 finally:
     server.shutdown()
-print('MAP_CONTROLS=PASS (320px,390px,900px and working zoom)')
+print('MAP_CONTROLS=PASS (320px,390px,900px, visible glyphs and working zoom)')
