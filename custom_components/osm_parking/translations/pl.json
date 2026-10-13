@@ -34,7 +34,7 @@
     "step": {
       "init": {
         "title": "Opcje Parking OSM",
-        "description": "Wybierz aktualnie zgodną encję docelową i skonfiguruj wyszukiwanie. Obsługiwane atrybuty to latitude + longitude albo lat + lon/lng.",
+        "description": "Skonfiguruj wyszukiwanie i opcjonalnych dostawców regionalnych. Publiczne źródła bez klucza działają automatycznie. Źródła wymagające danych logowania są używane tylko po włączeniu i dla właściwego obszaru.",
         "data": {
           "destination_entity": "Encja docelowa",
           "radius_m": "Promień wyszukiwania",
@@ -46,10 +46,21 @@
           "category_multi_storey_enabled": "Uwzględnij parking wielopoziomowy",
           "category_park_and_ride_enabled": "Uwzględnij Park & Ride",
           "category_other_enabled": "Uwzględnij inne parkingi",
-          "max_results": "Maksymalna liczba wyników na kategorię"
+          "max_results": "Maksymalna liczba wyników na kategorię",
+          "golemio_enabled": "Włącz dostawcę Golemio dla Pragi",
+          "golemio_api_key": "Klucz API Golemio",
+          "tfnsw_enabled": "Włącz dostawcę Transport for NSW",
+          "tfnsw_api_key": "Klucz API TfNSW",
+          "tdx_enabled": "Włącz dostawcę Taiwan TDX",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret"
         },
         "data_description": {
-          "destination_entity": "Automatycznie wyświetlane są tylko zgodne encje. Wymagane atrybuty: latitude + longitude albo lat + lon/lng. Przykład: latitude 50.9385, longitude 6.9829."
+          "destination_entity": "Automatycznie wyświetlane są tylko zgodne encje. Wymagane atrybuty: latitude + longitude albo lat + lon/lng. Przykład: latitude 50.9385, longitude 6.9829.",
+          "golemio_api_key": "Opcjonalny bezpłatny klucz deweloperski z api.golemio.cz/api-keys. Tylko dla Pragi.",
+          "tfnsw_api_key": "Opcjonalny klucz Transport for NSW Open Data. Tylko dla NSW.",
+          "tdx_client_id": "Opcjonalny TDX Client ID z centrum członkowskiego TDX. Wymagane są Client ID i Client Secret.",
+          "tdx_client_secret": "Opcjonalny TDX Client Secret. Jest przechowywany w Home Assistant i ukrywany w diagnostyce."
         }
       }
     },
