@@ -3,28 +3,62 @@
   "config": {
     "step": {
       "user": {
-        "title": "OSM Parking",
-        "description": "下に検出された対応エンティティから目的地エンティティを選択してください。対応エンティティには、数値の latitude + longitude、または lat + lon/lng 属性が必要です。目的地の変更時または Home Assistant の起動時に駐車場検索が更新されます。",
+        "title": "1/4 · 目的地と距離",
+        "description": "目的地のエンティティと駐車場を検索する距離を選びます。その他の設定は次の画面で行います。",
         "data": {
           "destination_entity": "目的地エンティティ",
-          "radius_m": "検索半径",
-          "include_restricted": "制限付き / 私有駐車場を含める",
-          "category_paid_enabled": "有料駐車場を含める",
-          "category_open_enabled": "屋外 / 平面駐車場を含める",
-          "category_street_enabled": "路上駐車を含める",
-          "category_underground_enabled": "地下駐車場を含める",
-          "category_multi_storey_enabled": "立体駐車場を含める",
-          "category_park_and_ride_enabled": "Park & Ride を含める",
-          "category_other_enabled": "その他の駐車場を含める",
-          "max_results": "カテゴリごとの最大結果数"
+          "radius_m": "検索半径"
         },
         "data_description": {
           "destination_entity": "対応エンティティのみが自動表示されます。必要な属性: latitude + longitude、または lat + lon/lng。例: latitude 50.9385、longitude 6.9829。"
         }
+      },
+      "categories": {
+        "title": "2/4 · 駐車場の種類",
+        "description": "駐車場の種類を1つ以上選び、種類ごとの最大件数、私有駐車場やアテネ規制区域の表示を設定します。",
+        "data": {
+          "parking_types": "駐車場の種類",
+          "max_results": "カテゴリごとの最大結果数",
+          "include_restricted": "制限付き / 私有駐車場を含める",
+          "athens_zones_enabled": "アテネ駐車規制区域を表示（試験的 GIS サービス）"
+        },
+        "data_description": {
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+        }
+      },
+      "providers": {
+        "title": "3/4 · 追加データ提供元",
+        "description": "OpenStreetMap とキー不要の公共データは自動利用されます。API キーが必要な提供元を選びます（無料の開発者キーもあります）。選択しない場合は手順4を省略します。",
+        "data": {
+          "credential_providers": "API キーが必要な提供元"
+        }
+      },
+      "credentials": {
+        "title": "4/4 · API 認証情報",
+        "description": "次の提供元の認証情報を入力してください：{selected_providers}。保存済みのキーは空欄なら維持され、画面には表示されません。",
+        "data": {
+          "golemio_api_key": "Golemio API キー",
+          "tfnsw_api_key": "TfNSW API キー",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret",
+          "ura_access_key": "シンガポール URA API アクセスキー"
+        },
+        "data_description": {
+          "golemio_api_key": "api.golemio.cz/api-keys で取得できる任意の無料開発者キー。プラハの目的地でのみ使用します。",
+          "tfnsw_api_key": "任意の Transport for NSW Open Data API キー。NSW の目的地でのみ使用します。",
+          "tdx_client_id": "TDX 会員センターの任意の TDX Client ID。Client ID と Client Secret の両方が必要です。",
+          "tdx_client_secret": "任意の TDX Client Secret。Home Assistant の設定エントリに保存され、診断ではマスクされます。",
+          "ura_access_key": "URA 公式サイトから取得する任意のアクセスキーです。日次トークンに使用され、診断情報では伏せられます。"
+        }
       }
     },
     "error": {
-      "invalid_destination_entity": "選択したエンティティは利用できないか、現在有効な座標を提供していません。"
+      "invalid_destination_entity": "選択したエンティティは利用できないか、現在有効な座標を提供していません。",
+      "no_parking_types": "駐車場の種類を1つ以上選んでください。",
+      "invalid_provider_selection": "一覧の提供元のみ選択できます。",
+      "invalid_radius": "距離は100～10,000メートルで指定してください。",
+      "invalid_max_results": "種類ごとの上限は1～25件です。",
+      "missing_credentials": "不足している認証情報を入力するか、提供元を無効にしてください。"
     },
     "abort": {
       "already_configured": "この目的地エンティティはすでに設定されています。"
@@ -33,44 +67,83 @@
   "options": {
     "step": {
       "init": {
-        "title": "OSM Parking オプション",
-        "description": "検索と任意の地域プロバイダーを設定します。キー不要の公開プロバイダーは自動で利用されます。認証情報が必要なプロバイダーは、有効化され、設定済みで、目的地が対象地域にある場合のみ使用されます。",
+        "title": "1/4 · 目的地と距離",
+        "description": "目的地のエンティティと駐車場を検索する距離を選びます。その他の設定は次の画面で行います。",
         "data": {
           "destination_entity": "目的地エンティティ",
-          "radius_m": "検索半径",
-          "include_restricted": "制限付き / 私有駐車場を含める",
-          "category_paid_enabled": "有料駐車場を含める",
-          "category_open_enabled": "屋外 / 平面駐車場を含める",
-          "category_street_enabled": "路上駐車を含める",
-          "category_underground_enabled": "地下駐車場を含める",
-          "category_multi_storey_enabled": "立体駐車場を含める",
-          "category_park_and_ride_enabled": "Park & Ride を含める",
-          "category_other_enabled": "その他の駐車場を含める",
+          "radius_m": "検索半径"
+        },
+        "data_description": {
+          "destination_entity": "対応エンティティのみが自動表示されます。必要な属性: latitude + longitude、または lat + lon/lng。例: latitude 50.9385、longitude 6.9829。"
+        }
+      },
+      "categories": {
+        "title": "2/4 · 駐車場の種類",
+        "description": "駐車場の種類を1つ以上選び、種類ごとの最大件数、私有駐車場やアテネ規制区域の表示を設定します。",
+        "data": {
+          "parking_types": "駐車場の種類",
           "max_results": "カテゴリごとの最大結果数",
-          "golemio_enabled": "プラハ Golemio プロバイダーを有効化",
+          "include_restricted": "制限付き / 私有駐車場を含める",
+          "athens_zones_enabled": "アテネ駐車規制区域を表示（試験的 GIS サービス）"
+        },
+        "data_description": {
+          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+        }
+      },
+      "providers": {
+        "title": "3/4 · 追加データ提供元",
+        "description": "OpenStreetMap とキー不要の公共データは自動利用されます。API キーが必要な提供元を選びます（無料の開発者キーもあります）。選択しない場合は手順4を省略します。",
+        "data": {
+          "credential_providers": "API キーが必要な提供元"
+        }
+      },
+      "credentials": {
+        "title": "4/4 · API 認証情報",
+        "description": "次の提供元の認証情報を入力してください：{selected_providers}。保存済みのキーは空欄なら維持され、画面には表示されません。",
+        "data": {
           "golemio_api_key": "Golemio API キー",
-          "tfnsw_enabled": "Transport for NSW を有効化",
           "tfnsw_api_key": "TfNSW API キー",
-          "tdx_enabled": "台湾 TDX を有効化",
           "tdx_client_id": "TDX Client ID",
           "tdx_client_secret": "TDX Client Secret",
-          "athens_zones_enabled": "アテネ駐車規制区域を表示（試験的 GIS サービス）",
-          "ura_enabled": "シンガポール URA 駐車場を有効化（キー必須）",
           "ura_access_key": "シンガポール URA API アクセスキー"
         },
         "data_description": {
-          "destination_entity": "対応エンティティのみが自動表示されます。必要な属性: latitude + longitude、または lat + lon/lng。例: latitude 50.9385、longitude 6.9829。",
           "golemio_api_key": "api.golemio.cz/api-keys で取得できる任意の無料開発者キー。プラハの目的地でのみ使用します。",
           "tfnsw_api_key": "任意の Transport for NSW Open Data API キー。NSW の目的地でのみ使用します。",
           "tdx_client_id": "TDX 会員センターの任意の TDX Client ID。Client ID と Client Secret の両方が必要です。",
           "tdx_client_secret": "任意の TDX Client Secret。Home Assistant の設定エントリに保存され、診断ではマスクされます。",
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions.",
           "ura_access_key": "URA 公式サイトから取得する任意のアクセスキーです。日次トークンに使用され、診断情報では伏せられます。"
         }
       }
     },
     "error": {
-      "invalid_destination_entity": "選択したエンティティは利用できないか、現在有効な座標を提供していません。"
+      "invalid_destination_entity": "選択したエンティティは利用できないか、現在有効な座標を提供していません。",
+      "no_parking_types": "駐車場の種類を1つ以上選んでください。",
+      "invalid_provider_selection": "一覧の提供元のみ選択できます。",
+      "invalid_radius": "距離は100～10,000メートルで指定してください。",
+      "invalid_max_results": "種類ごとの上限は1～25件です。",
+      "missing_credentials": "不足している認証情報を入力するか、提供元を無効にしてください。"
+    }
+  },
+  "selector": {
+    "parking_types": {
+      "options": {
+        "paid": "有料駐車場を含める",
+        "open": "屋外 / 平面駐車場を含める",
+        "street": "路上駐車を含める",
+        "underground": "地下駐車場を含める",
+        "multi_storey": "立体駐車場を含める",
+        "park_and_ride": "Park & Ride を含める",
+        "other": "その他の駐車場を含める"
+      }
+    },
+    "credential_providers": {
+      "options": {
+        "golemio": "プラハ Golemio プロバイダーを有効化",
+        "tfnsw": "Transport for NSW を有効化",
+        "tdx": "台湾 TDX を有効化",
+        "ura": "シンガポール URA 駐車場を有効化（キー必須）"
+      }
     }
   }
 }
