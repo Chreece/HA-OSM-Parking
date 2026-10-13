@@ -107,10 +107,10 @@ class IstanbulIsparkProvider:
         if "yol üstü" in parking_type_casefold or "yolustu" in parking_type_casefold:
             category = "street"
             facility_type = "on_street"
-        elif "kapalı" in parking_type_casefold:
+        elif "kapalı" in parking_type_casefold or "kapali" in parking_type_casefold:
             category = "multi_storey"
             facility_type = "covered"
-        elif "açık" in parking_type_casefold:
+        elif "açık" in parking_type_casefold or "açik" in parking_type_casefold:
             category = "open"
             facility_type = "surface"
         else:
