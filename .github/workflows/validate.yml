@@ -7,10 +7,11 @@ on:
 
 jobs:
   local-contract:
-    name: Local import contract
+    name: Local contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Validate local const imports
         run: |
           python3 - <<'PY'
@@ -42,6 +43,7 @@ jobs:
 
           if missing:
               raise SystemExit("Missing const imports:\n" + "\n".join(missing))
+
           print("LOCAL_CONST_IMPORTS=PASS")
           PY
 
@@ -53,32 +55,27 @@ jobs:
           from pathlib import Path
 
           manifest = json.loads(
-              Path("custom_components/osm_parking/manifest.json").read_text(encoding="utf-8")
+              Path("custom_components/osm_parking/manifest.json").read_text(
+                  encoding="utf-8"
+              )
           )
-          init_text = Path("custom_components/osm_parking/__init__.py").read_text(encoding="utf-8")
+          init_text = Path(
+              "custom_components/osm_parking/__init__.py"
+          ).read_text(encoding="utf-8")
           card_text = Path(
               "custom_components/osm_parking/frontend/osm-parking-map-card.js"
           ).read_text(encoding="utf-8")
 
           version = manifest["version"]
-          init_match = re.search(r'^CARD_VERSION = "([^"]+)"
-  hacs:
-    name: HACS
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hacs/action@main
-        with:
-          category: integration
-
-  hassfest:
-    name: Hassfest
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: home-assistant/actions/hassfest@master
-, init_text, re.MULTILINE)
-          card_match = re.search(r'<span class="version">v([^<]+)</span>', card_text)
+          init_match = re.search(
+              r'^CARD_VERSION = "([^"]+)"$',
+              init_text,
+              re.MULTILINE,
+          )
+          card_match = re.search(
+              r'<span class="version">v([^<]+)</span>',
+              card_text,
+          )
 
           problems = []
           if not init_match or init_match.group(1) != version:
@@ -88,6 +85,7 @@ jobs:
 
           if problems:
               raise SystemExit("\n".join(problems))
+
           print("FRONTEND_VERSION_CONTRACT=PASS")
           PY
 
