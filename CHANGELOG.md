@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.3.11
+
+### Fixed
+
+- The OSM Parking sensor now stays available as a status sensor when a refresh fails, exposing `state: error` plus structured failure details instead of losing all diagnostic attributes behind Home Assistant's generic `unavailable` state.
+- The Lovelace card now explains why parking data cannot render and whether the user can do anything about it.
+- Destination-source failures show actionable guidance, the expected coordinate attributes, an **Open source entity** action, **Retry now**, and integration settings.
+- Public Overpass outages are identified as external service failures, show the active automatic retry interval, and offer **Retry now** without implying the user must fix the external service.
+- Successful searches with zero results are shown as an informational state with suggestions to increase the radius or enable more categories.
+- Generic/query-rejected failures expose collapsible technical details and a direct issue-report action.
+- A failed MapLibre CDN load no longer poisons the browser session. The loader clears the failed shared promise, retries from a second CDN, and lets the user retry the map without a hard page refresh.
+
+### Changed
+
+- Failure and recovery guidance is localized across all supported card languages.
+- Stale parking suggestions from the last successful update are no longer presented as current data after a failed refresh.
+
+
 ## v0.3.10
 
 ### Changed
