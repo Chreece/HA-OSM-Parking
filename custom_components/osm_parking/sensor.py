@@ -43,8 +43,15 @@ class OsmParkingSensor(CoordinatorEntity[OsmParkingCoordinator], SensorEntity):
         )
 
     @property
+    def available(self) -> bool:
+        """Keep the status sensor available so failure details remain visible."""
+        return True
+
+    @property
     def native_value(self) -> str:
         """Return coordinator status as the sensor value."""
+        if not self.coordinator.last_update_success:
+            return "error"
         return str((self.coordinator.data or {}).get("status", "unknown"))
 
     @property
