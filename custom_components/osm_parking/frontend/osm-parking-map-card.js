@@ -513,7 +513,16 @@ class OsmParkingMapCardV0310 extends HTMLElement {
     this._hass = hass;
     const state = hass?.states?.[this.config.entity];
     if (!state) {
-      this._showError(`Entity not found: ${this.config.entity}`);
+      this._els.title.textContent = this.config.title || this._t('title');
+      this._setContentVisible(false);
+      this._showStatus({
+        title: this._st('entityMissingTitle'),
+        message: this._st('entityMissingBody'),
+        details: this.config.entity,
+        actions: [
+          { label: this._st('settings'), handler: () => this._openSettings() },
+        ],
+      });
       return;
     }
 
@@ -523,9 +532,16 @@ class OsmParkingMapCardV0310 extends HTMLElement {
       && !('destination_latitude' in a)
       && !Array.isArray(a.suggestions)
     ) {
-      this._showError(
-        `Entity ${this.config.entity} is not an OSM Parking sensor.`,
-      );
+      this._els.title.textContent = this.config.title || this._t('title');
+      this._setContentVisible(false);
+      this._showStatus({
+        title: this._st('wrongEntityTitle'),
+        message: this._st('wrongEntityBody'),
+        details: this.config.entity,
+        actions: [
+          { label: this._st('settings'), handler: () => this._openSettings() },
+        ],
+      });
       return;
     }
 
