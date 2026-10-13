@@ -886,16 +886,43 @@ class OsmParkingMapCardV0310 extends HTMLElement {
       css.rel = 'stylesheet';
       css.href = 'https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css';
       css.dataset.osmParkingMaplibre = '1';
+      css.onerror = () => {
+        css.onerror = null;
+        css.href = 'https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.2/dist/maplibre-gl.css';
+      };
       document.head.appendChild(css);
     }
 
     if (!window.__osmParkingMapLibrePromise) {
-      window.__osmParkingMapLibrePromise = new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js';
-        script.onload = resolve;
-        script.onerror = () => reject(new Error('Could not load MapLibre GL JS'));
-        document.head.appendChild(script);
+      const sources = [
+        'https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js',
+        'https://cdn.jsdelivr.net/npm/maplibre-gl@5.6.2/dist/maplibre-gl.js',
+      ];
+
+      window.__osmParkingMapLibrePromise = (async () => {
+        let lastError = null;
+        for (const src of sources) {
+          try {
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = src;
+              script.dataset.osmParkingMaplibre = '1';
+              script.onload = resolve;
+              script.onerror = () => {
+                script.remove();
+                reject(new Error(`Could not load MapLibre from ${src}`));
+              };
+              document.head.appendChild(script);
+            });
+            if (window.maplibregl) return;
+          } catch (error) {
+            lastError = error;
+          }
+        }
+        throw lastError || new Error('Could not load MapLibre GL JS');
+      })().catch((error) => {
+        window.__osmParkingMapLibrePromise = null;
+        throw error;
       });
     }
 
