@@ -1,0 +1,60 @@
+{
+  "title": "Parcheggio OSM",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Parcheggio OSM",
+        "description": "Scegli un'entità di destinazione tra quelle compatibili rilevate qui sotto. Un'entità compatibile deve esporre attributi numerici latitude + longitude oppure lat + lon/lng. La ricerca viene aggiornata quando cambia la destinazione o all'avvio di Home Assistant.",
+        "data": {
+          "destination_entity": "Entità di destinazione",
+          "radius_m": "Raggio di ricerca",
+          "include_restricted": "Includi parcheggi riservati/privati",
+          "category_paid_enabled": "Includi parcheggi a pagamento",
+          "category_open_enabled": "Includi parcheggi aperti / di superficie",
+          "category_street_enabled": "Includi parcheggi su strada",
+          "category_underground_enabled": "Includi parcheggi sotterranei",
+          "category_multi_storey_enabled": "Includi parcheggi multipiano",
+          "category_park_and_ride_enabled": "Includi Park & Ride",
+          "category_other_enabled": "Includi altri parcheggi",
+          "max_results": "Risultati massimi per categoria"
+        },
+        "data_description": {
+          "destination_entity": "Vengono elencate automaticamente solo le entità compatibili. Attributi richiesti: latitude + longitude oppure lat + lon/lng. Esempio: latitude 50.9385, longitude 6.9829."
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "L'entità selezionata non è disponibile o al momento non espone coordinate valide."
+    },
+    "abort": {
+      "already_configured": "Questa entità di destinazione è già configurata."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni Parcheggio OSM",
+        "description": "Scegli tra le entità di destinazione attualmente compatibili e configura la ricerca. Sono supportati gli attributi latitude + longitude oppure lat + lon/lng.",
+        "data": {
+          "destination_entity": "Entità di destinazione",
+          "radius_m": "Raggio di ricerca",
+          "include_restricted": "Includi parcheggi riservati/privati",
+          "category_paid_enabled": "Includi parcheggi a pagamento",
+          "category_open_enabled": "Includi parcheggi aperti / di superficie",
+          "category_street_enabled": "Includi parcheggi su strada",
+          "category_underground_enabled": "Includi parcheggi sotterranei",
+          "category_multi_storey_enabled": "Includi parcheggi multipiano",
+          "category_park_and_ride_enabled": "Includi Park & Ride",
+          "category_other_enabled": "Includi altri parcheggi",
+          "max_results": "Risultati massimi per categoria"
+        },
+        "data_description": {
+          "destination_entity": "Vengono elencate automaticamente solo le entità compatibili. Attributi richiesti: latitude + longitude oppure lat + lon/lng. Esempio: latitude 50.9385, longitude 6.9829."
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "L'entità selezionata non è disponibile o al momento non espone coordinate valide."
+    }
+  }
+}
