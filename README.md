@@ -110,7 +110,7 @@ A supported entity must have a valid state and numeric coordinate attributes in 
 
 The dropdown shows the friendly name, entity ID and current coordinates, so there is no need to guess which entities are compatible.
 
-The OSM Parking coordinator subscribes to the selected entity. Parking is fetched once when the integration starts and again when the destination state/name/coordinates meaningfully change. Normal successful operation does not poll periodically; failure-only recovery polling is described below.
+The OSM Parking coordinator subscribes to the selected entity. Parking is fetched when the integration starts and whenever the destination state/name/coordinates meaningfully change. OSM/static-only successful operation does not poll periodically; realtime and estimated-occupancy providers can request their own refresh cadence as described below.
 
 Example:
 
@@ -165,6 +165,8 @@ OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worl
 | ParkenDD / ParkAPI | Supported European cities | Yes where upstream provides it | None |
 | Netherlands RDW Open Data | Netherlands | Static locations | None |
 | Stad Gent Open Data | Ghent, Belgium | Yes | None |
+| Stadt St.Gallen Open Data | St.Gallen, Switzerland | Yes, minute-updated | None |
+| Open Transport Data Switzerland / SBB P+Rail | Switzerland + nearby cross-border facilities | Estimated occupancy where supplied | None |
 | Brussels Open Data | Brussels Capital Region | No | None |
 | Dublin City Council Open Data | Dublin | Yes | None |
 | Helsinki Parkkihubi | Helsinki | Area statistics | None |
@@ -191,8 +193,9 @@ Credentials are stored in the Home Assistant config entry and are redacted from 
 ### Refresh behaviour
 
 - **OSM/static data only:** startup + destination changes; no successful periodic polling.
-- **Melbourne / Singapore / Madrid live data:** approximately 60-second refresh while live data is active.
+- **Melbourne / Singapore / Madrid / St.Gallen live data:** approximately 60-second refresh while live data is active.
 - **ParkAPI, ParkenDD, Hong Kong, Ghent, Dublin, Helsinki, Golemio, TfNSW or TDX live data:** provider-specific live refresh, generally 1–5 minutes.
+- **Swiss estimated occupancy:** 30-minute refresh while estimated occupancy is available.
 - **Any partial provider outage:** temporary 5-minute recovery refreshes until the missing source recovers.
 - **Complete refresh failure:** first recovery retry after 1 minute, then every 5 minutes until success.
 
@@ -201,6 +204,8 @@ A regional provider failure does not discard good data from other providers. The
 ### Provider freshness and privacy
 
 Realtime data is only labelled live when the upstream source is usable and sufficiently fresh. For example, Melbourne sensor timestamps are checked before a bay is shown as occupied/free, and ParkenDD data that has aged beyond its live-data window is treated as static.
+
+Swiss `currentEstimatedOccupancy` values are shown as **estimated occupancy**, not as exact free spaces. St.Gallen free-space values are only treated as live when the upstream update timestamp is fresh.
 
 Helsinki's public statistics intentionally suppress exact occupancy when the real count is three or less. OSM Parking preserves that privacy behavior and does **not** reverse-engineer an exact free-space count from a suppressed value.
 
@@ -252,7 +257,7 @@ When reporting a data-fetch problem, include the Home Assistant log entry and di
 
 ## Data and attribution
 
-Depending on destination, parking data may come from OpenStreetMap/Overpass and supported municipal or national open-data sources such as MobiData BW/ParkAPI, ParkenDD, RDW, Stad Gent, Brussels Open Data, Dublin City Council, Helsinki Parkkihubi, Singapore data.gov.sg, Hong Kong DATA.GOV.HK, City of Melbourne and Madrid Open Data. Optional credentialed providers include Golemio, Transport for NSW and Taiwan TDX.
+Depending on destination, parking data may come from OpenStreetMap/Overpass and supported municipal or national open-data sources such as MobiData BW/ParkAPI, ParkenDD, RDW, Stad Gent, Stadt St.Gallen, Open Transport Data Switzerland/SBB P+Rail, Brussels Open Data, Dublin City Council, Helsinki Parkkihubi, Singapore data.gov.sg, Hong Kong DATA.GOV.HK, City of Melbourne and Madrid Open Data. Optional credentialed providers include Golemio, Transport for NSW and Taiwan TDX.
 
 Each provider's original attribution/licence remains applicable. The integration exposes provider/source information on normalized results where available. Map rendering uses MapLibre and OpenFreeMap.
 

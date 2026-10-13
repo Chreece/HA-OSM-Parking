@@ -517,12 +517,26 @@ out center tags qt;
 
         return result
 
+    @staticmethod
+    def _provider_quality(item: dict[str, Any]) -> int:
+        """Rank data precision so weaker sources cannot overwrite stronger ones."""
+        if item.get("has_realtime_data"):
+            return 3
+        if (
+            item.get("has_estimated_occupancy")
+            or item.get("estimated_occupancy_ratio") is not None
+        ):
+            return 2
+        if str(item.get("provider") or "") not in {"", "osm", "openstreetmap"}:
+            return 1
+        return 0
+
     def _merge_provider_suggestions(
         self,
         current: list[dict[str, Any]],
         incoming: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
-        """Merge supplemental providers without duplicating the same facility."""
+        """Merge providers without letting static data overwrite live data."""
         merged = list(current)
 
         for candidate in incoming:
@@ -541,20 +555,57 @@ out center tags qt;
                 sources.append(source_name)
             duplicate["data_sources"] = sources
 
-            # Realtime and provider-specific values are authoritative when
-            # available, while OSM links and descriptive metadata are retained.
+            current_quality = self._provider_quality(duplicate)
+            candidate_quality = self._provider_quality(candidate)
+            current_provider = str(duplicate.get("provider") or "")
+
+            prefer_candidate = (
+                candidate_quality > current_quality
+                or (
+                    candidate_quality == current_quality
+                    and current_provider in {"", "osm", "openstreetmap"}
+                )
+            )
+
+            if prefer_candidate:
+                for key in (
+                    "provider",
+                    "provider_name",
+                    "provider_id",
+                    "provider_source_id",
+                    "provider_url",
+                    "source_attribution",
+                ):
+                    if candidate.get(key) not in (None, ""):
+                        duplicate[key] = candidate[key]
+
+            # Never let a later static source erase a real live state.
+            if candidate.get("has_realtime_data"):
+                duplicate["has_realtime_data"] = True
+                for key in (
+                    "free_capacity",
+                    "occupied_capacity",
+                    "closed_capacity",
+                    "realtime_updated_at",
+                    "opening_status",
+                ):
+                    if key in candidate:
+                        duplicate[key] = candidate[key]
+            else:
+                duplicate.setdefault("has_realtime_data", False)
+
+            # Estimated occupancy is distinct from exact live vacancy. Preserve
+            # it as enrichment without pretending it is an exact free-space
+            # count or replacing a stronger realtime provider.
             for key in (
-                "has_realtime_data",
-                "free_capacity",
-                "realtime_updated_at",
-                "opening_status",
-                "provider",
-                "provider_name",
-                "provider_id",
-                "provider_source_id",
-                "provider_url",
+                "has_estimated_occupancy",
+                "estimated_occupancy_ratio",
+                "estimated_occupancy_percent",
+                "estimated_occupancy_level",
             ):
-                if key in candidate:
+                if key in candidate and (
+                    key not in duplicate or candidate_quality >= current_quality
+                ):
                     duplicate[key] = candidate[key]
 
             for key in (
@@ -563,12 +614,19 @@ out center tags qt;
                 "address",
                 "opening_hours",
                 "price",
+                "ev_capacity",
+                "ev_free_capacity",
+                "accessible_capacity",
+                "accessible_free_capacity",
             ):
-                if candidate.get(key) not in (None, "") and duplicate.get(key) in (
-                    None,
-                    "",
+                value = candidate.get(key)
+                if value in (None, ""):
+                    continue
+                if (
+                    duplicate.get(key) in (None, "")
+                    or (key == "capacity" and prefer_candidate)
                 ):
-                    duplicate[key] = candidate[key]
+                    duplicate[key] = value
 
             if candidate.get("fee") == "yes" and duplicate.get("fee") != "yes":
                 duplicate["fee"] = "yes"

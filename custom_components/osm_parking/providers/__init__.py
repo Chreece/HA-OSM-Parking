@@ -11,10 +11,14 @@ from .netherlands_rdw import NetherlandsRdwProvider
 from .parkapi import ParkApiProvider
 from .parkendd import ParkenDdProvider
 from .singapore import SingaporeHdbProvider
+from .st_gallen import StGallenParkingProvider
+from .swiss import SwissParkingProvider
 from .tfnsw import TfNswParkingProvider
 from .tdx import TaiwanTdxParkingProvider
 
 PROVIDERS: tuple[ParkingProvider, ...] = (
+    SwissParkingProvider(),
+    StGallenParkingProvider(),
     MadridParkingProvider(),
     MelbourneParkingProvider(),
     BrusselsParkingProvider(),

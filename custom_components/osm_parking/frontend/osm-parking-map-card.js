@@ -157,6 +157,23 @@ const OSM_PARKING_PROVIDER_I18N = {
   ja: { available: '空き', source: 'データ元', updated: '更新', live: 'リアルタイム', partialTitle: '一部のデータソースが利用できません', partialBody: '現在利用可能な駐車場データを表示しています。不足しているソースは自動的に再試行されます。' },
 };
 
+const OSM_PARKING_ESTIMATED_I18N = {
+  en: { label: 'Estimated occupancy', low: 'Low', medium: 'Medium', high: 'High' },
+  el: { label: 'Εκτιμώμενη πληρότητα', low: 'Χαμηλή', medium: 'Μέτρια', high: 'Υψηλή' },
+  de: { label: 'Geschätzte Auslastung', low: 'Niedrig', medium: 'Mittel', high: 'Hoch' },
+  es: { label: 'Ocupación estimada', low: 'Baja', medium: 'Media', high: 'Alta' },
+  fr: { label: 'Occupation estimée', low: 'Faible', medium: 'Moyenne', high: 'Élevée' },
+  it: { label: 'Occupazione stimata', low: 'Bassa', medium: 'Media', high: 'Alta' },
+  nl: { label: 'Geschatte bezetting', low: 'Laag', medium: 'Gemiddeld', high: 'Hoog' },
+  pl: { label: 'Szacowane zajęcie', low: 'Niskie', medium: 'Średnie', high: 'Wysokie' },
+  pt: { label: 'Ocupação estimada', low: 'Baixa', medium: 'Média', high: 'Alta' },
+  'pt-BR': { label: 'Ocupação estimada', low: 'Baixa', medium: 'Média', high: 'Alta' },
+  ru: { label: 'Расчётная занятость', low: 'Низкая', medium: 'Средняя', high: 'Высокая' },
+  tr: { label: 'Tahmini doluluk', low: 'Düşük', medium: 'Orta', high: 'Yüksek' },
+  'zh-Hans': { label: '预计占用率', low: '低', medium: '中', high: '高' },
+  ja: { label: '推定利用率', low: '低', medium: '中', high: '高' },
+};
+
 const OSM_PARKING_STATUS_I18N = {
   en: {
     entityMissingTitle: 'OSM Parking sensor not found',
@@ -500,7 +517,7 @@ const OSM_PARKING_STATUS_I18N = {
   },
 };
 
-class OsmParkingMapCardV050 extends HTMLElement {
+class OsmParkingMapCardV060 extends HTMLElement {
   static getStubConfig() {
     return {
       entity: 'sensor.parking_suggestions',
@@ -599,7 +616,7 @@ class OsmParkingMapCardV050 extends HTMLElement {
             <div class="title"></div>
             <div class="subtitle"></div>
           </div>
-          <div class="headright"><span class="version">v0.5.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
+          <div class="headright"><span class="version">v0.6.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
         <div class="status-panel" hidden>
           <div class="status-head">
@@ -742,6 +759,27 @@ class OsmParkingMapCardV050 extends HTMLElement {
       return `${Math.round(free)}/${Math.round(capacity)} ${this._pt('available')}`;
     }
     return `${Math.round(free)} ${this._pt('available')}`;
+  }
+
+  _estimatedTranslations() {
+    const raw = String(this._hass?.language || 'en').replace('_', '-');
+    if (OSM_PARKING_ESTIMATED_I18N[raw]) return OSM_PARKING_ESTIMATED_I18N[raw];
+    const base = raw.split('-')[0];
+    return OSM_PARKING_ESTIMATED_I18N[base] || OSM_PARKING_ESTIMATED_I18N.en;
+  }
+
+  _estimatedOccupancyText(suggestion) {
+    let percent = Number(suggestion.estimated_occupancy_percent);
+    if (!Number.isFinite(percent)) {
+      const ratio = Number(suggestion.estimated_occupancy_ratio);
+      if (Number.isFinite(ratio)) percent = ratio * 100;
+    }
+    if (!Number.isFinite(percent)) return '';
+
+    const translations = this._estimatedTranslations();
+    const levelKey = String(suggestion.estimated_occupancy_level || '').toLowerCase();
+    const level = translations[levelKey] || '';
+    return `${Math.round(percent)}%${level ? ` · ${level}` : ''}`;
   }
 
   _formatProviderTime(value) {
@@ -1076,6 +1114,7 @@ class OsmParkingMapCardV050 extends HTMLElement {
       ? suggestion.access
       : '';
     const availability = this._availabilityText(suggestion);
+    const estimatedOccupancy = this._estimatedOccupancyText(suggestion);
     const provider = suggestion.provider_name && suggestion.provider !== 'osm'
       ? String(suggestion.provider_name)
       : '';
@@ -1085,6 +1124,7 @@ class OsmParkingMapCardV050 extends HTMLElement {
       distance && `<div class="popup-line">${this._esc(this._t('distance'))}: ${this._esc(distance)}</div>`,
       `<div class="popup-line">${this._esc(this._t('type'))}: ${this._esc(this._labelType(suggestion))}</div>`,
       availability && `<div class="popup-line">${this._esc(this._pt('live'))}: ${this._esc(availability)}</div>`,
+      estimatedOccupancy && `<div class="popup-line">${this._esc(this._estimatedTranslations().label)}: ${this._esc(estimatedOccupancy)}</div>`,
       price && `<div class="popup-line">${this._esc(this._t('price'))}: ${this._esc(price)}</div>`,
       access && `<div class="popup-line">${this._esc(this._t('access'))}: ${this._esc(access)}</div>`,
       provider && `<div class="popup-line">${this._esc(this._pt('source'))}: ${this._esc(provider)}</div>`,
@@ -1304,6 +1344,10 @@ class OsmParkingMapCardV050 extends HTMLElement {
         : '';
       const type = this._labelType(suggestion);
       const availability = this._availabilityText(suggestion);
+      const estimatedOccupancy = this._estimatedOccupancyText(suggestion);
+      const estimatedMeta = estimatedOccupancy
+        ? `${this._estimatedTranslations().label}: ${estimatedOccupancy}`
+        : '';
       const provider = suggestion.provider_name && suggestion.provider !== 'osm'
         ? String(suggestion.provider_name)
         : '';
@@ -1312,7 +1356,7 @@ class OsmParkingMapCardV050 extends HTMLElement {
         <div class="badge">${index + 1}</div>
         <div>
           <div class="row-title">${this._esc(suggestion.name || `${this._t('parking')} ${index + 1}`)}</div>
-          <div class="row-meta">${this._esc([distance, type, availability].filter(Boolean).join(' · '))}</div>
+          <div class="row-meta">${this._esc([distance, type, availability, estimatedMeta].filter(Boolean).join(' · '))}</div>
           ${provider ? `<div class="row-source">${this._esc(this._pt('source'))}: ${this._esc(provider)}</div>` : ''}
         </div>
         <div class="row-price">${this._esc(price)}</div>
@@ -1344,7 +1388,7 @@ class OsmParkingMapCardV050 extends HTMLElement {
 }
 
 if (!customElements.get('osm-parking-map-card')) {
-  customElements.define('osm-parking-map-card', OsmParkingMapCardV050);
+  customElements.define('osm-parking-map-card', OsmParkingMapCardV060);
   window.customCards = window.customCards || [];
   window.customCards.push({
     type: 'osm-parking-map-card',

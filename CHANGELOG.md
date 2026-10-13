@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.6.0
+
+### Added
+
+- Added **Open Transport Data Switzerland / SBB P+Rail Bike-and-Car-Parking** as an automatic key-free provider for Switzerland and nearby cross-border facilities.
+- Swiss car-parking records include facility/operator/address metadata and preserve the source's current **estimated occupancy** separately from exact realtime vacancy.
+- The bundled card now displays localized estimated occupancy percentages and LOW/MEDIUM/HIGH occupancy levels without presenting estimates as exact free-space counts.
+- Added **Stadt St.Gallen Open Data** for minute-updated parking guidance, including total/free/occupied spaces, EV spaces, accessible spaces, opening state and update timestamps.
+
+### Changed
+
+- Provider merging now ranks source quality: exact realtime data > estimated occupancy > static provider data > OSM baseline metadata.
+- A later static provider can no longer erase a stronger realtime availability state from an already-merged parking facility.
+- Estimated occupancy can enrich a merged facility without replacing exact realtime free-space data.
+- Swiss estimated-occupancy results refresh every 30 minutes while estimates are present; St.Gallen live results refresh every 60 seconds.
+- Static/OSM-only results remain event-driven and do not poll after a successful refresh.
+
+### Data integrity
+
+- St.Gallen vacancy values are only exposed as realtime when their upstream timestamp is sufficiently fresh; stale values remain usable only as non-live facility metadata.
+- Swiss occupancy remains explicitly marked as **estimated** because the upstream feed publishes an estimated occupancy ratio rather than exact free spaces.
+
+
 ## v0.5.0
 
 ### Added
