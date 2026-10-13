@@ -106,3 +106,12 @@ osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group {display:flex;fl
 osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group button {display:block;flex:0 0 32px;width:32px;height:32px;min-width:32px;min-height:32px;padding:0;line-height:32px;position:relative;}
 osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-zoom-out {border-top:1px solid var(--ex-line);}
 osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-attrib {clear:both;float:right;max-width:100%;}
+
+/* MapLibre's document stylesheet does not cross Home Assistant shadow roots.
+   Explicit sizing stops the zoom group inheriting the attribution's width. */
+osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group {display:flex;flex-direction:column;align-items:center;width:34px;max-width:34px;height:auto;margin:0 10px 8px auto;float:right;clear:both;}
+osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group button {display:block;flex:0 0 32px;width:32px;height:32px;min-width:32px;min-height:32px;padding:0;line-height:32px;position:relative;}
+osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group button .maplibregl-ctrl-icon {display:none;}
+osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group button::after {position:absolute;inset:0;display:grid;place-items:center;line-height:1;}
+osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-zoom-out {border-top:1px solid var(--ex-line);}
+osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-attrib {clear:both;float:right;max-width:100%;}
