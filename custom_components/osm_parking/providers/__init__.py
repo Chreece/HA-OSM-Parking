@@ -8,8 +8,10 @@ from .parkapi import ParkApiProvider
 from .parkendd import ParkenDdProvider
 from .singapore import SingaporeHdbProvider
 from .tfnsw import TfNswParkingProvider
+from .tdx import TaiwanTdxParkingProvider
 
 PROVIDERS: tuple[ParkingProvider, ...] = (
+    TaiwanTdxParkingProvider(),
     GolemioParkingProvider(),
     TfNswParkingProvider(),
     ParkenDdProvider(),
