@@ -537,6 +537,9 @@ class OsmParkingMapCardV0310 extends HTMLElement {
       destination_latitude: a.destination_latitude,
       destination_longitude: a.destination_longitude,
       error: a.error,
+      error_code: a.error_code,
+      auto_retry: a.auto_retry,
+      retry_after_seconds: a.retry_after_seconds,
       suggestions: a.suggestions,
     });
 
@@ -560,7 +563,20 @@ class OsmParkingMapCardV0310 extends HTMLElement {
           </div>
           <div class="headright"><span class="version">v0.3.10</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
-        <div class="error" hidden></div>
+        <div class="status-panel" hidden>
+          <div class="status-head">
+            <ha-icon class="status-icon"></ha-icon>
+            <div>
+              <div class="status-title"></div>
+              <div class="status-message"></div>
+            </div>
+          </div>
+          <div class="status-actions"></div>
+          <details class="status-details" hidden>
+            <summary></summary>
+            <pre></pre>
+          </details>
+        </div>
         <div class="map" style="height:${Number(this.config.height) || 430}px"></div>
         <div class="list" ${this.config.show_list === false ? 'hidden' : ''}></div>
       </ha-card>
@@ -616,7 +632,22 @@ class OsmParkingMapCardV0310 extends HTMLElement {
         .map .maplibregl-ctrl-bottom-left { bottom:0; left:0; }
         .map .maplibregl-ctrl-bottom-right { right:0; bottom:0; }
         .map .maplibregl-ctrl { clear:both; pointer-events:auto; transform:translate(0); }
-        .error { margin:0 16px 16px; padding:12px; color:var(--error-color); background:color-mix(in srgb,var(--error-color) 10%,transparent); border-radius:10px; }
+        .status-panel { margin:0 16px 16px; padding:14px; border-radius:12px; background:var(--secondary-background-color); border:1px solid var(--divider-color); color:var(--primary-text-color); }
+        .status-panel.error { background:color-mix(in srgb,var(--error-color) 9%,var(--card-background-color)); border-color:color-mix(in srgb,var(--error-color) 35%,var(--divider-color)); }
+        .status-panel.warning { background:color-mix(in srgb,#ff9800 9%,var(--card-background-color)); border-color:color-mix(in srgb,#ff9800 35%,var(--divider-color)); }
+        .status-panel.info { background:color-mix(in srgb,var(--primary-color) 7%,var(--card-background-color)); border-color:color-mix(in srgb,var(--primary-color) 30%,var(--divider-color)); }
+        .status-head { display:grid; grid-template-columns:auto 1fr; gap:10px; align-items:start; }
+        .status-icon { --mdc-icon-size:24px; color:var(--secondary-text-color); }
+        .status-panel.error .status-icon { color:var(--error-color); }
+        .status-title { font-weight:700; line-height:1.35; }
+        .status-message { margin-top:4px; color:var(--secondary-text-color); line-height:1.45; }
+        .status-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+        .status-button { border:0; border-radius:18px; padding:8px 13px; cursor:pointer; font:inherit; font-weight:600; color:var(--primary-text-color); background:var(--secondary-background-color); box-shadow:inset 0 0 0 1px var(--divider-color); }
+        .status-button.primary { color:var(--text-primary-color,#fff); background:var(--primary-color); box-shadow:none; }
+        .status-button:disabled { opacity:.55; cursor:default; }
+        .status-details { margin-top:10px; color:var(--secondary-text-color); }
+        .status-details summary { cursor:pointer; font-weight:600; }
+        .status-details pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.78rem; margin:8px 0 0; }
         .list { padding:8px 12px 12px; display:grid; gap:8px; }
         .parking-row { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; padding:10px; border-radius:12px; background:var(--secondary-background-color); cursor:pointer; }
         .parking-row:hover { filter:brightness(1.04); }
@@ -640,7 +671,14 @@ class OsmParkingMapCardV0310 extends HTMLElement {
       subtitle: this.querySelector('.subtitle'),
       map: this.querySelector('.map'),
       list: this.querySelector('.list'),
-      error: this.querySelector('.error'),
+      status: this.querySelector('.status-panel'),
+      statusIcon: this.querySelector('.status-icon'),
+      statusTitle: this.querySelector('.status-title'),
+      statusMessage: this.querySelector('.status-message'),
+      statusActions: this.querySelector('.status-actions'),
+      statusDetails: this.querySelector('.status-details'),
+      statusDetailsSummary: this.querySelector('.status-details summary'),
+      statusDetailsPre: this.querySelector('.status-details pre'),
     };
   }
 
