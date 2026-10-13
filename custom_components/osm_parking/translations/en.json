@@ -15,15 +15,11 @@
       },
       "categories": {
         "title": "2/4 · Parking types",
-        "description": "Select one or more parking categories, set the maximum suggestions for each, and optionally include private spaces or Athens parking-zone boundaries.",
+        "description": "Select one or more parking categories and the maximum results per category. You can also include restricted/private parking.",
         "data": {
           "parking_types": "Parking types to include",
           "max_results": "Maximum results per category",
-          "include_restricted": "Include restricted/private parking",
-          "athens_zones_enabled": "Enable Athens controlled-parking zones (experimental GIS service)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+          "include_restricted": "Include restricted/private parking"
         }
       },
       "providers": {
@@ -79,15 +75,11 @@
       },
       "categories": {
         "title": "2/4 · Parking types",
-        "description": "Select one or more parking categories, set the maximum suggestions for each, and optionally include private spaces or Athens parking-zone boundaries.",
+        "description": "Select one or more parking categories and the maximum results per category. You can also include restricted/private parking.",
         "data": {
           "parking_types": "Parking types to include",
           "max_results": "Maximum results per category",
-          "include_restricted": "Include restricted/private parking",
-          "athens_zones_enabled": "Enable Athens controlled-parking zones (experimental GIS service)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+          "include_restricted": "Include restricted/private parking"
         }
       },
       "providers": {
@@ -128,13 +120,13 @@
   "selector": {
     "parking_types": {
       "options": {
-        "paid": "Include paid parking",
-        "open": "Include open / surface parking",
-        "street": "Include street parking",
-        "underground": "Include underground parking",
-        "multi_storey": "Include multi-storey parking",
-        "park_and_ride": "Include Park & Ride",
-        "other": "Include other parking"
+        "paid": "Paid parking",
+        "open": "Surface parking",
+        "street": "Street parking",
+        "underground": "Underground",
+        "multi_storey": "Multi-storey",
+        "park_and_ride": "Park & Ride",
+        "other": "Other"
       }
     },
     "credential_providers": {

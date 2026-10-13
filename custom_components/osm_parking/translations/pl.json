@@ -15,15 +15,11 @@
       },
       "categories": {
         "title": "2/4 · Rodzaje parkingów",
-        "description": "Wybierz co najmniej jeden rodzaj parkingu, limit wyników dla kategorii oraz opcjonalnie miejsca prywatne lub strefy Aten.",
+        "description": "Wybierz rodzaje parkingów i limit wyników dla każdej kategorii. Miejsca prywatne lub z ograniczonym dostępem są opcjonalne.",
         "data": {
           "parking_types": "Rodzaje parkingów",
           "max_results": "Maksymalna liczba wyników na kategorię",
-          "include_restricted": "Uwzględnij parking ograniczony/prywatny",
-          "athens_zones_enabled": "Pokaż strefy parkowania Aten (eksperymentalna usługa GIS)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "include_restricted": "Uwzględnij parking ograniczony/prywatny"
         }
       },
       "providers": {
@@ -79,15 +75,11 @@
       },
       "categories": {
         "title": "2/4 · Rodzaje parkingów",
-        "description": "Wybierz co najmniej jeden rodzaj parkingu, limit wyników dla kategorii oraz opcjonalnie miejsca prywatne lub strefy Aten.",
+        "description": "Wybierz rodzaje parkingów i limit wyników dla każdej kategorii. Miejsca prywatne lub z ograniczonym dostępem są opcjonalne.",
         "data": {
           "parking_types": "Rodzaje parkingów",
           "max_results": "Maksymalna liczba wyników na kategorię",
-          "include_restricted": "Uwzględnij parking ograniczony/prywatny",
-          "athens_zones_enabled": "Pokaż strefy parkowania Aten (eksperymentalna usługa GIS)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "include_restricted": "Uwzględnij parking ograniczony/prywatny"
         }
       },
       "providers": {

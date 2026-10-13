@@ -15,6 +15,7 @@ TO_REDACT = {
     "longitude",
     "navigation_url",
     "geo_uri",
+    "coordinates",
     *PROVIDER_SECRET_KEYS,
 }
 

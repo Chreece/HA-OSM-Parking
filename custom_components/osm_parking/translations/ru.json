@@ -15,15 +15,11 @@
       },
       "categories": {
         "title": "2/4 · Типы парковок",
-        "description": "Выберите хотя бы один тип парковки, лимит для категории и, при необходимости, частные парковки или зоны Афин.",
+        "description": "Выберите типы парковок и лимит для каждой категории. Частные парковки и места с ограниченным доступом можно включить отдельно.",
         "data": {
           "parking_types": "Типы парковок",
           "max_results": "Максимум результатов на категорию",
-          "include_restricted": "Включать ограниченные/частные парковки",
-          "athens_zones_enabled": "Показывать зоны регулируемой парковки Афин (экспериментальный GIS-сервис)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "include_restricted": "Включать ограниченные/частные парковки"
         }
       },
       "providers": {
@@ -79,15 +75,11 @@
       },
       "categories": {
         "title": "2/4 · Типы парковок",
-        "description": "Выберите хотя бы один тип парковки, лимит для категории и, при необходимости, частные парковки или зоны Афин.",
+        "description": "Выберите типы парковок и лимит для каждой категории. Частные парковки и места с ограниченным доступом можно включить отдельно.",
         "data": {
           "parking_types": "Типы парковок",
           "max_results": "Максимум результатов на категорию",
-          "include_restricted": "Включать ограниченные/частные парковки",
-          "athens_zones_enabled": "Показывать зоны регулируемой парковки Афин (экспериментальный GIS-сервис)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "include_restricted": "Включать ограниченные/частные парковки"
         }
       },
       "providers": {

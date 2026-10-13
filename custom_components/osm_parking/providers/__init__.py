@@ -1,69 +1,22 @@
+"""Load optional providers independently; broken modules cannot prevent setup."""
+from importlib import import_module
+import logging
 from .base import ParkingProvider, ProviderFetchResult
-from .athens_zones import AthensParkingZonesProvider
-from .brussels import BrusselsParkingProvider
-from .ghent import GhentParkingProvider
-from .dublin import DublinParkingProvider
-from .golemio import GolemioParkingProvider
-from .helsinki import HelsinkiParkingProvider
-from .hong_kong import HongKongParkingProvider
-from .madrid import MadridParkingProvider
-from .malaga import MalagaParkingProvider
-from .lyon import LyonParkingProvider
-from .ispark import IstanbulIsparkProvider
-from .izmir import IzmirIzumProvider
-from .lille import LilleParkingProvider
-from .grenoble import GrenobleParkingProvider
-from .nantes import NantesParkAndRideProvider, NantesPublicParkingProvider
-from .montpellier import MontpellierParkingProvider
-from .melbourne import MelbourneParkingProvider
-from .netherlands_rdw import NetherlandsRdwProvider
-from .parkapi import ParkApiProvider
-from .paris import ParisBnlsProvider
-from .zaragoza import ZaragozaParkingProvider
-from .parkendd import ParkenDdProvider
-from .singapore import SingaporeHdbProvider
-from .singapore_ura import SingaporeUraProvider
-from .strasbourg import StrasbourgParkingProvider
-from .st_gallen import StGallenParkingProvider
-from .swiss import SwissParkingProvider
-from .tfnsw import TfNswParkingProvider
-from .tdx import TaiwanTdxParkingProvider
+_LOGGER=logging.getLogger(__name__)
+PROVIDER_SPECS=(('paris', 'ParisBnlsProvider'), ('zaragoza', 'ZaragozaParkingProvider'), ('singapore_ura', 'SingaporeUraProvider'), ('athens_zones', 'AthensParkingZonesProvider'), ('ispark', 'IstanbulIsparkProvider'), ('izmir', 'IzmirIzumProvider'), ('lille', 'LilleParkingProvider'), ('grenoble', 'GrenobleParkingProvider'), ('lyon', 'LyonParkingProvider'), ('nantes', 'NantesPublicParkingProvider'), ('nantes', 'NantesParkAndRideProvider'), ('strasbourg', 'StrasbourgParkingProvider'), ('montpellier', 'MontpellierParkingProvider'), ('malaga', 'MalagaParkingProvider'), ('swiss', 'SwissParkingProvider'), ('st_gallen', 'StGallenParkingProvider'), ('madrid', 'MadridParkingProvider'), ('melbourne', 'MelbourneParkingProvider'), ('brussels', 'BrusselsParkingProvider'), ('dublin', 'DublinParkingProvider'), ('tdx', 'TaiwanTdxParkingProvider'), ('golemio', 'GolemioParkingProvider'), ('tfnsw', 'TfNswParkingProvider'), ('parkendd', 'ParkenDdProvider'), ('helsinki', 'HelsinkiParkingProvider'), ('netherlands_rdw', 'NetherlandsRdwProvider'), ('ghent', 'GhentParkingProvider'), ('parkapi', 'ParkApiProvider'), ('hong_kong', 'HongKongParkingProvider'), ('singapore', 'SingaporeHdbProvider'), ('toulouse', 'ToulouseParkingProvider'))
 
-PROVIDERS: tuple[ParkingProvider, ...] = (
-    ParisBnlsProvider(),
-    ZaragozaParkingProvider(),
-    SingaporeUraProvider(),
-    AthensParkingZonesProvider(),
-    IstanbulIsparkProvider(),
-    IzmirIzumProvider(),
-    LilleParkingProvider(),
-    GrenobleParkingProvider(),
-    LyonParkingProvider(),
-    NantesPublicParkingProvider(),
-    NantesParkAndRideProvider(),
-    StrasbourgParkingProvider(),
-    MontpellierParkingProvider(),
-    MalagaParkingProvider(),
-    SwissParkingProvider(),
-    StGallenParkingProvider(),
-    MadridParkingProvider(),
-    MelbourneParkingProvider(),
-    BrusselsParkingProvider(),
-    DublinParkingProvider(),
-    TaiwanTdxParkingProvider(),
-    GolemioParkingProvider(),
-    TfNswParkingProvider(),
-    ParkenDdProvider(),
-    HelsinkiParkingProvider(),
-    NetherlandsRdwProvider(),
-    GhentParkingProvider(),
-    ParkApiProvider(),
-    HongKongParkingProvider(),
-    SingaporeHdbProvider(),
-)
 
-__all__ = [
-    "PROVIDERS",
-    "ParkingProvider",
-    "ProviderFetchResult",
-]
+def load_providers(specs=PROVIDER_SPECS):
+    providers,errors=[],{}
+    for module,class_name in specs:
+        try:
+            factory=getattr(import_module('.'+module,__name__),class_name)
+            providers.append(factory())
+        except Exception as exc:
+            errors[module]=type(exc).__name__
+            _LOGGER.warning('Parking provider %s unavailable (%s)',module,type(exc).__name__)
+    return tuple(providers),errors
+
+
+PROVIDERS,PROVIDER_LOAD_ERRORS=load_providers()
+__all__=['PROVIDERS','PROVIDER_LOAD_ERRORS','ParkingProvider','ProviderFetchResult']

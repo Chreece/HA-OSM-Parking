@@ -15,15 +15,11 @@
       },
       "categories": {
         "title": "2/4 · Parkplatzarten",
-        "description": "Wähle mindestens eine Parkplatzart und die maximale Anzahl Vorschläge pro Kategorie. Private Plätze und Athener Parkzonen sind optional.",
+        "description": "Wähle mindestens eine Parkplatzart und die maximale Anzahl pro Kategorie. Private oder eingeschränkte Plätze sind optional.",
         "data": {
           "parking_types": "Parkplatzarten auswählen",
           "max_results": "Maximale Ergebnisse pro Kategorie",
-          "include_restricted": "Eingeschränktes/privates Parken einbeziehen",
-          "athens_zones_enabled": "Athener Parkzonen anzeigen (experimenteller GIS-Dienst)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional und standardmäßig aus: Der Athener GIS-Dienst kann nicht erreichbar sein. Zeigt nur Zonengrenzen, keine Parkerlaubnis; Beschilderung vor Ort prüfen."
+          "include_restricted": "Eingeschränktes/privates Parken einbeziehen"
         }
       },
       "providers": {
@@ -79,15 +75,11 @@
       },
       "categories": {
         "title": "2/4 · Parkplatzarten",
-        "description": "Wähle mindestens eine Parkplatzart und die maximale Anzahl Vorschläge pro Kategorie. Private Plätze und Athener Parkzonen sind optional.",
+        "description": "Wähle mindestens eine Parkplatzart und die maximale Anzahl pro Kategorie. Private oder eingeschränkte Plätze sind optional.",
         "data": {
           "parking_types": "Parkplatzarten auswählen",
           "max_results": "Maximale Ergebnisse pro Kategorie",
-          "include_restricted": "Eingeschränktes/privates Parken einbeziehen",
-          "athens_zones_enabled": "Athener Parkzonen anzeigen (experimenteller GIS-Dienst)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional und standardmäßig aus: Der Athener GIS-Dienst kann nicht erreichbar sein. Zeigt nur Zonengrenzen, keine Parkerlaubnis; Beschilderung vor Ort prüfen."
+          "include_restricted": "Eingeschränktes/privates Parken einbeziehen"
         }
       },
       "providers": {
@@ -128,13 +120,13 @@
   "selector": {
     "parking_types": {
       "options": {
-        "paid": "Kostenpflichtiges Parken einbeziehen",
-        "open": "Offene / oberirdische Parkplätze einbeziehen",
-        "street": "Straßenparken einbeziehen",
-        "underground": "Tiefgaragen einbeziehen",
-        "multi_storey": "Parkhäuser einbeziehen",
-        "park_and_ride": "Park & Ride einbeziehen",
-        "other": "Sonstige Parkplätze einbeziehen"
+        "paid": "Kostenpflichtig",
+        "open": "Oberirdisch",
+        "street": "Straßenparken",
+        "underground": "Tiefgarage",
+        "multi_storey": "Parkhaus",
+        "park_and_ride": "Park & Ride",
+        "other": "Sonstige"
       }
     },
     "credential_providers": {

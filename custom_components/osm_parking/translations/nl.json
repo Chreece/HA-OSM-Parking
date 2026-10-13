@@ -15,15 +15,11 @@
       },
       "categories": {
         "title": "2/4 · Parkeersoorten",
-        "description": "Selecteer minimaal één parkeersoort, de limiet per categorie en desgewenst privéparkeren of Atheense parkeerzones.",
+        "description": "Kies minimaal één parkeersoort en de limiet per categorie. Privéparkeerplaatsen zijn optioneel.",
         "data": {
           "parking_types": "Parkeersoorten",
           "max_results": "Maximumresultaten per categorie",
-          "include_restricted": "Beperkt/privéparkeren meenemen",
-          "athens_zones_enabled": "Parkeerzones van Athene tonen (experimentele GIS-dienst)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "include_restricted": "Beperkt/privéparkeren meenemen"
         }
       },
       "providers": {
@@ -79,15 +75,11 @@
       },
       "categories": {
         "title": "2/4 · Parkeersoorten",
-        "description": "Selecteer minimaal één parkeersoort, de limiet per categorie en desgewenst privéparkeren of Atheense parkeerzones.",
+        "description": "Kies minimaal één parkeersoort en de limiet per categorie. Privéparkeerplaatsen zijn optioneel.",
         "data": {
           "parking_types": "Parkeersoorten",
           "max_results": "Maximumresultaten per categorie",
-          "include_restricted": "Beperkt/privéparkeren meenemen",
-          "athens_zones_enabled": "Parkeerzones van Athene tonen (experimentele GIS-dienst)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "include_restricted": "Beperkt/privéparkeren meenemen"
         }
       },
       "providers": {

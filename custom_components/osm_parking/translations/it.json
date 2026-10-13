@@ -15,15 +15,11 @@
       },
       "categories": {
         "title": "2/4 · Tipi di parcheggio",
-        "description": "Scegli uno o più tipi di parcheggio, il massimo per categoria e, se vuoi, parcheggi privati o zone regolamentate di Atene.",
+        "description": "Scegli uno o più tipi di parcheggio e il massimo per categoria. Puoi includere parcheggi privati o ad accesso limitato.",
         "data": {
           "parking_types": "Tipi di parcheggio",
           "max_results": "Risultati massimi per categoria",
-          "include_restricted": "Includi parcheggi riservati/privati",
-          "athens_zones_enabled": "Mostra zone di sosta regolamentata di Atene (servizio GIS sperimentale)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+          "include_restricted": "Includi parcheggi riservati/privati"
         }
       },
       "providers": {
@@ -79,15 +75,11 @@
       },
       "categories": {
         "title": "2/4 · Tipi di parcheggio",
-        "description": "Scegli uno o più tipi di parcheggio, il massimo per categoria e, se vuoi, parcheggi privati o zone regolamentate di Atene.",
+        "description": "Scegli uno o più tipi di parcheggio e il massimo per categoria. Puoi includere parcheggi privati o ad accesso limitato.",
         "data": {
           "parking_types": "Tipi di parcheggio",
           "max_results": "Risultati massimi per categoria",
-          "include_restricted": "Includi parcheggi riservati/privati",
-          "athens_zones_enabled": "Mostra zone di sosta regolamentata di Atene (servizio GIS sperimentale)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+          "include_restricted": "Includi parcheggi riservati/privati"
         }
       },
       "providers": {

@@ -15,15 +15,11 @@
       },
       "categories": {
         "title": "2/4 · Otopark türleri",
-        "description": "Bir veya daha fazla otopark türünü, kategori başına sonuç sınırını ve isteğe bağlı özel park yerleri veya Atina bölgelerini seçin.",
+        "description": "Otopark türlerini ve kategori başına sonuç sınırını seçin. Özel veya kısıtlı park yerleri isteğe bağlıdır.",
         "data": {
           "parking_types": "Otopark türleri",
           "max_results": "Kategori başına azami sonuç",
-          "include_restricted": "Kısıtlı/özel park alanlarını dahil et",
-          "athens_zones_enabled": "Atina kontrollü park bölgelerini göster (deneysel GIS hizmeti)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+          "include_restricted": "Kısıtlı/özel park alanlarını dahil et"
         }
       },
       "providers": {
@@ -79,15 +75,11 @@
       },
       "categories": {
         "title": "2/4 · Otopark türleri",
-        "description": "Bir veya daha fazla otopark türünü, kategori başına sonuç sınırını ve isteğe bağlı özel park yerleri veya Atina bölgelerini seçin.",
+        "description": "Otopark türlerini ve kategori başına sonuç sınırını seçin. Özel veya kısıtlı park yerleri isteğe bağlıdır.",
         "data": {
           "parking_types": "Otopark türleri",
           "max_results": "Kategori başına azami sonuç",
-          "include_restricted": "Kısıtlı/özel park alanlarını dahil et",
-          "athens_zones_enabled": "Atina kontrollü park bölgelerini göster (deneysel GIS hizmeti)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+          "include_restricted": "Kısıtlı/özel park alanlarını dahil et"
         }
       },
       "providers": {

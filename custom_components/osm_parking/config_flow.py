@@ -23,7 +23,6 @@ from homeassistant.helpers import selector
 
 from .const import (
     CATEGORIES,
-    CONF_ATHENS_ZONES_ENABLED,
     CONF_DESTINATION_ENTITY,
     CONF_INCLUDE_RESTRICTED,
     CONF_MAX_RESULTS,
@@ -165,10 +164,6 @@ def _categories_schema(settings: dict[str, Any]) -> vol.Schema:
                 CONF_INCLUDE_RESTRICTED, DEFAULT_INCLUDE_RESTRICTED,
             )),
         ): selector.BooleanSelector(),
-        vol.Required(
-            CONF_ATHENS_ZONES_ENABLED,
-            default=bool(settings.get(CONF_ATHENS_ZONES_ENABLED, False)),
-        ): selector.BooleanSelector(),
     })
 
 
@@ -230,9 +225,8 @@ class _WizardSteps:
                 self._pending[CONF_INCLUDE_RESTRICTED] = bool(
                     user_input.get(CONF_INCLUDE_RESTRICTED, False)
                 )
-                self._pending[CONF_ATHENS_ZONES_ENABLED] = bool(
-                    user_input.get(CONF_ATHENS_ZONES_ENABLED, False)
-                )
+                # Public GIS usability is automatic, not a manual provider switch.
+                self._pending.pop("athens_zones_enabled", None)
                 return await self.async_step_providers()
 
         return self.async_show_form(

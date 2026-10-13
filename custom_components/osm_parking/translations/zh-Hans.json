@@ -15,15 +15,11 @@
       },
       "categories": {
         "title": "2/4 · 停车类型",
-        "description": "选择至少一种停车类型、每类最大结果数，以及是否包含私人车位或雅典管制停车区域。",
+        "description": "选择停车类型和每类结果上限，也可包含私人或限制进入的停车位。",
         "data": {
           "parking_types": "停车类型",
           "max_results": "每个类别的最大结果数",
-          "include_restricted": "包含受限/私人停车位",
-          "athens_zones_enabled": "显示雅典受管制停车区域（实验性 GIS 服务）"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "include_restricted": "包含受限/私人停车位"
         }
       },
       "providers": {
@@ -79,15 +75,11 @@
       },
       "categories": {
         "title": "2/4 · 停车类型",
-        "description": "选择至少一种停车类型、每类最大结果数，以及是否包含私人车位或雅典管制停车区域。",
+        "description": "选择停车类型和每类结果上限，也可包含私人或限制进入的停车位。",
         "data": {
           "parking_types": "停车类型",
           "max_results": "每个类别的最大结果数",
-          "include_restricted": "包含受限/私人停车位",
-          "athens_zones_enabled": "显示雅典受管制停车区域（实验性 GIS 服务）"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "include_restricted": "包含受限/私人停车位"
         }
       },
       "providers": {
