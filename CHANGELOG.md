@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.9
+
+### Changed
+
+- Added Simplified Chinese and Japanese translations, bringing the setup/options UI to 14 languages.
+- Existing configured destinations can now be preserved from the Options screen even if that source is temporarily unavailable at the moment the form is opened.
+- New configurations remain restricted to destination entities that currently expose valid supported coordinates.
+
+
 ## v0.3.8
 
 ### Changed
@@ -9,7 +18,7 @@
 - Removed the project-specific `sensor.termine_geocode` default from the public config flow.
 - The setup and options screens now explain the supported entity format: `latitude` + `longitude`, or `lat` + `lon`/`lng`.
 - Invalid or currently unusable destination entities are rejected directly in the form with a translated validation error.
-- Added translations for Greek, German, Spanish, French, Italian, Dutch, Polish, Portuguese, Brazilian Portuguese, Russian, Turkish, Simplified Chinese and Japanese.
+- Added translations for Greek, German, Spanish, French, Italian, Dutch, Polish, Portuguese, Brazilian Portuguese, Russian and Turkish.
 
 
 ## v0.3.7
