@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from collections.abc import Callable
+import uuid
 from typing import Any
 
+from homeassistant.components import lovelace
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
@@ -26,6 +28,9 @@ from .coordinator import OsmParkingCoordinator
 
 CARD_URL = f"/{DOMAIN}/osm-parking-map-card.js"
 CARD_PATH = Path(__file__).parent / "frontend" / "osm-parking-map-card.js"
+CARD_VERSION = "0.3.7"
+_CARD_BOOT_TOKEN = uuid.uuid4().hex[:10]
+CARD_RESOURCE_URL = f"{CARD_URL}?v={CARD_VERSION}-{_CARD_BOOT_TOKEN}"
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -57,16 +62,60 @@ def _destination_signature(state: State | None) -> tuple[Any, ...]:
     )
 
 
+async def _async_register_card_resource(hass: HomeAssistant) -> None:
+    """Register the bundled card as a Lovelace module resource.
+
+    Storage-mode resources are the normal Lovelace loading path, so Home
+    Assistant loads them before creating custom cards. A per-process token makes
+    the module URL new on every Home Assistant start; this allows the frontend
+    to recover even if the previous process' resource URL failed to import
+    during a restart.
+
+    YAML resource mode is read-only from integrations, so keep the frontend
+    extra-module mechanism as a fallback there.
+    """
+    lovelace_data = hass.data.get(lovelace.LOVELACE_DATA)
+    if lovelace_data is None:
+        add_extra_js_url(hass, CARD_RESOURCE_URL)
+        return
+
+    resources = lovelace_data.resources
+    if not isinstance(resources, lovelace.resources.ResourceStorageCollection):
+        add_extra_js_url(hass, CARD_RESOURCE_URL)
+        return
+
+    if not resources.loaded:
+        await resources.async_load()
+        resources.loaded = True
+
+    for item in resources.async_items():
+        item_url = str(item.get("url", ""))
+        if item_url.split("?", 1)[0] != CARD_URL:
+            continue
+
+        if item_url != CARD_RESOURCE_URL:
+            await resources.async_update_item(
+                item["id"],
+                {"url": CARD_RESOURCE_URL},
+            )
+        return
+
+    await resources.async_create_item(
+        {"res_type": "module", "url": CARD_RESOURCE_URL}
+    )
+
+
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     """Set up integration-wide frontend resources."""
     try:
         await hass.http.async_register_static_paths(
-            [StaticPathConfig(CARD_URL, str(CARD_PATH), cache_headers=False)]
+            [StaticPathConfig(CARD_URL, str(CARD_PATH), cache_headers=True)]
         )
     except RuntimeError:
         # The same URL can already be registered after a reload.
         pass
-    add_extra_js_url(hass, CARD_URL)
+
+    await _async_register_card_resource(hass)
     return True
 
 
