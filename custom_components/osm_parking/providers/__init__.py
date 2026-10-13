@@ -5,6 +5,7 @@ from .dublin import DublinParkingProvider
 from .golemio import GolemioParkingProvider
 from .helsinki import HelsinkiParkingProvider
 from .hong_kong import HongKongParkingProvider
+from .melbourne import MelbourneParkingProvider
 from .netherlands_rdw import NetherlandsRdwProvider
 from .parkapi import ParkApiProvider
 from .parkendd import ParkenDdProvider
@@ -13,6 +14,7 @@ from .tfnsw import TfNswParkingProvider
 from .tdx import TaiwanTdxParkingProvider
 
 PROVIDERS: tuple[ParkingProvider, ...] = (
+    MelbourneParkingProvider(),
     BrusselsParkingProvider(),
     DublinParkingProvider(),
     TaiwanTdxParkingProvider(),
