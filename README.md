@@ -153,26 +153,56 @@ Technical error details are available in a collapsible section when useful.
 
 ## Parking data providers
 
-OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worldwide baseline.** Additional public providers are queried automatically only when the destination falls inside their geographic coverage.
+OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worldwide baseline.** Additional providers are queried only when the destination falls inside their geographic coverage. Public providers work automatically; credentialed providers remain optional.
 
-| Provider | Coverage in OSM Parking | Realtime | Credentials |
+| Provider | Coverage | Realtime | Credentials |
 | --- | --- | ---: | --- |
 | OpenStreetMap / Overpass | Worldwide | No | None |
-| ParkAPI / MobiData BW | Central European ParkAPI coverage | When source provides it | None |
-| Singapore HDB / data.gov.sg | Singapore HDB car parks | Yes, ~1 minute | None |
-| Hong Kong DATA.GOV.HK | Hong Kong published car parks | Yes | None |
+| ParkAPI / MobiData BW | ParkAPI-covered Central European regions | When source provides it | None |
+| ParkenDD / ParkAPI | Supported European cities | Yes where upstream provides it | None |
+| Netherlands RDW Open Data | Netherlands | Static locations | None |
+| Stad Gent Open Data | Ghent, Belgium | Yes | None |
+| Brussels Open Data | Brussels Capital Region | No | None |
+| Dublin City Council Open Data | Dublin | Yes | None |
+| Helsinki Parkkihubi | Helsinki | Area statistics | None |
+| Singapore HDB / data.gov.sg | Singapore HDB car parks | Yes | None |
+| Hong Kong DATA.GOV.HK | Hong Kong | Yes | None |
+| City of Melbourne Parking Bay Sensors | Central Melbourne street bays | Yes | None |
+| Prague Golemio Parking v3 | Prague | Yes | Optional free API key |
+| Transport for NSW Car Park API | NSW supported facilities | Yes | Optional Open Data API key |
+| Taiwan TDX Parking | Taiwan | Yes | Optional Client ID + Client Secret |
 
-Provider results are normalized into the same parking model and conservatively merged with OSM results. When two sources describe the same facility, OSM links/descriptive data can be retained while the regional provider contributes live capacity, free spaces or opening status.
+Provider results are normalized into the same parking model and conservatively merged with OSM results. When two sources describe the same facility, OSM links/descriptive data can be retained while the regional provider contributes live capacity, free spaces, opening status or provider metadata. Individual physical parking-bay feeds such as Melbourne can opt out of merging so nearby bays remain distinct.
+
+### Optional provider credentials
+
+Open **Settings → Devices & services → OSM Parking → Configure** to add optional credentials. Leaving these fields empty has no effect on the automatic public providers.
+
+- **Prague Golemio** — create a free key at `api.golemio.cz/api-keys`; used only for destinations in Prague.
+- **Transport for NSW** — use a Transport for NSW Open Data API key; used only for NSW destinations.
+- **Taiwan TDX** — enter the Client ID and Client Secret from the TDX member center; OAuth access tokens are obtained and cached automatically.
+
+Credentials are stored in the Home Assistant config entry and are redacted from diagnostics.
 
 ### Refresh behaviour
 
 - **OSM/static data only:** startup + destination changes; no successful periodic polling.
-- **ParkAPI or Hong Kong realtime data:** refresh every 5 minutes while live data is present.
-- **Singapore realtime data:** refresh every 60 seconds while Singapore HDB live data is present.
+- **Melbourne / Singapore live data:** approximately 60-second refresh while live data is active.
+- **ParkAPI, ParkenDD, Hong Kong, Ghent, Dublin, Helsinki, Golemio, TfNSW or TDX live data:** provider-specific live refresh, generally 1–5 minutes.
 - **Any partial provider outage:** temporary 5-minute recovery refreshes until the missing source recovers.
 - **Complete refresh failure:** first recovery retry after 1 minute, then every 5 minutes until success.
 
-A regional provider failure does not discard good data from the other providers. The card shows a partial-data notice and the missing source is retried automatically.
+A regional provider failure does not discard good data from other providers. The card shows a partial-data notice and the missing source is retried automatically.
+
+### Provider freshness and privacy
+
+Realtime data is only labelled live when the upstream source is usable and sufficiently fresh. For example, Melbourne sensor timestamps are checked before a bay is shown as occupied/free, and ParkenDD data that has aged beyond its live-data window is treated as static.
+
+Helsinki's public statistics intentionally suppress exact occupancy when the real count is three or less. OSM Parking preserves that privacy behavior and does **not** reverse-engineer an exact free-space count from a suppressed value.
+
+### Unsupported/private app feeds
+
+ParkOut and AthensWay are useful Athens parking services, but no stable documented public third-party API has been identified. OSM Parking does not scrape undocumented private/mobile endpoints. They can be added when an official read-only integration API or reusable open-data feed is available.
 
 ## Parking categories and result limits
 
@@ -218,14 +248,9 @@ When reporting a data-fetch problem, include the Home Assistant log entry and di
 
 ## Data and attribution
 
-Parking data can come from:
+Depending on destination, parking data may come from OpenStreetMap/Overpass and supported municipal or national open-data sources such as MobiData BW/ParkAPI, ParkenDD, RDW, Stad Gent, Brussels Open Data, Dublin City Council, Helsinki Parkkihubi, Singapore data.gov.sg, Hong Kong DATA.GOV.HK and City of Melbourne. Optional credentialed providers include Golemio, Transport for NSW and Taiwan TDX.
 
-- [OpenStreetMap](https://www.openstreetmap.org/) contributors through public Overpass API instances.
-- [ParkAPI / MobiData BW](https://api.mobidata-bw.de/) public ParkAPI v3 endpoints.
-- [Singapore data.gov.sg](https://data.gov.sg/) HDB Carpark Information and Carpark Availability datasets under the Singapore Open Data Licence.
-- [Hong Kong DATA.GOV.HK](https://data.gov.hk/) Parking Vacancy Data (One-Stop Version).
-
-Map rendering uses MapLibre and OpenFreeMap. Availability and metadata completeness depend on the source and local coverage.
+Each provider's original attribution/licence remains applicable. The integration exposes provider/source information on normalized results where available. Map rendering uses MapLibre and OpenFreeMap.
 
 ## Support
 
