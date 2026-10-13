@@ -18,8 +18,11 @@ from .montpellier import MontpellierParkingProvider
 from .melbourne import MelbourneParkingProvider
 from .netherlands_rdw import NetherlandsRdwProvider
 from .parkapi import ParkApiProvider
+from .paris import ParisBnlsProvider
+from .zaragoza import ZaragozaParkingProvider
 from .parkendd import ParkenDdProvider
 from .singapore import SingaporeHdbProvider
+from .singapore_ura import SingaporeUraProvider
 from .strasbourg import StrasbourgParkingProvider
 from .st_gallen import StGallenParkingProvider
 from .swiss import SwissParkingProvider
@@ -27,6 +30,9 @@ from .tfnsw import TfNswParkingProvider
 from .tdx import TaiwanTdxParkingProvider
 
 PROVIDERS: tuple[ParkingProvider, ...] = (
+    ParisBnlsProvider(),
+    ZaragozaParkingProvider(),
+    SingaporeUraProvider(),
     AthensParkingZonesProvider(),
     IstanbulIsparkProvider(),
     IzmirIzumProvider(),

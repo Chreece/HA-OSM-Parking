@@ -256,8 +256,14 @@ class SingaporeUraProvider:
         duration = str(detail.get("weekdayMin") or "").strip()
         if rate and duration:
             result["price"] = f"{rate} / {duration} (weekday)"
-            if rate.startswith("$") and _count(rate.lstrip("$")) is not None:
-                result["fee"] = "yes"
+            if rate.startswith("$"):
+                try:
+                    amount = float(rate.lstrip("$").strip())
+                    if math.isfinite(amount) and amount > 0:
+                        result["fee"] = "yes"
+                        result["category"] = "paid"
+                except (TypeError, ValueError, OverflowError):
+                    pass
 
         if availability is not None:
             free = _count(availability.get("lotsAvailable"))

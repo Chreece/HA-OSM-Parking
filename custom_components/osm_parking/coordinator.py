@@ -280,6 +280,9 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         buckets: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for item in suggestions:
+            # Regional sources honor the same restricted-access option as OSM.
+            if not include_restricted and str(item.get("access") or "").casefold() in RESTRICTED_ACCESS:
+                continue
             buckets[item["category"]].append(item)
 
         selected: list[dict[str, Any]] = []
