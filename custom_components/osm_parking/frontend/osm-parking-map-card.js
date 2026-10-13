@@ -1,4 +1,146 @@
-class OsmParkingMapCardV039 extends HTMLElement {
+const OSM_PARKING_I18N = {
+  en: {
+    title: 'Parking suggestions', suggestion: 'suggestion', suggestions: 'suggestions',
+    waiting: 'waiting for destination', none: 'no suggestions returned',
+    coords: 'Destination coordinates are not available yet.',
+    destination: 'Destination', distance: 'Distance', type: 'Type', price: 'Price',
+    access: 'Access', navigate: 'Navigate', free: 'Free', paid: 'Paid', parking: 'Parking',
+    categories: { paid: 'Paid parking', open: 'Open parking', street: 'Street parking',
+      underground: 'Underground parking', multi_storey: 'Multi-storey parking',
+      park_and_ride: 'Park & Ride', other: 'Other parking' },
+  },
+  el: {
+    title: 'Προτάσεις στάθμευσης', suggestion: 'πρόταση', suggestions: 'προτάσεις',
+    waiting: 'αναμονή για προορισμό', none: 'δεν βρέθηκαν προτάσεις',
+    coords: 'Οι συντεταγμένες προορισμού δεν είναι ακόμη διαθέσιμες.',
+    destination: 'Προορισμός', distance: 'Απόσταση', type: 'Τύπος', price: 'Τιμή',
+    access: 'Πρόσβαση', navigate: 'Πλοήγηση', free: 'Δωρεάν', paid: 'Με χρέωση', parking: 'Στάθμευση',
+    categories: { paid: 'Στάθμευση με χρέωση', open: 'Ανοιχτή στάθμευση', street: 'Στάθμευση στον δρόμο',
+      underground: 'Υπόγεια στάθμευση', multi_storey: 'Πολυώροφη στάθμευση',
+      park_and_ride: 'Park & Ride', other: 'Άλλη στάθμευση' },
+  },
+  de: {
+    title: 'Parkvorschläge', suggestion: 'Vorschlag', suggestions: 'Vorschläge',
+    waiting: 'Warte auf Ziel', none: 'keine Vorschläge gefunden',
+    coords: 'Zielkoordinaten sind noch nicht verfügbar.',
+    destination: 'Ziel', distance: 'Entfernung', type: 'Typ', price: 'Preis',
+    access: 'Zugang', navigate: 'Navigieren', free: 'Kostenlos', paid: 'Kostenpflichtig', parking: 'Parkplatz',
+    categories: { paid: 'Kostenpflichtiges Parken', open: 'Offener Parkplatz', street: 'Straßenparken',
+      underground: 'Tiefgarage', multi_storey: 'Parkhaus', park_and_ride: 'Park & Ride', other: 'Sonstiger Parkplatz' },
+  },
+  es: {
+    title: 'Sugerencias de aparcamiento', suggestion: 'sugerencia', suggestions: 'sugerencias',
+    waiting: 'esperando destino', none: 'no se encontraron sugerencias',
+    coords: 'Las coordenadas del destino aún no están disponibles.',
+    destination: 'Destino', distance: 'Distancia', type: 'Tipo', price: 'Precio',
+    access: 'Acceso', navigate: 'Navegar', free: 'Gratis', paid: 'De pago', parking: 'Aparcamiento',
+    categories: { paid: 'Aparcamiento de pago', open: 'Aparcamiento abierto', street: 'Aparcamiento en la calle',
+      underground: 'Aparcamiento subterráneo', multi_storey: 'Aparcamiento de varias plantas',
+      park_and_ride: 'Park & Ride', other: 'Otro aparcamiento' },
+  },
+  fr: {
+    title: 'Suggestions de stationnement', suggestion: 'suggestion', suggestions: 'suggestions',
+    waiting: 'en attente de la destination', none: 'aucune suggestion trouvée',
+    coords: 'Les coordonnées de destination ne sont pas encore disponibles.',
+    destination: 'Destination', distance: 'Distance', type: 'Type', price: 'Prix',
+    access: 'Accès', navigate: 'Itinéraire', free: 'Gratuit', paid: 'Payant', parking: 'Stationnement',
+    categories: { paid: 'Stationnement payant', open: 'Parking ouvert', street: 'Stationnement sur rue',
+      underground: 'Parking souterrain', multi_storey: 'Parking à étages',
+      park_and_ride: 'Park & Ride', other: 'Autre stationnement' },
+  },
+  it: {
+    title: 'Suggerimenti parcheggio', suggestion: 'suggerimento', suggestions: 'suggerimenti',
+    waiting: 'in attesa della destinazione', none: 'nessun suggerimento trovato',
+    coords: 'Le coordinate della destinazione non sono ancora disponibili.',
+    destination: 'Destinazione', distance: 'Distanza', type: 'Tipo', price: 'Prezzo',
+    access: 'Accesso', navigate: 'Naviga', free: 'Gratis', paid: 'A pagamento', parking: 'Parcheggio',
+    categories: { paid: 'Parcheggio a pagamento', open: 'Parcheggio aperto', street: 'Parcheggio su strada',
+      underground: 'Parcheggio sotterraneo', multi_storey: 'Parcheggio multipiano',
+      park_and_ride: 'Park & Ride', other: 'Altro parcheggio' },
+  },
+  nl: {
+    title: 'Parkeersuggesties', suggestion: 'suggestie', suggestions: 'suggesties',
+    waiting: 'wachten op bestemming', none: 'geen suggesties gevonden',
+    coords: 'Bestemmingscoördinaten zijn nog niet beschikbaar.',
+    destination: 'Bestemming', distance: 'Afstand', type: 'Type', price: 'Prijs',
+    access: 'Toegang', navigate: 'Navigeren', free: 'Gratis', paid: 'Betaald', parking: 'Parkeren',
+    categories: { paid: 'Betaald parkeren', open: 'Open parkeerplaats', street: 'Straatparkeren',
+      underground: 'Ondergrondse parking', multi_storey: 'Parkeergarage',
+      park_and_ride: 'Park & Ride', other: 'Overig parkeren' },
+  },
+  pl: {
+    title: 'Propozycje parkingów', suggestion: 'propozycja', suggestions: 'propozycje',
+    waiting: 'oczekiwanie na cel', none: 'brak propozycji',
+    coords: 'Współrzędne celu nie są jeszcze dostępne.',
+    destination: 'Cel', distance: 'Odległość', type: 'Typ', price: 'Cena',
+    access: 'Dostęp', navigate: 'Nawiguj', free: 'Bezpłatny', paid: 'Płatny', parking: 'Parking',
+    categories: { paid: 'Parking płatny', open: 'Parking otwarty', street: 'Parkowanie przy ulicy',
+      underground: 'Parking podziemny', multi_storey: 'Parking wielopoziomowy',
+      park_and_ride: 'Park & Ride', other: 'Inny parking' },
+  },
+  pt: {
+    title: 'Sugestões de estacionamento', suggestion: 'sugestão', suggestions: 'sugestões',
+    waiting: 'a aguardar destino', none: 'sem sugestões',
+    coords: 'As coordenadas do destino ainda não estão disponíveis.',
+    destination: 'Destino', distance: 'Distância', type: 'Tipo', price: 'Preço',
+    access: 'Acesso', navigate: 'Navegar', free: 'Grátis', paid: 'Pago', parking: 'Estacionamento',
+    categories: { paid: 'Estacionamento pago', open: 'Estacionamento aberto', street: 'Estacionamento na rua',
+      underground: 'Estacionamento subterrâneo', multi_storey: 'Estacionamento de vários pisos',
+      park_and_ride: 'Park & Ride', other: 'Outro estacionamento' },
+  },
+  'pt-BR': {
+    title: 'Sugestões de estacionamento', suggestion: 'sugestão', suggestions: 'sugestões',
+    waiting: 'aguardando destino', none: 'nenhuma sugestão encontrada',
+    coords: 'As coordenadas do destino ainda não estão disponíveis.',
+    destination: 'Destino', distance: 'Distância', type: 'Tipo', price: 'Preço',
+    access: 'Acesso', navigate: 'Navegar', free: 'Grátis', paid: 'Pago', parking: 'Estacionamento',
+    categories: { paid: 'Estacionamento pago', open: 'Estacionamento aberto', street: 'Estacionamento na rua',
+      underground: 'Estacionamento subterrâneo', multi_storey: 'Estacionamento de vários andares',
+      park_and_ride: 'Park & Ride', other: 'Outro estacionamento' },
+  },
+  ru: {
+    title: 'Варианты парковки', suggestion: 'вариант', suggestions: 'варианты',
+    waiting: 'ожидание назначения', none: 'варианты не найдены',
+    coords: 'Координаты назначения пока недоступны.',
+    destination: 'Назначение', distance: 'Расстояние', type: 'Тип', price: 'Цена',
+    access: 'Доступ', navigate: 'Маршрут', free: 'Бесплатно', paid: 'Платно', parking: 'Парковка',
+    categories: { paid: 'Платная парковка', open: 'Открытая парковка', street: 'Уличная парковка',
+      underground: 'Подземная парковка', multi_storey: 'Многоуровневая парковка',
+      park_and_ride: 'Park & Ride', other: 'Другая парковка' },
+  },
+  tr: {
+    title: 'Park önerileri', suggestion: 'öneri', suggestions: 'öneri',
+    waiting: 'hedef bekleniyor', none: 'öneri bulunamadı',
+    coords: 'Hedef koordinatları henüz kullanılamıyor.',
+    destination: 'Hedef', distance: 'Mesafe', type: 'Tür', price: 'Fiyat',
+    access: 'Erişim', navigate: 'Navigasyon', free: 'Ücretsiz', paid: 'Ücretli', parking: 'Park',
+    categories: { paid: 'Ücretli park', open: 'Açık park', street: 'Sokak parkı',
+      underground: 'Yeraltı parkı', multi_storey: 'Çok katlı otopark',
+      park_and_ride: 'Park & Ride', other: 'Diğer park' },
+  },
+  'zh-Hans': {
+    title: '停车建议', suggestion: '个建议', suggestions: '个建议',
+    waiting: '正在等待目的地', none: '未找到建议',
+    coords: '目的地坐标尚不可用。',
+    destination: '目的地', distance: '距离', type: '类型', price: '价格',
+    access: '访问', navigate: '导航', free: '免费', paid: '收费', parking: '停车',
+    categories: { paid: '收费停车', open: '露天停车', street: '路边停车',
+      underground: '地下停车', multi_storey: '多层停车场',
+      park_and_ride: 'Park & Ride', other: '其他停车' },
+  },
+  ja: {
+    title: '駐車場の候補', suggestion: '件', suggestions: '件',
+    waiting: '目的地を待機中', none: '候補が見つかりません',
+    coords: '目的地の座標はまだ利用できません。',
+    destination: '目的地', distance: '距離', type: '種類', price: '料金',
+    access: 'アクセス', navigate: 'ナビ', free: '無料', paid: '有料', parking: '駐車場',
+    categories: { paid: '有料駐車場', open: '屋外駐車場', street: '路上駐車',
+      underground: '地下駐車場', multi_storey: '立体駐車場',
+      park_and_ride: 'Park & Ride', other: 'その他の駐車場' },
+  },
+};
+
+class OsmParkingMapCardV0310 extends HTMLElement {
   static getStubConfig() {
     return {
       entity: 'sensor.parking_suggestions',
@@ -10,7 +152,7 @@ class OsmParkingMapCardV039 extends HTMLElement {
   setConfig(config) {
     if (!config || !config.entity) throw new Error('Please define an entity');
     this.config = {
-      title: 'Parking suggestions',
+      title: null,
       height: 430,
       show_list: true,
       show_destination: true,
@@ -46,6 +188,7 @@ class OsmParkingMapCardV039 extends HTMLElement {
 
     const signature = JSON.stringify({
       state: state.state,
+      language: hass?.language,
       destination_entity: a.destination_entity,
       destination_name: a.destination_name,
       destination_latitude: a.destination_latitude,
@@ -72,7 +215,7 @@ class OsmParkingMapCardV039 extends HTMLElement {
             <div class="title"></div>
             <div class="subtitle"></div>
           </div>
-          <div class="headright"><span class="version">v0.3.9</span><ha-icon icon="mdi:parking"></ha-icon></div>
+          <div class="headright"><span class="version">v0.3.10</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
         <div class="error" hidden></div>
         <div class="map" style="height:${Number(this.config.height) || 430}px"></div>
@@ -192,6 +335,17 @@ class OsmParkingMapCardV039 extends HTMLElement {
     await window.__osmParkingMapLibrePromise;
   }
 
+  _translations() {
+    const raw = String(this._hass?.language || 'en').replace('_', '-');
+    if (OSM_PARKING_I18N[raw]) return OSM_PARKING_I18N[raw];
+    const base = raw.split('-')[0];
+    return OSM_PARKING_I18N[base] || OSM_PARKING_I18N.en;
+  }
+
+  _t(key) {
+    return this._translations()[key] ?? OSM_PARKING_I18N.en[key] ?? key;
+  }
+
   _n(value) {
     const number = Number(value);
     return Number.isFinite(number) ? number : null;
@@ -215,13 +369,16 @@ class OsmParkingMapCardV039 extends HTMLElement {
     if (suggestion.price) return String(suggestion.price);
     if (suggestion.charge) return String(suggestion.charge);
     if (suggestion.pricing?.charge) return String(suggestion.pricing.charge);
-    if (String(suggestion.fee).toLowerCase() === 'no') return 'Free';
-    if (String(suggestion.fee).toLowerCase() === 'yes') return 'Paid';
+    if (String(suggestion.fee).toLowerCase() === 'no') return this._t('free');
+    if (String(suggestion.fee).toLowerCase() === 'yes') return this._t('paid');
     return '';
   }
 
   _labelType(suggestion) {
-    return suggestion.category || suggestion.parking_type || 'parking';
+    const category = suggestion.category;
+    const categories = this._translations().categories || {};
+    if (category && categories[category]) return categories[category];
+    return suggestion.parking_type || this._t('parking');
   }
 
   _popupHtml(suggestion, index) {
@@ -234,18 +391,18 @@ class OsmParkingMapCardV039 extends HTMLElement {
       : '';
 
     const lines = [
-      distance && `<div class="popup-line">Distance: ${this._esc(distance)}</div>`,
-      `<div class="popup-line">Type: ${this._esc(this._labelType(suggestion))}</div>`,
-      price && `<div class="popup-line">Price: ${this._esc(price)}</div>`,
-      access && `<div class="popup-line">Access: ${this._esc(access)}</div>`,
+      distance && `<div class="popup-line">${this._esc(this._t('distance'))}: ${this._esc(distance)}</div>`,
+      `<div class="popup-line">${this._esc(this._t('type'))}: ${this._esc(this._labelType(suggestion))}</div>`,
+      price && `<div class="popup-line">${this._esc(this._t('price'))}: ${this._esc(price)}</div>`,
+      access && `<div class="popup-line">${this._esc(this._t('access'))}: ${this._esc(access)}</div>`,
     ].filter(Boolean).join('');
 
     const actions = [
-      suggestion.navigation_url && `<a href="${this._esc(suggestion.navigation_url)}" target="_blank" rel="noopener">Navigate</a>`,
+      suggestion.navigation_url && `<a href="${this._esc(suggestion.navigation_url)}" target="_blank" rel="noopener">${this._esc(this._t('navigate'))}</a>`,
       suggestion.osm_url && `<a href="${this._esc(suggestion.osm_url)}" target="_blank" rel="noopener">OSM</a>`,
     ].filter(Boolean).join('');
 
-    return `<div class="popup-title">${this._esc(suggestion.name || `Parking ${index + 1}`)}</div>${lines}${actions ? `<div class="popup-actions">${actions}</div>` : ''}`;
+    return `<div class="popup-title">${this._esc(suggestion.name || `${this._t('parking')} ${index + 1}`)}</div>${lines}${actions ? `<div class="popup-actions">${actions}</div>` : ''}`;
   }
 
   _clearMarkers() {
@@ -262,28 +419,28 @@ class OsmParkingMapCardV039 extends HTMLElement {
     const destinationName =
       attributes.destination_name
       || attributes.destination_entity
-      || 'Destination';
+      || this._t('destination');
     const suggestions = Array.isArray(attributes.suggestions)
       ? attributes.suggestions
       : [];
 
-    this._els.title.textContent = this.config.title || 'Parking suggestions';
+    this._els.title.textContent = this.config.title || this._t('title');
     const subtitle = [];
     if (destinationName) subtitle.push(String(destinationName));
     if (suggestions.length) {
       subtitle.push(
-        `${suggestions.length} suggestion${suggestions.length === 1 ? '' : 's'}`,
+        `${suggestions.length} ${this._t(suggestions.length === 1 ? 'suggestion' : 'suggestions')}`,
       );
     } else if (this._stateObj?.state === 'waiting') {
-      subtitle.push('waiting for destination');
+      subtitle.push(this._t('waiting'));
     } else {
-      subtitle.push('no suggestions returned');
+      subtitle.push(this._t('none'));
     }
     this._els.subtitle.textContent = subtitle.join(' · ');
 
     if (destinationLat == null || destinationLon == null) {
       this._showError(
-        attributes.error || 'Destination coordinates are not available yet.',
+        attributes.error || this._t('coords'),
       );
       return;
     }
@@ -330,7 +487,7 @@ class OsmParkingMapCardV039 extends HTMLElement {
       element.textContent = '★';
 
       const popup = new maplibregl.Popup({ offset: 18 }).setHTML(
-        `<div class="popup-title">${this._esc(destinationName)}</div><div class="popup-line">Destination</div>`,
+        `<div class="popup-title">${this._esc(destinationName)}</div><div class="popup-line">${this._esc(this._t('destination'))}</div>`,
       );
       const marker = new maplibregl.Marker({ element })
         .setLngLat([destinationLon, destinationLat])
@@ -402,7 +559,7 @@ class OsmParkingMapCardV039 extends HTMLElement {
       row.innerHTML = `
         <div class="badge">${index + 1}</div>
         <div>
-          <div class="row-title">${this._esc(suggestion.name || `Parking ${index + 1}`)}</div>
+          <div class="row-title">${this._esc(suggestion.name || `${this._t('parking')} ${index + 1}`)}</div>
           <div class="row-meta">${this._esc([distance, type].filter(Boolean).join(' · '))}</div>
         </div>
         <div class="row-price">${this._esc(price)}</div>
@@ -434,7 +591,7 @@ class OsmParkingMapCardV039 extends HTMLElement {
 }
 
 if (!customElements.get('osm-parking-map-card')) {
-  customElements.define('osm-parking-map-card', OsmParkingMapCardV039);
+  customElements.define('osm-parking-map-card', OsmParkingMapCardV0310);
   window.customCards = window.customCards || [];
   window.customCards.push({
     type: 'osm-parking-map-card',
