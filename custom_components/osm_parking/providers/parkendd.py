@@ -36,6 +36,7 @@ class ParkenDdProvider:
         lat: float,
         lon: float,
         radius_m: int,
+        options: dict[str, Any] | None = None,
     ) -> ProviderFetchResult:
         """Fetch parking for the nearest supported ParkenDD city."""
         cities = await self._async_cities(session)
