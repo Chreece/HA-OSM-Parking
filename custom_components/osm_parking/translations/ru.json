@@ -34,7 +34,7 @@
     "step": {
       "init": {
         "title": "Параметры парковки OSM",
-        "description": "Выберите совместимую в данный момент сущность назначения и настройте поиск. Поддерживаются latitude + longitude или lat + lon/lng.",
+        "description": "Настройте поиск и дополнительные региональные источники. Публичные источники без ключей работают автоматически. Источники с учётными данными используются только если они включены, настроены и пункт назначения находится в зоне покрытия.",
         "data": {
           "destination_entity": "Сущность назначения",
           "radius_m": "Радиус поиска",
@@ -46,10 +46,21 @@
           "category_multi_storey_enabled": "Включать многоуровневые парковки",
           "category_park_and_ride_enabled": "Включать Park & Ride",
           "category_other_enabled": "Включать другие парковки",
-          "max_results": "Максимум результатов на категорию"
+          "max_results": "Максимум результатов на категорию",
+          "golemio_enabled": "Включить Golemio для Праги",
+          "golemio_api_key": "API-ключ Golemio",
+          "tfnsw_enabled": "Включить Transport for NSW",
+          "tfnsw_api_key": "API-ключ TfNSW",
+          "tdx_enabled": "Включить Taiwan TDX",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret"
         },
         "data_description": {
-          "destination_entity": "Автоматически отображаются только совместимые сущности. Ожидаемые атрибуты: latitude + longitude или lat + lon/lng. Пример: latitude 50.9385, longitude 6.9829."
+          "destination_entity": "Автоматически отображаются только совместимые сущности. Ожидаемые атрибуты: latitude + longitude или lat + lon/lng. Пример: latitude 50.9385, longitude 6.9829.",
+          "golemio_api_key": "Необязательный бесплатный ключ разработчика с api.golemio.cz/api-keys. Используется только для Праги.",
+          "tfnsw_api_key": "Необязательный ключ Transport for NSW Open Data. Используется только для NSW.",
+          "tdx_client_id": "Необязательный TDX Client ID из центра участников TDX. Нужны и Client ID, и Client Secret.",
+          "tdx_client_secret": "Необязательный TDX Client Secret. Хранится в Home Assistant и скрывается в диагностике."
         }
       }
     },
