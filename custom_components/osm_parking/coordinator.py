@@ -180,14 +180,30 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
 
         session = async_get_clientsession(self.hass)
+        provider_options = {
+            **self.entry.data,
+            **self.entry.options,
+        }
         applicable_providers = [
-            provider for provider in PROVIDERS if provider.applies(lat, lon)
+            provider
+            for provider in PROVIDERS
+            if provider.applies(lat, lon)
+            and all(
+                str(provider_options.get(key, "")).strip()
+                for key in getattr(provider, "required_options", ())
+            )
         ]
 
         fetches = [
             self._query_overpass(lat, lon, radius),
             *[
-                provider.async_fetch(session, lat, lon, radius)
+                provider.async_fetch(
+                    session,
+                    lat,
+                    lon,
+                    radius,
+                    provider_options,
+                )
                 for provider in applicable_providers
             ],
         ]
