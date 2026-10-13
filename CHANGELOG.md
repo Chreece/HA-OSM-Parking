@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.8
+
+### Changed
+
+- The destination selector now scans Home Assistant and lists only entities that currently expose valid coordinates.
+- Destination options show the friendly name, entity ID and current latitude/longitude to make the correct source obvious.
+- Removed the project-specific `sensor.termine_geocode` default from the public config flow.
+- The setup and options screens now explain the supported entity format: `latitude` + `longitude`, or `lat` + `lon`/`lng`.
+- Invalid or currently unusable destination entities are rejected directly in the form with a translated validation error.
+- Added translations for Greek, German, Spanish, French, Italian, Dutch, Polish, Portuguese, Brazilian Portuguese, Russian and Turkish.
+
+
 ## v0.3.7
 
 ### Fixed
