@@ -590,9 +590,22 @@ out center tags qt;
         except (KeyError, TypeError, ValueError):
             return None
 
+        if candidate.get("merge_with_other_sources") is False:
+            return None
+
+        candidate_provider = str(candidate.get("provider") or "")
         candidate_name = self._normalized_name(str(candidate.get("name") or ""))
 
         for item in existing:
+            if item.get("merge_with_other_sources") is False:
+                continue
+            item_provider = str(item.get("provider") or "")
+            if (
+                candidate_provider
+                and item_provider
+                and candidate_provider == item_provider
+            ):
+                continue
             try:
                 distance = self._haversine_m(
                     candidate_lat,
