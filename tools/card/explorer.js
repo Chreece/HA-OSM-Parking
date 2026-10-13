@@ -93,7 +93,7 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     this._popup?.remove(); this._popup=null;
     this._clearMapPins();
     this._map?.remove(); this._map=null; this._mapPromise=null;
-    this._pins?.clear(); this._zoneEvents=false; this._fitSignature=null;
+    this._pins?.clear(); this._zoneEvents=false; this._zoneIdlePending=false; this._fitSignature=null;
   }
   set hass(hass) {
     this._hass=hass;
@@ -383,7 +383,19 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     if(!bounds.isEmpty()) this._map.fitBounds(bounds,{padding:40,maxZoom:16,duration:0});
   }
   _updateZoneOverlay(zones) {
-    const map=this._map;if(!map?.isStyleLoaded()) return;
+    const map=this._map;if(!map) return;
+    // style.load can arrive while GeoJSON sources are still loading. Retry
+    // once at idle instead of losing overlays or repeatedly calling setData.
+    if(!map.isStyleLoaded()) {
+      if(!this._zoneIdlePending) {
+        this._zoneIdlePending=true;
+        map.once('idle',()=>{
+          this._zoneIdlePending=false;
+          if(map===this._map) this._updateZoneOverlay(this._stateObj?.attributes?.parking_zones || []);
+        });
+      }
+      return;
+    }
     const id='osm-parking-controlled-zones';
     const features=(this.config.show_zones!==false && Array.isArray(zones)?zones:[]).filter(z=>z?.type==='Feature' && ['Polygon','MultiPolygon'].includes(z?.geometry?.type) && z?.properties?.record_type==='zone');
     const data={type:'FeatureCollection',features};
