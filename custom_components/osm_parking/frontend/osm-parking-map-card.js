@@ -682,14 +682,200 @@ class OsmParkingMapCardV0310 extends HTMLElement {
     };
   }
 
-  _showError(message) {
-    if (!this._els) this._renderShell();
-    this._els.error.hidden = false;
-    this._els.error.textContent = message;
+  _statusTranslations() {
+    const raw = String(this._hass?.language || 'en').replace('_', '-');
+    if (OSM_PARKING_STATUS_I18N[raw]) return OSM_PARKING_STATUS_I18N[raw];
+    const base = raw.split('-')[0];
+    return OSM_PARKING_STATUS_I18N[base] || OSM_PARKING_STATUS_I18N.en;
   }
 
-  _hideError() {
-    if (this._els) this._els.error.hidden = true;
+  _st(key) {
+    return this._statusTranslations()[key]
+      ?? OSM_PARKING_STATUS_I18N.en[key]
+      ?? key;
+  }
+
+  _showStatus({
+    tone = 'error',
+    icon = 'mdi:alert-circle-outline',
+    title,
+    message,
+    details = '',
+    actions = [],
+  }) {
+    if (!this._els) this._renderShell();
+    const panel = this._els.status;
+    panel.hidden = false;
+    panel.className = `status-panel ${tone}`;
+    this._els.statusIcon.setAttribute('icon', icon);
+    this._els.statusTitle.textContent = title || '';
+    this._els.statusMessage.textContent = message || '';
+    this._els.statusActions.innerHTML = '';
+
+    actions.forEach((action, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `status-button${index === 0 ? ' primary' : ''}`;
+      button.textContent = action.label;
+      button.addEventListener('click', action.handler);
+      this._els.statusActions.appendChild(button);
+    });
+
+    this._els.statusDetails.hidden = !details;
+    this._els.statusDetailsSummary.textContent = this._st('technical');
+    this._els.statusDetailsPre.textContent = details || '';
+  }
+
+  _hideStatus() {
+    if (this._els) this._els.status.hidden = true;
+  }
+
+  _setContentVisible(visible) {
+    if (!this._els) return;
+    this._els.map.hidden = !visible;
+    if (this.config.show_list !== false) this._els.list.hidden = !visible;
+  }
+
+  async _retryNow() {
+    if (!this._hass || !this.config.entity) return;
+    try {
+      await this._hass.callService(
+        'homeassistant',
+        'update_entity',
+        { entity_id: this.config.entity },
+      );
+    } catch (error) {
+      this._showStatus({
+        title: this._st('genericTitle'),
+        message: this._st('genericBody'),
+        details: error?.message || String(error),
+        actions: [
+          { label: this._st('retryNow'), handler: () => void this._retryNow() },
+        ],
+      });
+    }
+  }
+
+  _openSource(entityId) {
+    if (!entityId) return;
+    this.dispatchEvent(new CustomEvent('hass-more-info', {
+      detail: { entityId },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  _openSettings() {
+    const path = '/config/integrations/integration/osm_parking';
+    history.pushState(null, '', path);
+    window.dispatchEvent(new Event('location-changed'));
+  }
+
+  _reportIssue() {
+    window.open(
+      'https://github.com/Chreece/HA-OSM-Parking/issues/new',
+      '_blank',
+      'noopener',
+    );
+  }
+
+  _retryMessage(attributes) {
+    const seconds = Number(attributes.retry_after_seconds);
+    if (!attributes.auto_retry || !Number.isFinite(seconds) || seconds <= 0) {
+      return this._st('noAction');
+    }
+    const minutes = Math.max(1, Math.round(seconds / 60));
+    return this._st('autoRetry').replace('{minutes}', String(minutes));
+  }
+
+  _showBackendStatus(attributes) {
+    const code = String(attributes.error_code || '');
+    const source = attributes.destination_entity;
+    const details = attributes.error || '';
+
+    if (code === 'source_unavailable') {
+      this._showStatus({
+        tone: 'warning',
+        icon: 'mdi:map-marker-alert-outline',
+        title: this._st('sourceUnavailableTitle'),
+        message: this._st('sourceUnavailableBody'),
+        details,
+        actions: [
+          ...(source ? [{
+            label: this._st('openSource'),
+            handler: () => this._openSource(source),
+          }] : []),
+          { label: this._st('retryNow'), handler: () => void this._retryNow() },
+          { label: this._st('settings'), handler: () => this._openSettings() },
+        ],
+      });
+      return true;
+    }
+
+    if (code === 'source_coordinates_missing') {
+      this._showStatus({
+        tone: 'warning',
+        icon: 'mdi:crosshairs-question',
+        title: this._st('sourceCoordsTitle'),
+        message: this._st('sourceCoordsBody'),
+        details,
+        actions: [
+          ...(source ? [{
+            label: this._st('openSource'),
+            handler: () => this._openSource(source),
+          }] : []),
+          { label: this._st('retryNow'), handler: () => void this._retryNow() },
+          { label: this._st('settings'), handler: () => this._openSettings() },
+        ],
+      });
+      return true;
+    }
+
+    if (code === 'overpass_unavailable') {
+      this._showStatus({
+        tone: 'warning',
+        icon: 'mdi:cloud-alert-outline',
+        title: this._st('overpassTitle'),
+        message: `${this._st('overpassBody')} ${this._retryMessage(attributes)}`,
+        details,
+        actions: [
+          { label: this._st('retryNow'), handler: () => void this._retryNow() },
+        ],
+      });
+      return true;
+    }
+
+    if (code === 'overpass_rejected') {
+      this._showStatus({
+        tone: 'error',
+        icon: 'mdi:cloud-remove-outline',
+        title: this._st('overpassRejectedTitle'),
+        message: this._st('overpassRejectedBody'),
+        details,
+        actions: [
+          { label: this._st('retryNow'), handler: () => void this._retryNow() },
+          { label: this._st('reportIssue'), handler: () => this._reportIssue() },
+        ],
+      });
+      return true;
+    }
+
+    if (attributes.status === 'error' || this._stateObj?.state === 'error') {
+      this._showStatus({
+        tone: 'error',
+        icon: 'mdi:alert-circle-outline',
+        title: this._st('genericTitle'),
+        message: `${this._st('genericBody')} ${this._retryMessage(attributes)}`,
+        details,
+        actions: [
+          { label: this._st('retryNow'), handler: () => void this._retryNow() },
+          { label: this._st('reportIssue'), handler: () => this._reportIssue() },
+        ],
+      });
+      return true;
+    }
+
+    return false;
   }
 
   async _ensureMapLibre() {
