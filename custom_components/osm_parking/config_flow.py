@@ -12,13 +12,21 @@ from homeassistant.helpers import selector
 from .const import (
     CATEGORIES,
     CONF_DESTINATION_ENTITY,
+    CONF_GOLEMIO_API_KEY,
+    CONF_GOLEMIO_ENABLED,
     CONF_INCLUDE_RESTRICTED,
     CONF_MAX_RESULTS,
     CONF_RADIUS_M,
+    CONF_TDX_CLIENT_ID,
+    CONF_TDX_CLIENT_SECRET,
+    CONF_TDX_ENABLED,
+    CONF_TFNSW_API_KEY,
+    CONF_TFNSW_ENABLED,
     DEFAULT_INCLUDE_RESTRICTED,
     DEFAULT_MAX_PER_CATEGORY,
     DEFAULT_RADIUS_M,
     DOMAIN,
+    PROVIDER_SECRET_KEYS,
     enabled_key,
 )
 
@@ -98,7 +106,12 @@ def _destination_options(hass: HomeAssistant) -> list[selector.SelectOptionDict]
     return sorted(options, key=lambda item: item["label"].casefold())
 
 
-def _schema(hass: HomeAssistant, defaults: dict[str, Any]) -> vol.Schema:
+def _schema(
+    hass: HomeAssistant,
+    defaults: dict[str, Any],
+    *,
+    include_provider_credentials: bool = False,
+) -> vol.Schema:
     """Build the complete configuration form."""
     destination_options = _destination_options(hass)
     current_destination = str(
@@ -150,6 +163,49 @@ def _schema(hass: HomeAssistant, defaults: dict[str, Any]) -> vol.Schema:
         ),
     }
     fields.update(_category_schema(defaults))
+
+    if include_provider_credentials:
+        fields.update(
+            {
+                vol.Optional(
+                    CONF_GOLEMIO_ENABLED,
+                    default=bool(defaults.get(CONF_GOLEMIO_ENABLED, True)),
+                ): selector.BooleanSelector(),
+                vol.Optional(CONF_GOLEMIO_API_KEY): selector.TextSelector(
+                    selector.TextSelectorConfig(
+                        type=selector.TextSelectorType.PASSWORD,
+                        autocomplete="new-password",
+                    )
+                ),
+                vol.Optional(
+                    CONF_TFNSW_ENABLED,
+                    default=bool(defaults.get(CONF_TFNSW_ENABLED, True)),
+                ): selector.BooleanSelector(),
+                vol.Optional(CONF_TFNSW_API_KEY): selector.TextSelector(
+                    selector.TextSelectorConfig(
+                        type=selector.TextSelectorType.PASSWORD,
+                        autocomplete="new-password",
+                    )
+                ),
+                vol.Optional(
+                    CONF_TDX_ENABLED,
+                    default=bool(defaults.get(CONF_TDX_ENABLED, True)),
+                ): selector.BooleanSelector(),
+                vol.Optional(CONF_TDX_CLIENT_ID): selector.TextSelector(
+                    selector.TextSelectorConfig(
+                        type=selector.TextSelectorType.PASSWORD,
+                        autocomplete="new-password",
+                    )
+                ),
+                vol.Optional(CONF_TDX_CLIENT_SECRET): selector.TextSelector(
+                    selector.TextSelectorConfig(
+                        type=selector.TextSelectorType.PASSWORD,
+                        autocomplete="new-password",
+                    )
+                ),
+            }
+        )
+
     return vol.Schema(fields)
 
 
@@ -157,7 +213,7 @@ class OsmParkingConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle the OSM Parking config flow."""
 
     VERSION = 2
-    MINOR_VERSION = 4
+    MINOR_VERSION = 5
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -219,11 +275,26 @@ class OsmParkingOptionsFlow(OptionsFlowWithReload):
             ):
                 errors[CONF_DESTINATION_ENTITY] = "invalid_destination_entity"
             else:
-                return self.async_create_entry(data=dict(user_input))
+                data = dict(user_input)
+                # Password selectors are intentionally never pre-filled.
+                # Leaving one blank keeps the previously stored credential.
+                for key in PROVIDER_SECRET_KEYS:
+                    value = str(data.get(key, "") or "").strip()
+                    if value:
+                        data[key] = value
+                    elif defaults.get(key):
+                        data[key] = defaults[key]
+                    else:
+                        data.pop(key, None)
+                return self.async_create_entry(data=data)
             defaults = {**defaults, **user_input}
 
         return self.async_show_form(
             step_id="init",
-            data_schema=_schema(self.hass, defaults),
+            data_schema=_schema(
+                self.hass,
+                defaults,
+                include_provider_credentials=True,
+            ),
             errors=errors,
         )
