@@ -5,7 +5,7 @@ const OSM_EXPLORER_SORTS = ['distance', 'type', 'name', 'free_first', 'availabil
 const OSM_EXPLORER_KINDS = ['live', 'reported', 'estimated', 'predicted', 'static'];
 const OSM_EXPLORER_TYPES = ['paid', 'open', 'street', 'underground', 'multi_storey', 'park_and_ride', 'other'];
 const OSM_EXPLORER_ICONS = {paid:'mdi:cash',open:'mdi:parking',street:'mdi:road-variant',underground:'mdi:car-lifted-pickup',multi_storey:'mdi:office-building',park_and_ride:'mdi:train-car',other:'mdi:parking'};
-const osmNumber = value => value === null || value === undefined || typeof value === 'boolean' || (typeof value === 'string' && !value.trim()) ? null : (Number.isFinite(Number(value)) ? Number(value) : null);
+const osmNumber = value => value === null || value === undefined || typeof value === 'boolean' || typeof value === 'object' || (typeof value === 'string' && !value.trim()) ? null : (Number.isFinite(Number(value)) ? Number(value) : null);
 const osmKind = item => OSM_EXPLORER_KINDS.includes(item.availability_kind) ? item.availability_kind : (item.has_realtime_data ? 'live' : 'static');
 const osmFree = item => {
   const n = osmNumber(item.free_capacity), total = osmNumber(item.capacity);
@@ -17,7 +17,7 @@ function osmVisible(items, ui, locale='en', typeLabel=item=>item.category || '')
   try { collator = new Intl.Collator(locale, {numeric:true,sensitivity:'base'}); } catch (_) { collator = new Intl.Collator('en'); }
   const text = (a,b) => collator.compare(String(a || ''),String(b || ''));
   const number = (a,b,descending=false) => a === null ? (b === null ? 0 : 1) : b === null ? -1 : (descending ? b-a : a-b);
-  const query = (ui.query || '').trim().toLocaleLowerCase();
+  const query = (ui.query || '').trim().toLocaleLowerCase().normalize('NFD').replace(/\p{M}/gu,'');
   const list = items.map((item,index)=>({item,index})).filter(({item}) => {
     if (ui.types.length && !ui.types.includes(item.category)) return false;
     if (ui.cost !== 'all' && (['yes','no'].includes(item.fee) ? item.fee : 'unknown') !== ui.cost) return false;
@@ -25,7 +25,7 @@ function osmVisible(items, ui, locale='en', typeLabel=item=>item.category || '')
     if (ui.source !== 'all' && (item.provider || 'unknown') !== ui.source) return false;
     if (ui.available && (osmKind(item) !== 'live' || !(osmFree(item) > 0) || item.opening_status === 'closed')) return false;
     if (ui.maxDistance !== null && (osmNumber(item.distance_m) === null || Number(item.distance_m) > ui.maxDistance)) return false;
-    return !query || [item.name,item.address,item.provider_name,typeLabel(item)].some(v=>String(v || '').toLocaleLowerCase().includes(query));
+    return !query || [item.name,item.address,item.provider_name,typeLabel(item)].some(v=>String(v || '').toLocaleLowerCase().normalize('NFD').replace(/\p{M}/gu,'').includes(query));
   });
   return list.sort((a,b)=>{
     const x=a.item,y=b.item;
@@ -34,7 +34,7 @@ function osmVisible(items, ui, locale='en', typeLabel=item=>item.category || '')
       case 'type': comparison=text(typeLabel(x),typeLabel(y)); break;
       case 'name': comparison=text(x.name,y.name); break;
       case 'source': comparison=text(x.provider_name || x.provider,y.provider_name || y.provider); break;
-      case 'free_first': comparison=({'no':0,'yes':1}[x.fee] ?? 2)-({'no':0,'yes':1}[y.fee] ?? 2); break;
+      case 'free_first': comparison=(x.fee==='no'?0:x.fee==='yes'?1:2)-(y.fee==='no'?0:y.fee==='yes'?1:2); break;
       case 'data_quality': comparison=OSM_EXPLORER_KINDS.indexOf(osmKind(x))-OSM_EXPLORER_KINDS.indexOf(osmKind(y)); break;
       case 'availability': comparison=number(osmFree(x),osmFree(y),true); break;
       default: comparison=number(osmNumber(x.distance_m),osmNumber(y.distance_m));
@@ -101,7 +101,7 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     this._restorePrefs();
     const state=hass?.states?.[this.config.entity];
     this._stateObj=state || null;
-    const signature=JSON.stringify([state?.state,state?.attributes,hass?.language,hass?.themes?.darkMode,this._themeChoice]);
+    const signature=JSON.stringify([state?.state,state?.attributes,hass?.language,hass?.themes?.darkMode,this._themeChoice,hass?.user?.id]);
     if(signature===this._lastSignature) return;
     this._lastSignature=signature;
     this._renderView();
@@ -120,7 +120,7 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     if(key===this._prefKey) return;
     this._prefKey=key;
     this._ui=osmCleanPrefs({},this._originalConfig.sort_by || 'distance');
-    if(this.config.remember_filters) {
+    if(this.config.remember_filters && this.config.show_filters!==false) {
       try { this._ui=osmCleanPrefs(JSON.parse(localStorage.getItem(key)||'{}'),this._originalConfig.sort_by || 'distance'); } catch(_) { /* Private browsing can deny storage. */ }
     }
     if(!OSM_EXPLORER_SORTS.includes(this._ui.sort)) this._ui.sort='distance';
@@ -233,7 +233,7 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     this._visible=osmVisible(all,this._ui,this._hass?.language,i=>this._labelType(i));
     if(this._selected && !this._visible.some(i=>osmKey(i)===this._selected)) {this._selected=null;this._popup?.remove();}
     const e=this._els;
-    if(document.activeElement!==e.search) e.search.value=this._ui.query;
+    if(e.search.value!==this._ui.query) e.search.value=this._ui.query;
     e.search.placeholder=this._xt('search');e.search.setAttribute('aria-label',this._xt('search'));
     e['filter-toggle'].querySelector(':scope > span').textContent=this._xt('filters')+(this._activeFilters()?` (${this._activeFilters()})`:'');
     const allOption=['all',this._xt('all')];
@@ -294,7 +294,7 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
         const safe=this._safeItem(item),price=this._displayPrice(item),quality=this._qualityText(item),kind=osmKind(item);
         row.innerHTML=`<button type="button" class="result-focus"><span class="result-number"></span><span class="result-body"><span class="result-title">${this._esc(item.name || this._t('parking'))}</span><span class="result-type"><ha-icon icon="${OSM_EXPLORER_ICONS[item.category] || 'mdi:parking'}"></ha-icon>${this._esc(this._labelType(item))}</span></span><span class="result-distance">${this._esc(this._distance(item.distance_m))}</span></button>
           <div class="result-meta"><span class="quality-badge ${kind}" title="${this._esc(kind==='reported'?this._qt('reported'):quality)}">${this._esc(quality)}</span>${this.config.show_price!==false?`<span class="cost-badge">${this._esc(price || this._xt('price_unknown'))}</span>`:''}</div>
-          <div class="result-footer"><span class="result-source" title="${this._esc((item.data_sources || []).join(', '))}">${this._esc(item.provider_name || item.provider || 'OpenStreetMap')}${Number(item.deduplicated_source_count)>1?` · ${Number(item.deduplicated_source_count)} ${this._esc(this._qt('sources'))}`:''}</span>${safe.navigation_url?`<a class="navigate" href="${this._esc(safe.navigation_url)}" target="_blank" rel="noopener noreferrer" aria-label="${this._esc(this._t('navigate')+': '+(item.name || ''))}"><ha-icon icon="mdi:directions"></ha-icon>${this._esc(this._t('navigate'))}</a>`:''}</div>
+          <div class="result-footer"><span class="result-source" title="${this._esc((Array.isArray(item.data_sources)?item.data_sources:[]).join(', '))}">${this._esc(item.provider_name || item.provider || 'OpenStreetMap')}${Number(item.deduplicated_source_count)>1?` · ${Number(item.deduplicated_source_count)} ${this._esc(this._qt('sources'))}`:''}</span>${safe.navigation_url?`<a class="navigate" href="${this._esc(safe.navigation_url)}" target="_blank" rel="noopener noreferrer" aria-label="${this._esc(this._t('navigate')+': '+(item.name || ''))}"><ha-icon icon="mdi:directions"></ha-icon>${this._esc(this._t('navigate'))}</a>`:''}</div>
           <details class="result-details" ${open?'open':''}><summary>${this._esc(this._xt('details'))}</summary><div>${this._popupHtml(safe,index)}</div></details>`;
         row.querySelector('.result-focus').onclick=()=>this._focusItem(key);
         row.dataset.signature=signature;
