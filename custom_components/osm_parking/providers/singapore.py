@@ -153,6 +153,7 @@ class SingaporeHdbProvider:
         lat: float,
         lon: float,
         radius_m: int,
+        options: dict[str, Any] | None = None,
     ) -> ProviderFetchResult:
         """Fetch and normalize nearby HDB parking with realtime availability."""
         static = await self._async_static_data(session)
