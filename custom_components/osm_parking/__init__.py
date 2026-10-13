@@ -28,7 +28,7 @@ from .coordinator import OsmParkingCoordinator
 
 CARD_URL = f"/{DOMAIN}/osm-parking-map-card.js"
 CARD_PATH = Path(__file__).parent / "frontend" / "osm-parking-map-card.js"
-CARD_VERSION = "1.2.0"
+CARD_VERSION = "1.3.0"
 _CARD_BOOT_TOKEN = uuid.uuid4().hex[:10]
 CARD_RESOURCE_URL = f"{CARD_URL}?v={CARD_VERSION}-{_CARD_BOOT_TOKEN}"
 

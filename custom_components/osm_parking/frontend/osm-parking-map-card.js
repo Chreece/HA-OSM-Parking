@@ -792,7 +792,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
             <div class="title"></div>
             <div class="subtitle"></div>
           </div>
-          <div class="headright"><span class="version">v1.2.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
+          <div class="headright"><span class="version">v1.3.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
         <div class="status-panel" hidden>
           <div class="status-head">
@@ -1647,8 +1647,426 @@ class OsmParkingMapCardV070 extends HTMLElement {
   }
 }
 
+// BEGIN OSM EXPLORER BUNDLE
+const OSM_EXPLORER_I18N = {"en":{"search":"Search parking…","filters":"Filters","reset":"Clear filters","fit":"Fit results on map","expand":"Expand / shrink map","theme":"Theme","auto":"Automatic","light":"Light","dark":"Dark","sort":"Sort by","all":"All","unknown":"Unknown","data":"Availability data","available_only":"Only available spaces with live data","max_distance":"Maximum distance (m)","no_matches":"No matching parking","clear_hint":"Try fewer filters or clear your search.","details":"Details","map_unavailable":"Map unavailable. Parking results remain usable.","price_unknown":"Price unknown","live":"Live","reported":"Reported","estimated":"Estimated","predicted":"Predicted","static":"Location only","sort_distance":"Nearest first","sort_type":"Parking type","sort_name":"Name A–Z","sort_free_first":"Free first","sort_availability":"Most spaces","sort_data_quality":"Best data","sort_source":"Source"},"el":{"search":"Αναζήτηση στάθμευσης…","filters":"Φίλτρα","reset":"Καθαρισμός φίλτρων","fit":"Εμφάνιση αποτελεσμάτων στον χάρτη","expand":"Μεγέθυνση / σμίκρυνση χάρτη","theme":"Θέμα","auto":"Αυτόματο","light":"Φωτεινό","dark":"Σκοτεινό","sort":"Ταξινόμηση","all":"Όλα","unknown":"Άγνωστο","data":"Δεδομένα διαθεσιμότητας","available_only":"Μόνο διαθέσιμες θέσεις με ζωντανά δεδομένα","max_distance":"Μέγιστη απόσταση (m)","no_matches":"Δεν υπάρχουν αντίστοιχοι χώροι","clear_hint":"Μείωσε τα φίλτρα ή καθάρισε την αναζήτηση.","details":"Λεπτομέρειες","map_unavailable":"Ο χάρτης δεν είναι διαθέσιμος. Τα αποτελέσματα λειτουργούν.","price_unknown":"Άγνωστη τιμή","live":"Ζωντανά","reported":"Δηλωμένες θέσεις","estimated":"Εκτίμηση","predicted":"Πρόβλεψη","static":"Μόνο τοποθεσία","sort_distance":"Πλησιέστερα","sort_type":"Τύπος στάθμευσης","sort_name":"Όνομα Α–Ω","sort_free_first":"Δωρεάν πρώτα","sort_availability":"Περισσότερες θέσεις","sort_data_quality":"Ποιότητα δεδομένων","sort_source":"Πηγή"},"de":{"search":"Parkplatz suchen…","filters":"Filter","reset":"Filter löschen","fit":"Ergebnisse auf der Karte","expand":"Karte vergrößern / verkleinern","theme":"Design","auto":"Automatisch","light":"Hell","dark":"Dunkel","sort":"Sortieren nach","all":"Alle","unknown":"Unbekannt","data":"Verfügbarkeitsdaten","available_only":"Nur freie Plätze mit Live-Daten","max_distance":"Maximale Entfernung (m)","no_matches":"Keine passenden Parkplätze","clear_hint":"Weniger Filter verwenden oder Suche löschen.","details":"Details","map_unavailable":"Karte nicht verfügbar. Parkergebnisse bleiben nutzbar.","price_unknown":"Preis unbekannt","live":"Live","reported":"Gemeldet","estimated":"Geschätzt","predicted":"Prognose","static":"Nur Standort","sort_distance":"Nächste zuerst","sort_type":"Parkplatzart","sort_name":"Name A–Z","sort_free_first":"Kostenlos zuerst","sort_availability":"Meiste Plätze","sort_data_quality":"Beste Daten","sort_source":"Quelle"},"fr":{"search":"Rechercher un parking…","filters":"Filtres","reset":"Effacer les filtres","fit":"Cadrer les résultats","expand":"Agrandir / réduire la carte","theme":"Thème","auto":"Automatique","light":"Clair","dark":"Sombre","sort":"Trier par","all":"Tous","unknown":"Inconnu","data":"Données de disponibilité","available_only":"Places disponibles avec données en direct","max_distance":"Distance maximale (m)","no_matches":"Aucun parking correspondant","clear_hint":"Réduisez les filtres ou effacez la recherche.","details":"Détails","map_unavailable":"Carte indisponible. Les résultats restent utilisables.","price_unknown":"Prix inconnu","live":"En direct","reported":"Déclaré","estimated":"Estimation","predicted":"Prévision","static":"Localisation seule","sort_distance":"Les plus proches","sort_type":"Type de parking","sort_name":"Nom A–Z","sort_free_first":"Gratuits d’abord","sort_availability":"Plus de places","sort_data_quality":"Meilleures données","sort_source":"Source"},"es":{"search":"Buscar aparcamiento…","filters":"Filtros","reset":"Borrar filtros","fit":"Mostrar resultados en el mapa","expand":"Ampliar / reducir mapa","theme":"Tema","auto":"Automático","light":"Claro","dark":"Oscuro","sort":"Ordenar por","all":"Todos","unknown":"Desconocido","data":"Datos de disponibilidad","available_only":"Solo plazas disponibles con datos en directo","max_distance":"Distancia máxima (m)","no_matches":"Sin aparcamientos coincidentes","clear_hint":"Reduce los filtros o borra la búsqueda.","details":"Detalles","map_unavailable":"Mapa no disponible. Los resultados siguen funcionando.","price_unknown":"Precio desconocido","live":"En directo","reported":"Comunicado","estimated":"Estimado","predicted":"Pronóstico","static":"Solo ubicación","sort_distance":"Más cercanos","sort_type":"Tipo de aparcamiento","sort_name":"Nombre A–Z","sort_free_first":"Gratis primero","sort_availability":"Más plazas","sort_data_quality":"Mejores datos","sort_source":"Fuente"},"it":{"search":"Cerca parcheggio…","filters":"Filtri","reset":"Cancella filtri","fit":"Mostra risultati sulla mappa","expand":"Ingrandisci / riduci mappa","theme":"Tema","auto":"Automatico","light":"Chiaro","dark":"Scuro","sort":"Ordina per","all":"Tutti","unknown":"Sconosciuto","data":"Dati di disponibilità","available_only":"Solo posti liberi con dati in tempo reale","max_distance":"Distanza massima (m)","no_matches":"Nessun parcheggio corrispondente","clear_hint":"Riduci i filtri o cancella la ricerca.","details":"Dettagli","map_unavailable":"Mappa non disponibile. I risultati restano utilizzabili.","price_unknown":"Prezzo sconosciuto","live":"In diretta","reported":"Segnalato","estimated":"Stima","predicted":"Previsione","static":"Solo posizione","sort_distance":"Più vicini","sort_type":"Tipo di parcheggio","sort_name":"Nome A–Z","sort_free_first":"Gratis prima","sort_availability":"Più posti","sort_data_quality":"Dati migliori","sort_source":"Fonte"},"nl":{"search":"Parkeren zoeken…","filters":"Filters","reset":"Filters wissen","fit":"Resultaten op de kaart","expand":"Kaart vergroten / verkleinen","theme":"Thema","auto":"Automatisch","light":"Licht","dark":"Donker","sort":"Sorteren op","all":"Alle","unknown":"Onbekend","data":"Beschikbaarheidsgegevens","available_only":"Alleen vrije plekken met livegegevens","max_distance":"Maximale afstand (m)","no_matches":"Geen passende parkeerplaatsen","clear_hint":"Gebruik minder filters of wis de zoekopdracht.","details":"Details","map_unavailable":"Kaart niet beschikbaar. Resultaten blijven bruikbaar.","price_unknown":"Prijs onbekend","live":"Live","reported":"Gemeld","estimated":"Geschat","predicted":"Voorspeld","static":"Alleen locatie","sort_distance":"Dichtstbij","sort_type":"Parkeertype","sort_name":"Naam A–Z","sort_free_first":"Gratis eerst","sort_availability":"Meeste plekken","sort_data_quality":"Beste gegevens","sort_source":"Bron"},"pl":{"search":"Szukaj parkingu…","filters":"Filtry","reset":"Wyczyść filtry","fit":"Pokaż wyniki na mapie","expand":"Powiększ / zmniejsz mapę","theme":"Motyw","auto":"Automatyczny","light":"Jasny","dark":"Ciemny","sort":"Sortuj według","all":"Wszystkie","unknown":"Nieznane","data":"Dane dostępności","available_only":"Tylko wolne miejsca z danymi na żywo","max_distance":"Maksymalna odległość (m)","no_matches":"Brak pasujących parkingów","clear_hint":"Zmniejsz liczbę filtrów lub wyczyść wyszukiwanie.","details":"Szczegóły","map_unavailable":"Mapa niedostępna. Wyniki pozostają dostępne.","price_unknown":"Cena nieznana","live":"Na żywo","reported":"Zgłoszone","estimated":"Szacunek","predicted":"Prognoza","static":"Tylko lokalizacja","sort_distance":"Najbliższe","sort_type":"Rodzaj parkingu","sort_name":"Nazwa A–Z","sort_free_first":"Bezpłatne najpierw","sort_availability":"Najwięcej miejsc","sort_data_quality":"Najlepsze dane","sort_source":"Źródło"},"pt":{"search":"Procurar estacionamento…","filters":"Filtros","reset":"Limpar filtros","fit":"Ajustar mapa aos resultados","expand":"Ampliar / reduzir mapa","theme":"Tema","auto":"Automático","light":"Claro","dark":"Escuro","sort":"Ordenar por","all":"Todos","unknown":"Desconhecido","data":"Dados de disponibilidade","available_only":"Só lugares livres com dados em direto","max_distance":"Distância máxima (m)","no_matches":"Sem estacionamentos correspondentes","clear_hint":"Use menos filtros ou limpe a pesquisa.","details":"Detalhes","map_unavailable":"Mapa indisponível. Os resultados continuam utilizáveis.","price_unknown":"Preço desconhecido","live":"Em direto","reported":"Comunicado","estimated":"Estimado","predicted":"Previsto","static":"Só localização","sort_distance":"Mais próximos","sort_type":"Tipo de estacionamento","sort_name":"Nome A–Z","sort_free_first":"Grátis primeiro","sort_availability":"Mais lugares","sort_data_quality":"Melhores dados","sort_source":"Fonte"},"pt-BR":{"search":"Buscar estacionamento…","filters":"Filtros","reset":"Limpar filtros","fit":"Mostrar resultados no mapa","expand":"Ampliar / reduzir mapa","theme":"Tema","auto":"Automático","light":"Claro","dark":"Escuro","sort":"Ordenar por","all":"Todos","unknown":"Desconhecido","data":"Dados de disponibilidade","available_only":"Só vagas livres com dados ao vivo","max_distance":"Distância máxima (m)","no_matches":"Nenhum estacionamento correspondente","clear_hint":"Use menos filtros ou limpe a busca.","details":"Detalhes","map_unavailable":"Mapa indisponível. Os resultados continuam disponíveis.","price_unknown":"Preço desconhecido","live":"Ao vivo","reported":"Informado","estimated":"Estimado","predicted":"Previsto","static":"Só localização","sort_distance":"Mais próximos","sort_type":"Tipo de estacionamento","sort_name":"Nome A–Z","sort_free_first":"Grátis primeiro","sort_availability":"Mais vagas","sort_data_quality":"Melhores dados","sort_source":"Fonte"},"ru":{"search":"Поиск парковки…","filters":"Фильтры","reset":"Сбросить фильтры","fit":"Показать результаты на карте","expand":"Увеличить / уменьшить карту","theme":"Тема","auto":"Автоматически","light":"Светлая","dark":"Тёмная","sort":"Сортировать по","all":"Все","unknown":"Неизвестно","data":"Данные доступности","available_only":"Только свободные места с онлайн-данными","max_distance":"Максимальное расстояние (м)","no_matches":"Подходящих парковок нет","clear_hint":"Уменьшите число фильтров или очистите поиск.","details":"Подробности","map_unavailable":"Карта недоступна. Результаты остаются доступны.","price_unknown":"Цена неизвестна","live":"Онлайн","reported":"Заявлено","estimated":"Оценка","predicted":"Прогноз","static":"Только местоположение","sort_distance":"Ближайшие","sort_type":"Тип парковки","sort_name":"Название А–Я","sort_free_first":"Сначала бесплатные","sort_availability":"Больше мест","sort_data_quality":"Качество данных","sort_source":"Источник"},"tr":{"search":"Otopark ara…","filters":"Filtreler","reset":"Filtreleri temizle","fit":"Sonuçları haritaya sığdır","expand":"Haritayı büyüt / küçült","theme":"Tema","auto":"Otomatik","light":"Açık","dark":"Koyu","sort":"Sırala","all":"Tümü","unknown":"Bilinmiyor","data":"Uygunluk verileri","available_only":"Yalnızca canlı verili boş yerler","max_distance":"En uzak mesafe (m)","no_matches":"Eşleşen otopark yok","clear_hint":"Filtreleri azaltın veya aramayı temizleyin.","details":"Ayrıntılar","map_unavailable":"Harita kullanılamıyor. Otopark sonuçları kullanılabilir.","price_unknown":"Fiyat bilinmiyor","live":"Canlı","reported":"Bildirilen","estimated":"Tahminî","predicted":"Öngörü","static":"Yalnızca konum","sort_distance":"En yakın","sort_type":"Otopark türü","sort_name":"Ad A–Z","sort_free_first":"Önce ücretsiz","sort_availability":"En çok boş yer","sort_data_quality":"En iyi veri","sort_source":"Kaynak"},"zh-Hans":{"search":"搜索停车场…","filters":"筛选","reset":"清除筛选","fit":"显示全部结果","expand":"展开 / 缩小地图","theme":"主题","auto":"自动","light":"浅色","dark":"深色","sort":"排序方式","all":"全部","unknown":"未知","data":"空位数据","available_only":"仅显示有实时空位的停车场","max_distance":"最大距离（米）","no_matches":"没有匹配的停车场","clear_hint":"减少筛选条件或清除搜索。","details":"详情","map_unavailable":"地图不可用，停车结果仍可使用。","price_unknown":"价格未知","live":"实时","reported":"报告值","estimated":"估算","predicted":"预测","static":"仅位置","sort_distance":"距离最近","sort_type":"停车类型","sort_name":"名称排序","sort_free_first":"免费优先","sort_availability":"空位最多","sort_data_quality":"数据质量","sort_source":"来源"},"ja":{"search":"駐車場を検索…","filters":"絞り込み","reset":"条件をクリア","fit":"結果を地図に表示","expand":"地図を拡大 / 縮小","theme":"テーマ","auto":"自動","light":"ライト","dark":"ダーク","sort":"並び順","all":"すべて","unknown":"不明","data":"空き情報","available_only":"リアルタイムで空きがある場所のみ","max_distance":"最大距離（m）","no_matches":"一致する駐車場がありません","clear_hint":"条件を減らすか検索をクリアしてください。","details":"詳細","map_unavailable":"地図を利用できません。検索結果は利用できます。","price_unknown":"料金不明","live":"リアルタイム","reported":"報告値","estimated":"推定","predicted":"予測","static":"位置のみ","sort_distance":"近い順","sort_type":"駐車場の種類","sort_name":"名前順","sort_free_first":"無料優先","sort_availability":"空きが多い順","sort_data_quality":"データ品質","sort_source":"情報元"}};
+const OSM_EXPLORER_CSS = "osm-parking-map-card[data-explorer] {display:block;min-width:0;--ex-accent:var(--primary-color,#4fb0cc);--ex-bg:var(--ha-card-background,var(--card-background-color,#fff));--ex-fg:var(--primary-text-color,#1d2939);--ex-muted:var(--secondary-text-color,#617185);--ex-surface:color-mix(in srgb,var(--ex-fg) 4%,var(--ex-bg));--ex-line:color-mix(in srgb,var(--ex-fg) 12%,var(--ex-bg));}\nosm-parking-map-card[data-explorer][data-mode=dark] {--ex-bg:var(--ha-card-background,var(--card-background-color,#151b24));--ex-fg:var(--primary-text-color,#e9edf4);--ex-muted:var(--secondary-text-color,#a2b0c2);}\nosm-parking-map-card[data-explorer] .parking-explorer {display:block;background:var(--ex-bg);color:var(--ex-fg);border:1px solid var(--ex-line);border-radius:22px;overflow:hidden;box-shadow:0 6px 24px #0000000a;font:inherit;}\nosm-parking-map-card[data-explorer] * {box-sizing:border-box;}\nosm-parking-map-card[data-explorer] [hidden] {display:none!important;}\nosm-parking-map-card[data-explorer] button,osm-parking-map-card[data-explorer] input,osm-parking-map-card[data-explorer] select {font:inherit;color:inherit;}\nosm-parking-map-card[data-explorer] button,osm-parking-map-card[data-explorer] select {cursor:pointer;}\nosm-parking-map-card[data-explorer] button:focus-visible,osm-parking-map-card[data-explorer] a:focus-visible,osm-parking-map-card[data-explorer] input:focus-visible,osm-parking-map-card[data-explorer] select:focus-visible,osm-parking-map-card[data-explorer] summary:focus-visible {outline:2px solid var(--ex-accent);outline-offset:2px;}\nosm-parking-map-card[data-explorer] .header {padding:18px 18px 14px;gap:12px;align-items:center;}\nosm-parking-map-card[data-explorer] .explorer-emblem {height:42px;width:42px;flex:0 0 42px;border-radius:14px;color:var(--ex-accent);background:color-mix(in srgb,var(--ex-accent) 13%,var(--ex-bg));font-size:23px;font-weight:750;display:grid;place-items:center;}\nosm-parking-map-card[data-explorer] .header-text {flex:1;min-width:0;}\nosm-parking-map-card[data-explorer] .title {font-size:1.08rem;letter-spacing:-.02em;line-height:1.3;color:var(--ex-fg);}\nosm-parking-map-card[data-explorer] .subtitle {font-size:.8rem;line-height:1.45;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ex-muted);}\nosm-parking-map-card[data-explorer] .headright {position:relative;flex:none;}\nosm-parking-map-card[data-explorer] .headright .version {position:absolute;right:0;top:39px;font-size:9px;opacity:.55;white-space:nowrap;}\nosm-parking-map-card[data-explorer] .icon-button {display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid var(--ex-line);border-radius:12px;background:var(--ex-bg);color:var(--ex-muted);}\nosm-parking-map-card[data-explorer] .icon-button ha-icon {--mdc-icon-size:20px;color:inherit;}\nosm-parking-map-card[data-explorer] .icon-button:hover {color:var(--ex-accent);border-color:var(--ex-accent);}\nosm-parking-map-card[data-explorer] .icon-button:disabled {opacity:.45;cursor:progress;}\nosm-parking-map-card[data-explorer] .map-frame {position:relative;margin:4px 14px 0;border:1px solid var(--ex-line);border-radius:16px;overflow:hidden;isolation:isolate;}\nosm-parking-map-card[data-explorer] .map {height:220px;min-width:0;border-radius:0;background:var(--ex-surface);}\nosm-parking-map-card[data-explorer] .map-actions {position:absolute;top:10px;left:10px;display:flex;gap:6px;z-index:5;}\nosm-parking-map-card[data-explorer] .map-actions .icon-button {width:36px;height:36px;border-radius:11px;box-shadow:0 2px 8px #0002;}\nosm-parking-map-card[data-explorer] .map-note {position:absolute;bottom:30px;left:10px;right:52px;display:flex;gap:8px;align-items:center;justify-content:space-between;z-index:6;padding:8px 10px;border:1px solid var(--ex-line);border-radius:12px;background:var(--ex-bg);color:var(--ex-muted);font-size:.78rem;}\nosm-parking-map-card[data-explorer] .map-note .icon-button {flex-shrink:0;width:32px;height:32px;}\nosm-parking-map-card[data-explorer] .explorer-tools {padding:16px 16px 0;}\nosm-parking-map-card[data-explorer] .search-line {display:flex;gap:8px;}\nosm-parking-map-card[data-explorer] .search-box {display:flex;gap:8px;align-items:center;flex:1;min-width:0;height:42px;padding:0 11px;border-radius:12px;background:var(--ex-surface);border:1px solid var(--ex-line);color:var(--ex-muted);}\nosm-parking-map-card[data-explorer] .search-box ha-icon {--mdc-icon-size:19px;flex-shrink:0;}\nosm-parking-map-card[data-explorer] .search {background:none;border:0;outline:0;min-width:0;width:100%;font-size:.86rem;}\nosm-parking-map-card[data-explorer] input::placeholder {color:var(--ex-muted);opacity:.85;}\nosm-parking-map-card[data-explorer] .filter-toggle {display:inline-flex;gap:7px;align-items:center;justify-content:center;border:1px solid var(--ex-line);border-radius:12px;padding:0 12px;min-height:42px;background:var(--ex-bg);font-size:.8rem;font-weight:600;white-space:nowrap;}\nosm-parking-map-card[data-explorer] .filter-toggle ha-icon {--mdc-icon-size:19px;}\nosm-parking-map-card[data-explorer] .filter-toggle[aria-expanded=true] {border-color:var(--ex-accent);color:var(--ex-accent);background:color-mix(in srgb,var(--ex-accent) 8%,var(--ex-bg));}\nosm-parking-map-card[data-explorer] .filters-panel {margin-top:12px;padding:12px;border:1px solid var(--ex-line);border-radius:14px;background:var(--ex-surface);}\nosm-parking-map-card[data-explorer] .type-chips {display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}\nosm-parking-map-card[data-explorer] .type-chip {font-size:.77rem;line-height:1.2;min-height:34px;padding:7px 10px;border:1px solid var(--ex-line);border-radius:18px;background:var(--ex-bg);}\nosm-parking-map-card[data-explorer] .type-chip[aria-pressed=true] {color:var(--ex-accent);border-color:var(--ex-accent);background:color-mix(in srgb,var(--ex-accent) 9%,var(--ex-bg));}\nosm-parking-map-card[data-explorer] .filter-fields {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}\nosm-parking-map-card[data-explorer] .filter-fields label {display:grid;gap:5px;font-size:.74rem;color:var(--ex-muted);min-width:0;}\nosm-parking-map-card[data-explorer] .filter-fields select,osm-parking-map-card[data-explorer] .filter-fields input {height:40px;width:100%;min-width:0;padding:0 8px;border:1px solid var(--ex-line);border-radius:8px;background:var(--ex-bg);color:var(--ex-fg);font-size:.83rem;}\nosm-parking-map-card[data-explorer] .available-label {display:flex;align-items:center;gap:8px;min-height:42px;padding-top:8px;font-size:.77rem;color:var(--ex-muted);cursor:pointer;}\nosm-parking-map-card[data-explorer] input[type=checkbox] {accent-color:var(--ex-accent);width:18px;height:18px;flex-shrink:0;}\nosm-parking-map-card[data-explorer] .result-bar {display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0 9px;}\nosm-parking-map-card[data-explorer] .result-count {font-size:.75rem;color:var(--ex-muted);min-width:0;line-height:1.4;}\nosm-parking-map-card[data-explorer] .sort-label {display:flex;gap:3px;align-items:center;min-width:0;max-width:55%;color:var(--ex-muted);}\nosm-parking-map-card[data-explorer] .sort-label ha-icon {--mdc-icon-size:18px;flex-shrink:0;}\nosm-parking-map-card[data-explorer] .sort {border:0;background:transparent;max-width:100%;min-width:0;height:36px;font-size:.77rem;font-weight:600;color:var(--ex-fg);}\nosm-parking-map-card[data-explorer] option {background:var(--ex-bg);color:var(--ex-fg);}\nosm-parking-map-card[data-explorer] .reset-filters {border:0;background:transparent;color:var(--ex-accent);min-height:34px;padding:0 2px;font-size:.8rem;text-decoration:underline;text-underline-offset:3px;}\nosm-parking-map-card[data-explorer] .list {padding:0 14px 14px;display:grid;gap:9px;}\nosm-parking-map-card[data-explorer] .result-card {min-width:0;border:1px solid var(--ex-line);border-radius:16px;background:var(--ex-bg);overflow:hidden;}\nosm-parking-map-card[data-explorer] .result-card.selected {border-color:var(--ex-accent);box-shadow:inset 3px 0 var(--ex-accent);background:color-mix(in srgb,var(--ex-accent) 5%,var(--ex-bg));}\nosm-parking-map-card[data-explorer] .result-focus {width:100%;display:flex;align-items:center;gap:10px;padding:13px 12px 7px;text-align:left;border:0;background:none;color:var(--ex-fg);}\nosm-parking-map-card[data-explorer] .result-number {flex:0 0 30px;width:30px;height:32px;display:grid;place-items:center;border-radius:10px;background:var(--ex-surface);color:var(--ex-muted);font-weight:700;font-size:.85rem;}\nosm-parking-map-card[data-explorer] .selected .result-number {background:color-mix(in srgb,var(--ex-accent) 16%,var(--ex-bg));color:var(--ex-accent);}\nosm-parking-map-card[data-explorer] .result-body {min-width:0;flex:1;display:grid;gap:4px;}\nosm-parking-map-card[data-explorer] .result-title {font-size:.91rem;font-weight:650;line-height:1.35;overflow-wrap:anywhere;}\nosm-parking-map-card[data-explorer] .result-type {color:var(--ex-muted);font-size:.74rem;display:flex;align-items:center;gap:4px;line-height:1.3;}\nosm-parking-map-card[data-explorer] .result-type ha-icon {--mdc-icon-size:14px;flex-shrink:0;}\nosm-parking-map-card[data-explorer] .result-distance {font-size:.8rem;font-weight:700;white-space:nowrap;padding:5px 7px;background:var(--ex-surface);border-radius:8px;align-self:flex-start;margin-top:3px;}\nosm-parking-map-card[data-explorer] .result-meta {padding:2px 12px 4px 52px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;}\nosm-parking-map-card[data-explorer] .quality-badge,osm-parking-map-card[data-explorer] .cost-badge {display:inline-block;font-size:.7rem;line-height:1.35;padding:4px 7px;border-radius:7px;overflow-wrap:anywhere;max-width:100%;}\nosm-parking-map-card[data-explorer] .quality-badge {color:var(--ex-muted);background:var(--ex-surface);}\nosm-parking-map-card[data-explorer] .quality-badge.live {color:#167450;background:#edf8f2;}\nosm-parking-map-card[data-explorer] .quality-badge.reported {color:#806022;background:#fff7e6;}\nosm-parking-map-card[data-explorer][data-mode=dark] .quality-badge.live {color:#83d4b3;background:#19352c;}\nosm-parking-map-card[data-explorer][data-mode=dark] .quality-badge.reported {color:#e5c077;background:#382f1e;}\nosm-parking-map-card[data-explorer] .cost-badge {color:var(--ex-fg);border:1px solid var(--ex-line);}\nosm-parking-map-card[data-explorer] .result-footer {padding:1px 10px 0 52px;display:flex;align-items:center;gap:6px;justify-content:space-between;min-width:0;}\nosm-parking-map-card[data-explorer] .result-source {font-size:.66rem;line-height:1.4;color:var(--ex-muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}\nosm-parking-map-card[data-explorer] .navigate {display:inline-flex;gap:3px;align-items:center;justify-content:center;color:var(--ex-accent);font-size:.73rem;font-weight:650;min-height:36px;min-width:36px;text-decoration:none;white-space:nowrap;}\nosm-parking-map-card[data-explorer] .navigate ha-icon {--mdc-icon-size:17px;}\nosm-parking-map-card[data-explorer] .result-details {padding:0 12px 0 52px;color:var(--ex-muted);font-size:.75rem;}\nosm-parking-map-card[data-explorer] .result-details summary {min-height:30px;line-height:30px;cursor:pointer;}\nosm-parking-map-card[data-explorer] .result-details[open] {padding-bottom:12px;}\nosm-parking-map-card[data-explorer] .result-details>div {padding:8px 0;color:var(--ex-fg);overflow-wrap:anywhere;}\nosm-parking-map-card[data-explorer] .filter-empty {margin:8px 16px 18px;padding:24px 14px;border:1px dashed var(--ex-line);border-radius:16px;text-align:center;}\nosm-parking-map-card[data-explorer] .filter-empty p {font-size:.86rem;color:var(--ex-muted);line-height:1.5;}\nosm-parking-map-card[data-explorer] .status-panel {margin:0 14px 12px;font-size:.85rem;}\nosm-parking-map-card[data-explorer] .osm-park-marker {width:32px;height:34px;min-width:32px;border:2px solid #fff;background:#267b9b;border-radius:11px;color:#fff;font-size:12px;cursor:pointer;box-shadow:0 2px 7px #0005;}\nosm-parking-map-card[data-explorer] .osm-park-marker.selected {background:#145770;box-shadow:0 0 0 4px #78d4f660;z-index:4;}\nosm-parking-map-card[data-explorer] .osm-dest-marker {background:#b8515d;border-radius:50%;width:32px;height:32px;}\nosm-parking-map-card[data-explorer] .maplibregl-ctrl-group {margin:0 10px 22px 0;background:var(--ex-bg);border:1px solid var(--ex-line);border-radius:10px;overflow:hidden;}\nosm-parking-map-card[data-explorer] .maplibregl-ctrl-group button {display:block;width:32px;height:32px;border:0;background:transparent;}\nosm-parking-map-card[data-explorer] .maplibregl-ctrl button .maplibregl-ctrl-icon {display:block;width:100%;height:100%;background-position:center;background-repeat:no-repeat;}\nosm-parking-map-card[data-explorer][data-mode=dark] .maplibregl-ctrl-icon {filter:invert(1);}\nosm-parking-map-card[data-explorer] .maplibregl-ctrl-attrib {font-size:9px;line-height:16px;background:var(--ex-bg);color:var(--ex-muted);padding:0 4px;}\nosm-parking-map-card[data-explorer] .maplibregl-ctrl-attrib a {color:inherit;}\nosm-parking-map-card[data-explorer] .maplibregl-popup-content {background:var(--ex-bg);color:var(--ex-fg);box-shadow:0 4px 24px #0003;padding:13px 14px;max-height:185px;overflow:auto;font-size:.8rem;min-width:190px;border:1px solid var(--ex-line);}\nosm-parking-map-card[data-explorer] .maplibregl-popup {max-width:280px;}\nosm-parking-map-card[data-explorer] .popup-actions {flex-wrap:wrap;gap:8px;}\nosm-parking-map-card[data-explorer] .popup-actions a {min-height:32px;display:inline-flex;align-items:center;}\nosm-parking-map-card[data-explorer] .maplibregl-popup-close-button {min-width:30px;min-height:30px;}\n@media(max-width:450px) {osm-parking-map-card[data-explorer] .header {padding:14px 14px 12px;}osm-parking-map-card[data-explorer] .map-frame {margin-left:10px;margin-right:10px;}osm-parking-map-card[data-explorer] .explorer-tools {padding:12px 12px 0;}osm-parking-map-card[data-explorer] .list {padding:0 10px 10px;}osm-parking-map-card[data-explorer] .filter-toggle {padding:0 9px;}osm-parking-map-card[data-explorer] .result-meta,osm-parking-map-card[data-explorer] .result-footer,osm-parking-map-card[data-explorer] .result-details {padding-left:14px;}osm-parking-map-card[data-explorer] .result-distance {font-size:.76rem;}osm-parking-map-card[data-explorer] .title {font-size:1rem;}osm-parking-map-card[data-explorer] .quality-badge,osm-parking-map-card[data-explorer] .cost-badge {font-size:.68rem;}}\n@media(prefers-reduced-motion:reduce) {osm-parking-map-card[data-explorer] * {scroll-behavior:auto!important;transition:none!important;animation:none!important;}}\nosm-parking-map-card[data-explorer][data-forced=true][data-mode=dark] {--ex-bg:#151b24;--ex-fg:#e9edf4;--ex-muted:#a2b0c2;}\nosm-parking-map-card[data-explorer][data-forced=true][data-mode=light] {--ex-bg:#ffffff;--ex-fg:#1d2939;--ex-muted:#617185;}\nosm-parking-map-card[data-explorer] .maplibregl-ctrl-zoom-in::after {content:\"+\";font-size:22px;color:var(--ex-fg);}\nosm-parking-map-card[data-explorer] .maplibregl-ctrl-zoom-out::after {content:\"−\";font-size:22px;color:var(--ex-fg);}\nosm-parking-map-card[data-explorer] .maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon,osm-parking-map-card[data-explorer] .maplibregl-ctrl-zoom-out .maplibregl-ctrl-icon {display:none;}\n\n/* MapLibre's document stylesheet does not cross Home Assistant shadow roots.\n   Explicit sizing stops the zoom group inheriting the attribution's width. */\nosm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group {display:flex;flex-direction:column;align-items:center;width:34px;max-width:34px;height:auto;margin:0 10px 8px auto;float:right;clear:both;}\nosm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group button {display:block;flex:0 0 32px;width:32px;height:32px;min-width:32px;min-height:32px;padding:0;line-height:32px;position:relative;}\nosm-parking-map-card[data-explorer] .map .maplibregl-ctrl-zoom-out {border-top:1px solid var(--ex-line);}\nosm-parking-map-card[data-explorer] .map .maplibregl-ctrl-attrib {clear:both;float:right;max-width:100%;}\n\n/* MapLibre's document stylesheet does not cross Home Assistant shadow roots.\n   Explicit sizing stops the zoom group inheriting the attribution's width. */\nosm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group {display:flex;flex-direction:column;align-items:center;width:34px;max-width:34px;height:auto;margin:0 10px 8px auto;float:right;clear:both;}\nosm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group button {display:block;flex:0 0 32px;width:32px;height:32px;min-width:32px;min-height:32px;padding:0;line-height:32px;position:relative;}\nosm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group button .maplibregl-ctrl-icon {display:none;}\nosm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group button::after {position:absolute;inset:0;display:grid;place-items:center;line-height:1;}\nosm-parking-map-card[data-explorer] .map .maplibregl-ctrl-zoom-out {border-top:1px solid var(--ex-line);}\nosm-parking-map-card[data-explorer] .map .maplibregl-ctrl-attrib {clear:both;float:right;max-width:100%;}\n";
+/* Built into the existing card: reuse its translations and recovery actions.
+ * Backend data, source selection, credentials and deduplication are untouched.
+ */
+const OSM_EXPLORER_SORTS = ['distance', 'type', 'name', 'free_first', 'availability', 'data_quality', 'source'];
+const OSM_EXPLORER_KINDS = ['live', 'reported', 'estimated', 'predicted', 'static'];
+const OSM_EXPLORER_TYPES = ['paid', 'open', 'street', 'underground', 'multi_storey', 'park_and_ride', 'other'];
+const OSM_EXPLORER_ICONS = {paid:'mdi:cash',open:'mdi:parking',street:'mdi:road-variant',underground:'mdi:car-lifted-pickup',multi_storey:'mdi:office-building',park_and_ride:'mdi:train-car',other:'mdi:parking'};
+const osmNumber = value => value === null || value === undefined || typeof value === 'boolean' || typeof value === 'object' || (typeof value === 'string' && !value.trim()) ? null : (Number.isFinite(Number(value)) ? Number(value) : null);
+const osmKind = item => OSM_EXPLORER_KINDS.includes(item.availability_kind) ? item.availability_kind : (item.has_realtime_data ? 'live' : 'static');
+const osmFree = item => {
+  const n = osmNumber(item.free_capacity), total = osmNumber(item.capacity);
+  return ['live','reported'].includes(osmKind(item)) && n !== null && Number.isInteger(n) && n >= 0 && (total === null || n <= total) ? n : null;
+};
+const osmKey = item => item.osm_id != null ? `osm:${item.osm_type || ''}:${item.osm_id}` : `${item.provider || ''}:${item.provider_id || [item.name,item.latitude,item.longitude].join(':')}`;
+function osmVisible(items, ui, locale='en', typeLabel=item=>item.category || '') {
+  let collator;
+  try { collator = new Intl.Collator(locale, {numeric:true,sensitivity:'base'}); } catch (_) { collator = new Intl.Collator('en'); }
+  const text = (a,b) => collator.compare(String(a || ''),String(b || ''));
+  const number = (a,b,descending=false) => a === null ? (b === null ? 0 : 1) : b === null ? -1 : (descending ? b-a : a-b);
+  const query = (ui.query || '').trim().toLocaleLowerCase().normalize('NFD').replace(/\p{M}/gu,'');
+  const list = items.map((item,index)=>({item,index})).filter(({item}) => {
+    if (ui.types.length && !ui.types.includes(item.category)) return false;
+    if (ui.cost !== 'all' && (['yes','no'].includes(item.fee) ? item.fee : 'unknown') !== ui.cost) return false;
+    if (ui.quality !== 'all' && osmKind(item) !== ui.quality) return false;
+    if (ui.source !== 'all' && (item.provider || 'unknown') !== ui.source) return false;
+    if (ui.available && (osmKind(item) !== 'live' || !(osmFree(item) > 0) || item.opening_status === 'closed')) return false;
+    if (ui.maxDistance !== null && (osmNumber(item.distance_m) === null || Number(item.distance_m) > ui.maxDistance)) return false;
+    return !query || [item.name,item.address,item.provider_name,typeLabel(item)].some(v=>String(v || '').toLocaleLowerCase().normalize('NFD').replace(/\p{M}/gu,'').includes(query));
+  });
+  return list.sort((a,b)=>{
+    const x=a.item,y=b.item;
+    let comparison=0;
+    switch(ui.sort) {
+      case 'type': comparison=text(typeLabel(x),typeLabel(y)); break;
+      case 'name': comparison=text(x.name,y.name); break;
+      case 'source': comparison=text(x.provider_name || x.provider,y.provider_name || y.provider); break;
+      case 'free_first': comparison=(x.fee==='no'?0:x.fee==='yes'?1:2)-(y.fee==='no'?0:y.fee==='yes'?1:2); break;
+      case 'data_quality': comparison=OSM_EXPLORER_KINDS.indexOf(osmKind(x))-OSM_EXPLORER_KINDS.indexOf(osmKind(y)); break;
+      case 'availability': comparison=number(osmFree(x),osmFree(y),true); break;
+      default: comparison=number(osmNumber(x.distance_m),osmNumber(y.distance_m));
+    }
+    return comparison || number(osmNumber(x.distance_m),osmNumber(y.distance_m)) || text(x.name,y.name) || a.index-b.index;
+  }).map(({item})=>item);
+}
+function osmCleanPrefs(value={}, defaultSort='distance') {
+  return {query:typeof value.query==='string' ? value.query.slice(0,160) : '',
+    types:Array.isArray(value.types) ? [...new Set(value.types.filter(t=>OSM_EXPLORER_TYPES.includes(t)))] : [],
+    cost:['all','no','yes','unknown'].includes(value.cost)?value.cost:'all',
+    quality:['all',...OSM_EXPLORER_KINDS].includes(value.quality)?value.quality:'all',
+    source:typeof value.source==='string' ? value.source.slice(0,150) : 'all',
+    available:value.available===true,
+    maxDistance:osmNumber(value.maxDistance)>0 ? Math.min(10000,osmNumber(value.maxDistance)) : null,
+    sort:OSM_EXPLORER_SORTS.includes(value.sort)?value.sort:defaultSort};
+}
+
+class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
+  static getStubConfig() { return {entity:'sensor.parking_suggestions',map_height:220,theme_mode:'auto',show_list:true}; }
+  setConfig(config) {
+    if (!config?.entity) throw new Error('Please define an entity');
+    this._dispose();
+    this._originalConfig = {...config};
+    const height=Number(config.map_height ?? config.height ?? 220);
+    this._ui=osmCleanPrefs({},OSM_EXPLORER_SORTS.includes(config.sort_by)?config.sort_by:'distance');
+    this._prefKey=null; this._selected=null; this._rows=new Map(); this._pins=new Map();
+    this._themeChoice=['auto','light','dark'].includes(config.theme_mode)?config.theme_mode:'auto';
+    this._epoch=(this._epoch || 0)+1;
+    super.setConfig({...config,height:Number.isFinite(height)?Math.max(160,Math.min(700,height)):220,
+      show_filters:config.show_filters!==false,remember_filters:config.remember_filters!==false});
+    this._rowHeight=this.config.height;
+    if (this.isConnected) this.connectedCallback();
+    if (this._hass) this.hass=this._hass;
+  }
+  connectedCallback() {
+    if (!this.config || this._observer) return;
+    this._media=window.matchMedia('(prefers-color-scheme: dark)');
+    this._mediaHandler=()=>this._renderView();
+    this._media.addEventListener?.('change',this._mediaHandler);
+    this._observer=new ResizeObserver(()=>{
+      cancelAnimationFrame(this._resizeFrame);
+      this._resizeFrame=requestAnimationFrame(()=>this._map?.resize());
+    });
+    this._observer.observe(this._els.map);
+    if(this._hass) this._renderView();
+  }
+  disconnectedCallback() { this._dispose(); }
+  _dispose() {
+    this._epoch=(this._epoch || 0)+1;
+    this._observer?.disconnect(); this._observer=null;
+    this._media?.removeEventListener?.('change',this._mediaHandler);
+    cancelAnimationFrame(this._resizeFrame); cancelAnimationFrame(this._renderFrame);
+    clearTimeout(this._styleTimer);
+    this._cancelMapWait?.(); this._cancelMapWait=null;
+    this._popup?.remove(); this._popup=null;
+    this._clearMapPins();
+    this._map?.remove(); this._map=null; this._mapPromise=null;
+    this._pins?.clear(); this._zoneEvents=false; this._zoneIdlePending=false; this._fitSignature=null;
+  }
+  set hass(hass) {
+    this._hass=hass;
+    if(!this.config) return;
+    this._restorePrefs();
+    const state=hass?.states?.[this.config.entity];
+    this._stateObj=state || null;
+    const signature=JSON.stringify([state?.state,state?.attributes,hass?.language,hass?.themes?.darkMode,this._themeChoice,hass?.user?.id]);
+    if(signature===this._lastSignature) return;
+    this._lastSignature=signature;
+    this._renderView();
+  }
+  _xt(key) {
+    const locale=String(this._hass?.language || 'en').replace('_','-');
+    return (OSM_EXPLORER_I18N[locale] || OSM_EXPLORER_I18N[locale.split('-')[0]] || {})[key] ?? OSM_EXPLORER_I18N.en[key] ?? key;
+  }
+  _dark() { return this._themeChoice==='auto' ? (this._hass?.themes?.darkMode ?? this._media?.matches ?? false) : this._themeChoice==='dark'; }
+  _styleURL() {
+    const config=this._originalConfig;
+    return (this._dark()?config.map_style_dark:config.map_style_light) || config.map_style || `https://tiles.openfreemap.org/styles/${this._dark()?'dark':'liberty'}`;
+  }
+  _restorePrefs() {
+    const key=`osm-parking-explorer:v1:${this._hass?.user?.id || 'local'}:${this.config.entity}:${this.config.preference_key || this.config.title || ''}`;
+    if(key===this._prefKey) return;
+    this._prefKey=key;
+    this._ui=osmCleanPrefs({},this._originalConfig.sort_by || 'distance');
+    if(this.config.remember_filters && this.config.show_filters!==false) {
+      try { this._ui=osmCleanPrefs(JSON.parse(localStorage.getItem(key)||'{}'),this._originalConfig.sort_by || 'distance'); } catch(_) { /* Private browsing can deny storage. */ }
+    }
+    if(!OSM_EXPLORER_SORTS.includes(this._ui.sort)) this._ui.sort='distance';
+  }
+  _savePrefs() { if(this.config.remember_filters && this._prefKey) { try { localStorage.setItem(this._prefKey,JSON.stringify(this._ui)); } catch(_) {} } }
+  _filterChanged() { this._savePrefs(); this._renderResults(); this._syncMarkers(); }
+  _update() { this._renderView(); return Promise.resolve(); }
+  _n(value) { return osmNumber(value); }
+  _distance(value) {
+    const n=osmNumber(value); if(n===null || n<0) return '—';
+    return n>=1000 ? `${(n/1000).toLocaleString(this._hass?.language || 'en',{maximumFractionDigits:1})} km` : `${Math.round(n)} m`;
+  }
+  _url(value) {
+    if(typeof value!=='string') return '';
+    try { const url=new URL(value); return ['https:','http:','geo:'].includes(url.protocol)?url.href:''; } catch(_) { return ''; }
+  }
+  _renderShell() {
+    super._renderShell();
+    this.dataset.explorer='';
+    const style=document.createElement('style'); style.textContent=OSM_EXPLORER_CSS; this.append(style);
+    const card=this.querySelector('ha-card'); card.classList.add('parking-explorer');
+    const header=this.querySelector('.header');
+    const titleBlock=header.firstElementChild; titleBlock.className='header-text';
+    const emblem=document.createElement('div');emblem.className='explorer-emblem';emblem.textContent='P';emblem.setAttribute('aria-hidden','true');header.prepend(emblem);
+    this.querySelector('.headright').innerHTML='<button class="icon-button refresh" type="button"><ha-icon icon="mdi:refresh"></ha-icon></button><span class="version">v1.3.0</span>';
+    const frame=document.createElement('section');frame.className='map-frame';this._els.map.before(frame);frame.append(this._els.map);
+    const actions=document.createElement('div');actions.className='map-actions';actions.innerHTML='<button type="button" class="icon-button fit"><ha-icon icon="mdi:fit-to-screen"></ha-icon></button><button type="button" class="icon-button theme"><ha-icon icon="mdi:theme-light-dark"></ha-icon></button><button type="button" class="icon-button expand"><ha-icon icon="mdi:arrow-expand"></ha-icon></button>';frame.append(actions);
+    const note=document.createElement('div');note.className='map-note';note.hidden=true;note.setAttribute('role','status');frame.append(note);
+    const tools=document.createElement('section');tools.className='explorer-tools';tools.innerHTML=`
+      <div class="search-line"><label class="search-box"><ha-icon icon="mdi:magnify"></ha-icon><input class="search" type="search" maxlength="160" autocomplete="off"></label><button class="filter-toggle" type="button" aria-expanded="false"><ha-icon icon="mdi:filter-variant"></ha-icon><span></span></button></div>
+      <div class="filters-panel" hidden><div class="type-chips" role="group"></div><div class="filter-fields">
+        <label><span class="cost-label"></span><select class="cost"></select></label><label><span class="quality-label"></span><select class="quality"></select></label>
+        <label><span class="source-label"></span><select class="source"></select></label><label><span class="range-label"></span><input class="max-distance" type="number" min="1" max="10000" step="100" inputmode="numeric"></label>
+      </div><label class="available-label"><input type="checkbox" class="available"><span></span></label></div>
+      <div class="result-bar"><div class="result-count" role="status" aria-live="polite"></div><label class="sort-label"><ha-icon icon="mdi:sort-variant"></ha-icon><select class="sort"></select></label></div>
+      <button type="button" class="reset-filters" hidden></button>`;
+    frame.after(tools);
+    const empty=document.createElement('div');empty.className='filter-empty';empty.hidden=true;this._els.list.before(empty);
+    this._els.frame=frame;this._els.tools=tools;this._els.note=note;this._els.empty=empty;
+    for(const name of ['search','cost','quality','source','sort','max-distance','available','filter-toggle','filters-panel','type-chips','result-count','reset-filters','refresh','fit','theme','expand']) this._els[name]=this.querySelector('.'+name);
+    this._els.search.addEventListener('input',()=>{this._ui.query=this._els.search.value;this._filterChanged();});
+    for(const key of ['cost','quality','source','sort']) this._els[key].addEventListener('change',()=>{this._ui[key]=this._els[key].value;this._filterChanged();});
+    this._els['max-distance'].addEventListener('input',()=>{const n=osmNumber(this._els['max-distance'].value);this._ui.maxDistance=n>0?Math.min(10000,n):null;this._filterChanged();});
+    this._els.available.addEventListener('change',()=>{this._ui.available=this._els.available.checked;this._filterChanged();});
+    this._els['filter-toggle'].addEventListener('click',()=>{const panel=this._els['filters-panel'];panel.hidden=!panel.hidden;this._els['filter-toggle'].setAttribute('aria-expanded',String(!panel.hidden));});
+    this._els['reset-filters'].addEventListener('click',()=>this._resetFilters());
+    this._els.refresh.addEventListener('click',async()=>{
+      this._els.refresh.disabled=true;
+      try { await this._retryNow(); } finally { if(this._els) this._els.refresh.disabled=false; }
+    });
+    this._els.fit.addEventListener('click',()=>this._fitVisible());
+    this._els.theme.addEventListener('click',()=>{
+      this._themeChoice=this._themeChoice==='auto'?(this._dark()?'light':'dark'):this._themeChoice==='dark'?'light':'auto';this._lastSignature=null;this._renderView();
+    });
+    this._els.expand.addEventListener('click',()=>{
+      this._expanded=!this._expanded;this._els.map.style.height=`${this._expanded?Math.max(400,this.config.height):this.config.height}px`;
+      this._els.expand.setAttribute('aria-pressed',String(this._expanded));this._map?.resize();
+    });
+  }
+  _resetFilters() { const sort=this._ui.sort;this._ui=osmCleanPrefs({sort});this._filterChanged(); }
+  _setContentVisible(visible) {
+    if(!this._els) return;
+    this._els.frame.hidden=!visible;
+    this._els.tools.hidden=!visible || this.config.show_filters===false;
+    this._els.list.hidden=!visible || this.config.show_list===false;
+    if(!visible) {this._els.empty.hidden=true;this._visible=[];this._clearMapPins();}
+  }
+  _renderView() {
+    if(!this._els || !this._hass) return;
+    this.dataset.mode=this._dark()?'dark':'light';this.dataset.forced=String(this._themeChoice!=='auto');
+    this.style.colorScheme=this._dark()?'dark':'light';
+    this._els.title.textContent=this.config.title || this._t('title');
+    this._els.refresh.title=this._st('retryNow');this._els.refresh.setAttribute('aria-label',this._st('retryNow'));
+    this._els.fit.title=this._xt('fit');this._els.fit.setAttribute('aria-label',this._xt('fit'));
+    this._els.theme.title=`${this._xt('theme')}: ${this._xt(this._themeChoice)}`;this._els.theme.setAttribute('aria-label',this._els.theme.title);
+    this._els.expand.title=this._xt('expand');this._els.expand.setAttribute('aria-label',this._xt('expand'));
+    const state=this._stateObj;
+    this._hideStatus();
+    if(!state) {this._setContentVisible(false);this._showStatus({title:this._st('entityMissingTitle'),message:this._st('entityMissingBody'),details:this.config.entity,actions:[{label:this._st('settings'),handler:()=>this._openSettings()}]});return;}
+    const a=state.attributes || {};
+    this._els.subtitle.textContent=a.destination_name || a.destination_entity || this._t('destination');
+    this._els.subtitle.title=this._els.subtitle.textContent;
+    if(!('destination_entity' in a) && !('destination_latitude' in a) && !Array.isArray(a.suggestions)) {this._setContentVisible(false);this._showStatus({title:this._st('wrongEntityTitle'),message:this._st('wrongEntityBody'),details:this.config.entity});return;}
+    if(this._showBackendStatus(a)) {this._setContentVisible(false);return;}
+    const lat=osmNumber(a.destination_latitude),lon=osmNumber(a.destination_longitude);
+    if(lat===null || lon===null || Math.abs(lat)>90 || Math.abs(lon)>180) {this._setContentVisible(false);this._showStatus({tone:'warning',title:this._st('sourceCoordsTitle'),message:this._st('sourceCoordsBody'),actions:[{label:this._st('retryNow'),handler:()=>this._retryNow()}]});return;}
+    this._setContentVisible(true);
+    this._renderResults(); // Results and navigation remain usable even when maps fail.
+    const epoch=this._epoch;
+    if(this.isConnected) void this._ensureExplorerMap().then(()=>{
+      if(!this._map || epoch!==this._epoch) return;
+      const latest=this._stateObj?.attributes || {};
+      this._syncStyle();this._syncMarkers();this._updateZoneOverlay(latest.parking_zones || []);
+      const destination=`${latest.destination_latitude},${latest.destination_longitude}`;
+      if(this._fitSignature!==destination) {this._fitSignature=destination;this._fitVisible();}
+    }).catch(error=>{if(epoch===this._epoch)this._mapFailure(error);});
+  }
+  _activeFilters() {return this._ui.types.length+(this._ui.query?1:0)+['cost','quality','source'].filter(k=>this._ui[k]!=='all').length+(this._ui.available?1:0)+(this._ui.maxDistance!==null?1:0);}
+  _selectOptions(element, options, value) {
+    const signature=JSON.stringify(options);
+    if(element.dataset.options!==signature) {
+      element.replaceChildren(...options.map(([v,text])=>{const o=document.createElement('option');o.value=v;o.textContent=text;return o;}));element.dataset.options=signature;
+    }
+    element.value=value;
+  }
+  _renderResults() {
+    const a=this._stateObj?.attributes || {};
+    const all=(Array.isArray(a.suggestions)?a.suggestions:[]).filter(i=>i && typeof i==='object' && i.record_type!=='zone');
+    this._allResults=all;
+    this._visible=osmVisible(all,this._ui,this._hass?.language,i=>this._labelType(i));
+    if(this._selected && !this._visible.some(i=>osmKey(i)===this._selected)) {this._selected=null;this._popup?.remove();}
+    const e=this._els;
+    if(e.search.value!==this._ui.query) e.search.value=this._ui.query;
+    e.search.placeholder=this._xt('search');e.search.setAttribute('aria-label',this._xt('search'));
+    e['filter-toggle'].querySelector(':scope > span').textContent=this._xt('filters')+(this._activeFilters()?` (${this._activeFilters()})`:'');
+    const allOption=['all',this._xt('all')];
+    this._selectOptions(e.cost,[allOption,['no',this._t('free')],['yes',this._t('paid')],['unknown',this._xt('unknown')]],this._ui.cost);
+    this._selectOptions(e.quality,[allOption,...OSM_EXPLORER_KINDS.map(k=>[k,this._xt(k)])],this._ui.quality);
+    const sources=new Map(all.map(item=>[item.provider || 'unknown',item.provider_name || item.provider || this._xt('unknown')]));
+    if(this._ui.source!=='all' && !sources.has(this._ui.source)) sources.set(this._ui.source,this._ui.source);
+    this._selectOptions(e.source,[allOption,...sources],this._ui.source);
+    this._selectOptions(e.sort,OSM_EXPLORER_SORTS.map(k=>[k,this._xt('sort_'+k)]),this._ui.sort);
+    e.sort.setAttribute('aria-label',this._xt('sort'));
+    e.tools.querySelector('.cost-label').textContent=this._t('price');e.tools.querySelector('.quality-label').textContent=this._xt('data');
+    e.tools.querySelector('.source-label').textContent=this._pt('source');e.tools.querySelector('.range-label').textContent=this._xt('max_distance');
+    e.tools.querySelector('.available-label span').textContent=this._xt('available_only');
+    e.available.checked=this._ui.available;
+    e['max-distance'].placeholder=this._xt('all');if(document.activeElement!==e['max-distance']) e['max-distance'].value=this._ui.maxDistance ?? '';
+    const chips=e['type-chips'],signature=JSON.stringify([this._hass?.language,this._ui.types,all.map(i=>i.category)]);
+    if(chips.dataset.signature!==signature) {
+      chips.replaceChildren();
+      for(const type of ['all',...OSM_EXPLORER_TYPES]) {
+        const count=type==='all'?all.length:all.filter(i=>i.category===type).length;
+        if(type!=='all' && !count && !this._ui.types.includes(type)) continue;
+        const button=document.createElement('button');button.type='button';button.className='type-chip';button.dataset.type=type;
+        button.textContent=`${type==='all'?this._xt('all'):this._translations().categories[type]} · ${count}`;
+        button.setAttribute('aria-pressed',String(type==='all'?!this._ui.types.length:this._ui.types.includes(type)));
+        button.addEventListener('click',()=>{this._ui.types=type==='all'?[]:this._ui.types.includes(type)?this._ui.types.filter(t=>t!==type):[...this._ui.types,type];this._filterChanged();});chips.append(button);
+      }
+      chips.dataset.signature=signature;
+    }
+    const live=this._visible.filter(i=>osmKind(i)==='live' && osmFree(i)!==null).length;
+    e['result-count'].textContent=`${this._visible.length} / ${all.length} ${this._t('suggestions')}${live?` · ${live} ${this._xt('live')}`:''}`;
+    e['reset-filters'].hidden=!this._activeFilters();e['reset-filters'].textContent=this._xt('reset');
+    e.empty.hidden=!!this._visible.length || this.config.show_list===false;
+    if(!e.empty.hidden) {
+      e.empty.replaceChildren();const title=document.createElement('strong');title.textContent=all.length?this._xt('no_matches'):this._st('noResultsTitle');
+      const body=document.createElement('p');body.textContent=all.length?this._xt('clear_hint'):this._st('noResultsBody');
+      const button=document.createElement('button');button.type='button';button.className='filter-toggle';button.textContent=all.length?this._xt('reset'):this._st('settings');button.onclick=()=>all.length?this._resetFilters():this._openSettings();e.empty.append(title,body,button);
+    }
+    this._renderList(this._visible);
+  }
+  _qualityText(item) {
+    const kind=osmKind(item),free=osmFree(item);
+    if(kind==='live' || kind==='reported') return `${this._xt(kind)}${free===null?'':` · ${free} ${this._pt('available')}`}`;
+    if(kind==='estimated') return `${this._xt('estimated')} ${this._estimatedOccupancyText(item)}`.trim();
+    if(kind==='predicted') {const pct=osmNumber(item.predicted_occupancy_percent);return this._xt('predicted')+(pct!==null && pct>=0 && pct<=100?` · ${Math.round(pct)}%`:'');}
+    return this._xt('static');
+  }
+  _safeItem(item) {const copy={...item};for(const k of ['navigation_url','provider_url','osm_url','geo_uri']) copy[k]=this._url(copy[k]);return copy;}
+  _renderList(items) {
+    if(this.config.show_list===false) {this._els.list.hidden=true;return;}
+    const keep=new Set();
+    items.forEach((item,index)=>{
+      const key=osmKey(item);keep.add(key);
+      let row=this._rows.get(key);
+      if(!row) {row=document.createElement('article');row.className='result-card';row.dataset.key=key;this._rows.set(key,row);}
+      const signature=JSON.stringify([item,this._hass?.language,this.config.show_price]);
+      if(row.dataset.signature!==signature) {
+        const open=row.querySelector('details')?.open || false;
+        const safe=this._safeItem(item),price=this._displayPrice(item),quality=this._qualityText(item),kind=osmKind(item);
+        row.innerHTML=`<button type="button" class="result-focus"><span class="result-number"></span><span class="result-body"><span class="result-title">${this._esc(item.name || this._t('parking'))}</span><span class="result-type"><ha-icon icon="${OSM_EXPLORER_ICONS[item.category] || 'mdi:parking'}"></ha-icon>${this._esc(this._labelType(item))}</span></span><span class="result-distance">${this._esc(this._distance(item.distance_m))}</span></button>
+          <div class="result-meta"><span class="quality-badge ${kind}" title="${this._esc(kind==='reported'?this._qt('reported'):quality)}">${this._esc(quality)}</span>${this.config.show_price!==false?`<span class="cost-badge">${this._esc(price || this._xt('price_unknown'))}</span>`:''}</div>
+          <div class="result-footer"><span class="result-source" title="${this._esc((Array.isArray(item.data_sources)?item.data_sources:[]).join(', '))}">${this._esc(item.provider_name || item.provider || 'OpenStreetMap')}${Number(item.deduplicated_source_count)>1?` · ${Number(item.deduplicated_source_count)} ${this._esc(this._qt('sources'))}`:''}</span>${safe.navigation_url?`<a class="navigate" href="${this._esc(safe.navigation_url)}" target="_blank" rel="noopener noreferrer" aria-label="${this._esc(this._t('navigate')+': '+(item.name || ''))}"><ha-icon icon="mdi:directions"></ha-icon>${this._esc(this._t('navigate'))}</a>`:''}</div>
+          <details class="result-details" ${open?'open':''}><summary>${this._esc(this._xt('details'))}</summary><div>${this._popupHtml(safe,index)}</div></details>`;
+        row.querySelector('.result-focus').onclick=()=>this._focusItem(key);
+        row.dataset.signature=signature;
+      }
+      row.querySelector('.result-number').textContent=String(index+1);
+      row.querySelector('.result-focus').setAttribute('aria-pressed',String(key===this._selected));row.classList.toggle('selected',key===this._selected);
+      const atIndex=this._els.list.children[index];if(atIndex!==row) this._els.list.insertBefore(row,atIndex || null);
+    });
+    for(const [key,row] of this._rows) if(!keep.has(key)) {row.remove();this._rows.delete(key);}
+  }
+  _focusItem(key) {
+    this._selected=key;
+    this._renderList(this._visible);this._syncMarkers();
+    const item=this._visible.find(i=>osmKey(i)===key),pin=this._pins.get(key);
+    if(!item || !this._map || !pin) return;
+    this._map.easeTo({center:[Number(item.longitude),Number(item.latitude)],zoom:Math.max(this._map.getZoom(),16),duration:window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:250});
+    this._popup?.remove();this._popup=pin.popup;this._popup.setLngLat([Number(item.longitude),Number(item.latitude)]).addTo(this._map);
+  }
+  async _ensureExplorerMap() {
+    if(this._map) return this._map;
+    if(this._mapPromise) return this._mapPromise;
+    const epoch=this._epoch;
+    this._mapPromise=(async()=>{
+      let timer;
+      try {await Promise.race([super._ensureMapLibre(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Map library timed out')),20000);})]);} finally {clearTimeout(timer);}
+      if(epoch!==this._epoch || !this.isConnected) return null;
+      const a=this._stateObj?.attributes || {},lat=osmNumber(a.destination_latitude),lon=osmNumber(a.destination_longitude);
+      if(lat===null || lon===null) return null;
+      this._style=this._styleURL();this._fallbackStyle=false;
+      const map=new maplibregl.Map({container:this._els.map,style:this._style,center:[lon,lat],zoom:14,attributionControl:true});
+      this._map=map;
+      map.addControl(new maplibregl.NavigationControl({showCompass:false}),'bottom-right');
+      map.on('style.load',()=>{if(map!==this._map) return;clearTimeout(this._styleTimer);this._els.note.hidden=true;this._updateZoneOverlay(this._stateObj?.attributes?.parking_zones || []);});
+      map.on('error',event=>{if(map===this._map) this._mapFailure(event?.error || new Error('Map resource unavailable'));});
+      await new Promise((resolve)=>{
+        const finish=()=>{clearTimeout(timer);map.off('load',finish);this._cancelMapWait=null;resolve();};
+        this._cancelMapWait=finish;
+        if(map.loaded()) finish();else {map.once('load',finish);timer=setTimeout(()=>{this._mapFailure(new Error('Map loading timed out'));finish();},18000);}
+      });
+      return epoch===this._epoch?map:null;
+    })().finally(()=>{if(epoch===this._epoch) this._mapPromise=null;});
+    return this._mapPromise;
+  }
+  _syncStyle() {
+    if(!this._map) return;
+    const style=this._styleURL();if(style===this._style) return;
+    this._style=style;this._fallbackStyle=false;
+    // A style diff can omit style.load while removing our custom zone layer.
+    // Rebuild the stylesheet only, retaining the map, camera and HTML markers;
+    // the existing style.load handler then restores zone sources reliably.
+    this._map.setStyle(style, {diff:false});
+    clearTimeout(this._styleTimer);this._styleTimer=setTimeout(()=>this._mapFailure(new Error('Map style timed out')),15000);
+  }
+  _mapFailure(error) {
+    if(!this.isConnected || !this._els) return;
+    const note=this._els.note;note.hidden=false;note.replaceChildren();
+    const text=document.createElement('span');text.textContent=this._xt('map_unavailable');text.title=String(error?.message || error);
+    const retry=document.createElement('button');retry.type='button';retry.className='icon-button';retry.setAttribute('aria-label',this._st('retryNow'));retry.textContent='↻';
+    retry.onclick=()=>{this._dispose();this._pins=new Map();this.connectedCallback();this._renderView();};note.append(text,retry);
+    // Keep the list/filters alive. Never destroy parking results over a tile error.
+  }
+  _clearMapPins() {for(const {marker} of this._pins?.values() || []) marker.remove();this._pins?.clear();this._destinationPin?.remove();this._destinationPin=null;this._popup?.remove();this._popup=null;}
+  _syncMarkers() {
+    if(!this._map) return;
+    const a=this._stateObj?.attributes || {},lat=osmNumber(a.destination_latitude),lon=osmNumber(a.destination_longitude);
+    if(lat===null || lon===null) return;
+    if(this.config.show_destination!==false) {
+      if(!this._destinationPin) {const button=document.createElement('div');button.className='osm-dest-marker';button.textContent='★';button.title=this._t('destination');this._destinationPin=new maplibregl.Marker({element:button}).setLngLat([lon,lat]).addTo(this._map);}
+      this._destinationPin.setLngLat([lon,lat]);
+    }
+    const keep=new Set();
+    (this._visible || []).forEach((item,index)=>{
+      const ilat=osmNumber(item.latitude),ilon=osmNumber(item.longitude);if(ilat===null || ilon===null || Math.abs(ilat)>90 || Math.abs(ilon)>180) return;
+      const key=osmKey(item);keep.add(key);let pin=this._pins.get(key);
+      if(!pin) {const button=document.createElement('button');button.type='button';button.className='osm-park-marker';button.onclick=()=>this._focusItem(key);
+        const popup=new maplibregl.Popup({offset:20,maxWidth:'280px'});
+        const marker=new maplibregl.Marker({element:button}).setLngLat([ilon,ilat]).addTo(this._map);pin={marker,button,popup};this._pins.set(key,pin);}
+      pin.marker.setLngLat([ilon,ilat]);pin.button.textContent=String(index+1);pin.button.title=String(item.name || this._t('parking'));
+      pin.button.setAttribute('aria-label',`${index+1}. ${pin.button.title}`);pin.button.classList.toggle('selected',key===this._selected);
+      pin.button.dataset.kind=osmKind(item);pin.popup.setHTML(this._popupHtml(this._safeItem(item),index));
+    });
+    for(const [key,pin] of this._pins) if(!keep.has(key)) {pin.marker.remove();pin.popup.remove();this._pins.delete(key);}
+  }
+  _fitVisible() {
+    if(!this._map) return;
+    const a=this._stateObj?.attributes || {},bounds=new maplibregl.LngLatBounds();
+    const add=(lat,lon)=>{lat=osmNumber(lat);lon=osmNumber(lon);if(lat!==null && lon!==null && Math.abs(lat)<=90 && Math.abs(lon)<=180) bounds.extend([lon,lat]);};
+    add(a.destination_latitude,a.destination_longitude);for(const item of this._visible || []) add(item.latitude,item.longitude);
+    if(!bounds.isEmpty()) this._map.fitBounds(bounds,{padding:40,maxZoom:16,duration:0});
+  }
+  _updateZoneOverlay(zones) {
+    const map=this._map;if(!map) return;
+    // style.load can arrive while GeoJSON sources are still loading. Retry
+    // once at idle instead of losing overlays or repeatedly calling setData.
+    if(!map.isStyleLoaded()) {
+      if(!this._zoneIdlePending) {
+        this._zoneIdlePending=true;
+        map.once('idle',()=>{
+          this._zoneIdlePending=false;
+          if(map===this._map) this._updateZoneOverlay(this._stateObj?.attributes?.parking_zones || []);
+        });
+      }
+      return;
+    }
+    const id='osm-parking-controlled-zones';
+    const features=(this.config.show_zones!==false && Array.isArray(zones)?zones:[]).filter(z=>z?.type==='Feature' && ['Polygon','MultiPolygon'].includes(z?.geometry?.type) && z?.properties?.record_type==='zone');
+    const data={type:'FeatureCollection',features};
+    if(map.getSource(id)) map.getSource(id).setData(data);
+    else if(features.length) {map.addSource(id,{type:'geojson',data});map.addLayer({id:id+'-fill',type:'fill',source:id,paint:{'fill-color':'#ce9b49','fill-opacity':0.16}});map.addLayer({id:id+'-border',type:'line',source:id,paint:{'line-color':'#ce9b49','line-width':2}});}
+    if(!this._zoneEvents && features.length) {this._zoneEvents=true;map.on('click',id+'-fill',event=>{
+      const p=event.features?.[0]?.properties;if(!p) return;
+      const url=this._url(p.provider_url);this._popup?.remove();this._popup=new maplibregl.Popup({offset:10}).setLngLat(event.lngLat).setHTML(`<div class="popup-title">${this._esc(p.name || this._zt('zone'))}</div><div class="popup-line">${this._esc(this._zt('signage'))}</div>${url?`<a href="${this._esc(url)}" target="_blank" rel="noopener noreferrer">${this._esc(this._pt('source'))}</a>`:''}`).addTo(map);
+    });}
+  }
+  getCardSize() { return Math.ceil((this.config.height+280)/50); }
+  getGridOptions() { return {columns:12,min_columns:6,rows:'auto'}; }
+}
+// END OSM EXPLORER BUNDLE
 if (!customElements.get('osm-parking-map-card')) {
-  customElements.define('osm-parking-map-card', OsmParkingMapCardV070);
+  customElements.define('osm-parking-map-card', OsmParkingExplorerCard);
   window.customCards = window.customCards || [];
   window.customCards.push({
     type: 'osm-parking-map-card',

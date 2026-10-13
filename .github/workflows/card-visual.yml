@@ -1,0 +1,61 @@
+name: Card visual checks
+
+on:
+  pull_request:
+    paths:
+      - custom_components/osm_parking/frontend/**
+      - tools/card/**
+      - tests/card/**
+      - .github/workflows/card-visual.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: card-visual-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser:
+    name: Card browser and layout
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify reproducible bundle and regression tests
+        run: |
+          python3 tools/card/build.py --check
+          node --check custom_components/osm_parking/frontend/osm-parking-map-card.js
+          node --test tests/card/filter.test.cjs
+          python3 -m unittest discover -s tests -v
+      - name: Install isolated browser test dependencies
+        run: |
+          npm install --no-save --package-lock=false maplibre-gl@5.6.2
+          python3 -m pip install playwright==1.57.0
+          python3 -m playwright install --with-deps chromium
+      - name: Browser interactions, themes, layout and visible zoom controls
+        run: |
+          python3 tests/card/browser_check.py
+          python3 tests/card/map_controls_check.py
+      - name: Record source fingerprints
+        if: always()
+        run: |
+          mkdir -p card-evidence
+          git rev-parse HEAD > card-evidence/tested-source-commit.txt
+          sha256sum custom_components/osm_parking/frontend/osm-parking-map-card.js tools/card/explorer.js tools/card/explorer.css > card-evidence/source-sha256.txt
+      - name: Upload card visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parking-card-visual-evidence
+          path: |
+            card-evidence/
+            custom_components/osm_parking/frontend/osm-parking-map-card.js
+            tools/card/
+          retention-days: 14
