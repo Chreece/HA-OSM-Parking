@@ -34,7 +34,7 @@
     "step": {
       "init": {
         "title": "OSM Parking オプション",
-        "description": "現在利用可能な対応目的地エンティティから選択して検索を設定します。対応する座標属性は latitude + longitude、または lat + lon/lng です。",
+        "description": "検索と任意の地域プロバイダーを設定します。キー不要の公開プロバイダーは自動で利用されます。認証情報が必要なプロバイダーは、有効化され、設定済みで、目的地が対象地域にある場合のみ使用されます。",
         "data": {
           "destination_entity": "目的地エンティティ",
           "radius_m": "検索半径",
@@ -46,10 +46,21 @@
           "category_multi_storey_enabled": "立体駐車場を含める",
           "category_park_and_ride_enabled": "Park & Ride を含める",
           "category_other_enabled": "その他の駐車場を含める",
-          "max_results": "カテゴリごとの最大結果数"
+          "max_results": "カテゴリごとの最大結果数",
+          "golemio_enabled": "プラハ Golemio プロバイダーを有効化",
+          "golemio_api_key": "Golemio API キー",
+          "tfnsw_enabled": "Transport for NSW を有効化",
+          "tfnsw_api_key": "TfNSW API キー",
+          "tdx_enabled": "台湾 TDX を有効化",
+          "tdx_client_id": "TDX Client ID",
+          "tdx_client_secret": "TDX Client Secret"
         },
         "data_description": {
-          "destination_entity": "対応エンティティのみが自動表示されます。必要な属性: latitude + longitude、または lat + lon/lng。例: latitude 50.9385、longitude 6.9829。"
+          "destination_entity": "対応エンティティのみが自動表示されます。必要な属性: latitude + longitude、または lat + lon/lng。例: latitude 50.9385、longitude 6.9829。",
+          "golemio_api_key": "api.golemio.cz/api-keys で取得できる任意の無料開発者キー。プラハの目的地でのみ使用します。",
+          "tfnsw_api_key": "任意の Transport for NSW Open Data API キー。NSW の目的地でのみ使用します。",
+          "tdx_client_id": "TDX 会員センターの任意の TDX Client ID。Client ID と Client Secret の両方が必要です。",
+          "tdx_client_secret": "任意の TDX Client Secret。Home Assistant の設定エントリに保存され、診断ではマスクされます。"
         }
       }
     },
