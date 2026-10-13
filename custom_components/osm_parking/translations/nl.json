@@ -1,0 +1,60 @@
+{
+  "title": "OSM Parkeren",
+  "config": {
+    "step": {
+      "user": {
+        "title": "OSM Parkeren",
+        "description": "Kies een bestemmingsentiteit uit de hieronder gedetecteerde compatibele entiteiten. Een compatibele entiteit moet numerieke attributen latitude + longitude of lat + lon/lng bevatten. De zoekopdracht wordt vernieuwd wanneer de bestemming verandert of Home Assistant start.",
+        "data": {
+          "destination_entity": "Bestemmingsentiteit",
+          "radius_m": "Zoekradius",
+          "include_restricted": "Beperkt/privéparkeren meenemen",
+          "category_paid_enabled": "Betaald parkeren meenemen",
+          "category_open_enabled": "Open / parkeerterreinen meenemen",
+          "category_street_enabled": "Parkeren langs de straat meenemen",
+          "category_underground_enabled": "Ondergrondse parkeergarages meenemen",
+          "category_multi_storey_enabled": "Parkeergarages meenemen",
+          "category_park_and_ride_enabled": "Park & Ride meenemen",
+          "category_other_enabled": "Overige parkeerplaatsen meenemen",
+          "max_results": "Maximumresultaten per categorie"
+        },
+        "data_description": {
+          "destination_entity": "Alleen compatibele entiteiten worden automatisch weergegeven. Verwachte attributen: latitude + longitude of lat + lon/lng. Voorbeeld: latitude 50.9385, longitude 6.9829."
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "De geselecteerde entiteit is niet beschikbaar of bevat momenteel geen geldige coördinaten."
+    },
+    "abort": {
+      "already_configured": "Deze bestemmingsentiteit is al geconfigureerd."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "OSM Parkeren-opties",
+        "description": "Kies een momenteel compatibele bestemmingsentiteit en configureer de zoekopdracht. Ondersteund zijn latitude + longitude of lat + lon/lng.",
+        "data": {
+          "destination_entity": "Bestemmingsentiteit",
+          "radius_m": "Zoekradius",
+          "include_restricted": "Beperkt/privéparkeren meenemen",
+          "category_paid_enabled": "Betaald parkeren meenemen",
+          "category_open_enabled": "Open / parkeerterreinen meenemen",
+          "category_street_enabled": "Parkeren langs de straat meenemen",
+          "category_underground_enabled": "Ondergrondse parkeergarages meenemen",
+          "category_multi_storey_enabled": "Parkeergarages meenemen",
+          "category_park_and_ride_enabled": "Park & Ride meenemen",
+          "category_other_enabled": "Overige parkeerplaatsen meenemen",
+          "max_results": "Maximumresultaten per categorie"
+        },
+        "data_description": {
+          "destination_entity": "Alleen compatibele entiteiten worden automatisch weergegeven. Verwachte attributen: latitude + longitude of lat + lon/lng. Voorbeeld: latitude 50.9385, longitude 6.9829."
+        }
+      }
+    },
+    "error": {
+      "invalid_destination_entity": "De geselecteerde entiteit is niet beschikbaar of bevat momenteel geen geldige coördinaten."
+    }
+  }
+}
