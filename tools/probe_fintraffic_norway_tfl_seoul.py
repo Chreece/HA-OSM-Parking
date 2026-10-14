@@ -82,6 +82,7 @@ def main():
     # Seoul official sample key is documented for max five rows.
     out.append(fetch("seoul_sample","http://openapi.seoul.go.kr:8088/sample/json/GetParkInfo/1/5/"))
     out.append(fetch("seoul_realtime_sample","http://openapi.seoul.go.kr:8088/sample/json/GetParkingInfo/1/5/"))
+    out.append(fetch("seoul_realtime_sample_https","https://openapi.seoul.go.kr:8088/sample/json/GetParkingInfo/1/5/"))
 
     (OUT/"summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps(out,ensure_ascii=False,indent=2))
