@@ -30,9 +30,14 @@ jobs:
       - name: Validate bundled geometry with runtime-only parser
         run: |
           python - <<'PY'
-          from custom_components.osm_parking.coverage_geometry import load_coverage
-          exact=load_coverage("netherlands_brk.geojson")
-          buffered=load_coverage("netherlands_rdw_10km.geojson")
+          import importlib.util
+          from pathlib import Path
+          path=Path("custom_components/osm_parking/coverage_geometry.py")
+          spec=importlib.util.spec_from_file_location("coverage_geometry_under_test",path)
+          module=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          exact=module.load_coverage("netherlands_brk.geojson")
+          buffered=module.load_coverage("netherlands_rdw_10km.geojson")
           dutch={
               "Amsterdam":(52.3676,4.9041),
               "Rotterdam":(51.9244,4.4777),
