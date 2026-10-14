@@ -231,6 +231,10 @@ This distinction prevents a successful-but-empty regional API call from looking 
 | --- | --- | ---: | --- |
 | OpenStreetMap / Overpass | Worldwide | No | None |
 | Toulouse Métropole BNLS | Toulouse public garages | Static inventory; equivalent API fallback | None |
+| Ville de Luxembourg Open Data | Luxembourg City garages and P+R | **Live** when the shared build timestamp is fresh and the site is not in fault | None |
+| CFL Park & Ride | Luxembourg national CFL P+R facilities | **Reported** free/PMR/EV spaces; no producer timestamp in JSON details | None |
+| Kanton Basel-Stadt Parkleitsystem | Basel public garages | **Live**, minute-updated publisher timestamp | None |
+| Stadt Zürich Parkleitsystem | Zürich garages | **Live** RSS joined to official city WFS; static WFS remains if RSS is down | None |
 | Ville de Paris Open Data / BNLS | Paris concession garages | Static capacity, tariffs, accessibility | None |
 | Ayuntamiento de Zaragoza | Zaragoza public garages | Static facilities, no occupancy | None |
 | Singapore URA | Singapore URA car parks | Reported available car lots (timestamp not supplied) | Optional URA access key |
@@ -268,6 +272,13 @@ The coverage loader is generic and can be reused by other providers when their p
 Maintainers can reproduce the bundled RDW geometry with `python tools/generate_authoritative_coverage.py` (development dependencies: Shapely and pyproj); Home Assistant runtime has no geometry-generation dependency.
 
 Provider results are normalized into the same parking model and conservatively merged with OSM results. When two sources describe the same facility, OSM links/descriptive data can be retained while the regional provider contributes live capacity, free spaces, opening status or provider metadata. Individual physical parking-bay feeds such as Melbourne can opt out of merging so nearby bays remain distinct.
+
+### Luxembourg, Basel and Zürich direct-source integrity
+
+- **Ville de Luxembourg:** the official JSON feed publishes one `last_build_date` for the current city snapshot. Free spaces are labelled **live** only while that timestamp is fresh, the facility is open, `panne=false`, and free spaces do not exceed total capacity. Faulted/stale sites keep static metadata but expose no vacancy. Park & Ride sites are identified from the feed's own flag. Licence: CC BY 4.0.
+- **CFL P+R:** the official list/details APIs publish WGS84 coordinates, total/PMR/EV capacity and exact current free-space counts. The JSON details response has **no producer measurement timestamp**, so values are intentionally **reported**, not verified live. If one detail request fails, its list-level static P+R still remains available.
+- **Basel-Stadt:** dataset 100088 publishes `published`, `free`, `total`, `status`, coordinates and address and is officially updated every minute. Exact vacancy is **live** only when the publisher timestamp is fresh and status is open. This direct authority source wins equal-quality duplicates over ParkenDD, while ParkenDD remains an independent fallback/complement.
+- **Zürich PLS:** the official RSS provides per-garage free spaces, open/closed state and item timestamp. OSM Parking joins it by the official PLS `pid` link to the city's WFS `poi_parkhaus_view` layer, which supplies WGS84 coordinates, capacity, accessible/EV spaces and address for 136 public garages. If RSS fails, the WFS inventory remains usable as static data. The direct Zürich source wins equal-quality ParkenDD duplicates; ParkenDD remains available when the direct source is missing or unavailable.
 
 ### Paris, Zaragoza and Singapore URA data integrity
 
@@ -312,7 +323,8 @@ Credentials are stored in the Home Assistant config entry and are redacted from 
 - **Singapore URA:** with user access key, car park details cached 12 hours, token cached up to 20 hours, reported availability refreshed about every 5 minutes if nearby facilities are found.
 - **İstanbul and İzmir reported parking:** 5-minute refresh while facilities are nearby; not labelled verified live.
 - **Athens zone GIS:** automatic in Athens, validated static cache for 24 hours and source-specific recovery backoff.
-- **Melbourne / Singapore / Madrid / St.Gallen / Málaga live data:** approximately 60-second refresh while live data is active.
+- **Luxembourg City / Basel-Stadt / Zürich PLS / Melbourne / Singapore / Madrid / St.Gallen / Málaga live data:** approximately 60-second refresh while live data is active.
+- **CFL Luxembourg P+R:** 5-minute refresh while nearby facilities are present; counts are reported because the JSON details endpoint does not publish a producer measurement timestamp.
 - **Strasbourg live data:** 3-minute refresh, matching the official source cadence.
 - **Lyon and Nantes live feeds:** 2-minute refresh while covered facilities are in range, including when upstream availability is temporarily invalid.
 - **Lille MEL:** 5-minute refresh when parking facilities are in range, matching the official 5-minute publication cadence.
@@ -346,7 +358,7 @@ ParkOut and AthensWay are useful Athens parking services, but no stable document
 
 ## Worldwide provider expansion research
 
-See [the researched source inventory](docs/provider-research-2026-10-13.md) and the newer [free vs commercial provider market research](docs/provider-market-research-2026-10-14.md). The latter covers Luxembourg City/CFL, Basel, Zürich, Fintraffic, Norway, TfL, Seoul, ParkWhiz, Parkopedia, INRIX, TomTom, ParkBee, Passport and EasyPark, including access/licensing constraints. Listed candidates are **not automatically implemented**.
+See [the researched source inventory](docs/provider-research-2026-10-13.md) and the newer [free vs commercial provider market research](docs/provider-market-research-2026-10-14.md). Luxembourg City, CFL P+R, Basel and Zürich are now implemented directly; the next researched queue includes Fintraffic, Norway, TfL, Seoul, ParkWhiz, Parkopedia, INRIX, TomTom, ParkBee, Passport and EasyPark. Unimplemented candidates remain research only.
 
 ## Parking categories and result limits
 
@@ -392,7 +404,7 @@ When reporting a data-fetch problem, include the Home Assistant log entry and di
 
 ## Data and attribution
 
-Depending on destination, parking data may come from OpenStreetMap/Overpass and supported municipal or national open-data sources such as MobiData BW/ParkAPI, ParkenDD, RDW, Stad Gent, Stadt St.Gallen, Open Transport Data Switzerland/SBB P+Rail, Brussels Open Data, Dublin City Council, Helsinki Parkkihubi, Strasbourg Open Data, Montpellier NGSI-LD, Málaga Open Data, Lille MEL Open Data, Grenoble SMMAG, Singapore data.gov.sg, Hong Kong DATA.GOV.HK, City of Melbourne and Madrid Open Data. Optional credentialed providers include Golemio, Transport for NSW and Taiwan TDX.
+Depending on destination, parking data may come from OpenStreetMap/Overpass and supported municipal or national open-data sources such as MobiData BW/ParkAPI, ParkenDD, RDW, Ville de Luxembourg, CFL P+R, Basel-Stadt, Zürich PLS, Stad Gent, Stadt St.Gallen, Open Transport Data Switzerland/SBB P+Rail, Brussels Open Data, Dublin City Council, Helsinki Parkkihubi, Strasbourg Open Data, Montpellier NGSI-LD, Málaga Open Data, Lille MEL Open Data, Grenoble SMMAG, Singapore data.gov.sg, Hong Kong DATA.GOV.HK, City of Melbourne and Madrid Open Data. Optional credentialed providers include Golemio, Transport for NSW and Taiwan TDX.
 
 Each provider's original attribution/licence remains applicable. The integration exposes provider/source information on normalized results where available. Map rendering uses MapLibre and OpenFreeMap.
 
