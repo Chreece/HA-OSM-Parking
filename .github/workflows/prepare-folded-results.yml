@@ -28,6 +28,20 @@ jobs:
           test "$GITHUB_REF" = refs/heads/feat/folded-map-results
           git merge-base --is-ancestor bfe55c928e6c37f92364ef61dc9526c8e83e93d6 HEAD
           python tools/prepare_fold_results.py
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('tests/card/fold_results_check.py')
+          text=p.read_text()
+          # Selection deliberately zooms the map. Use its visible Fit button
+          # before choosing another marker, rather than clicking offscreen.
+          anchor="        key=page.evaluate('osmKey(window.card._visible[2])')"
+          assert text.count(anchor)==1
+          text=text.replace(anchor,"        page.evaluate('window.card._popup?.remove()')\n        page.locator('.fit').click()\n"+anchor)
+          anchor="        assert page.locator('.osm-park-marker').count()==1"
+          assert text.count(anchor)==1
+          text=text.replace(anchor,anchor+"\n        page.evaluate('window.card._popup?.remove()')\n        page.locator('.fit').click()")
+          p.write_text(text)
+          PY
           python tools/card/build.py --check
           node --check custom_components/osm_parking/frontend/osm-parking-map-card.js
           test -z "$(git diff --name-only bfe55c928e6c37f92364ef61dc9526c8e83e93d6 -- custom_components/osm_parking ':!custom_components/osm_parking/frontend')"
@@ -57,7 +71,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git rm -f -- tools/prepare_fold_results.py .github/workflows/prepare-folded-results.yml
-          git add -- tools/card/explorer.js tools/card/explorer.css tools/card/locales.py tools/card/guide.md tools/card/readme_screenshots.py custom_components/osm_parking/frontend/osm-parking-map-card.js tests/card/browser_check.py .github/workflows/card-visual.yml README.md CHANGELOG.md
+          git add -- tools/card/explorer.js tools/card/explorer.css tools/card/locales.py tools/card/guide.md tools/card/readme_screenshots.py custom_components/osm_parking/frontend/osm-parking-map-card.js tests/card/browser_check.py tests/card/fold_results_check.py .github/workflows/card-visual.yml README.md CHANGELOG.md
           git diff --cached --check
           git commit -m 'Fold results by default and reveal selected map result [skip ci]'
           git push origin HEAD:refs/heads/feat/folded-map-results
@@ -72,6 +86,8 @@ jobs:
             tools/card/
             tests/card/
             custom_components/osm_parking/frontend/
+            node_modules/maplibre-gl/dist/maplibre-gl.js
+            node_modules/maplibre-gl/dist/maplibre-gl.css
             README.md
             CHANGELOG.md
           retention-days: 14
