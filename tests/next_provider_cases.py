@@ -200,7 +200,7 @@ class FintrafficContracts(unittest.TestCase):
             {"spacesAvailable": -1},
             {"spacesAvailable": 90},
             {"spacesAvailable": 2.5},
-            {"capacity": float("nan")},
+            {"spacesAvailable": float("nan")},
         ):
             with self.subTest(changes=changes):
                 item = self.parse(current={303: fin_live(**changes)})
@@ -276,14 +276,12 @@ class TflContracts(unittest.TestCase):
         self.assertFalse(item["has_realtime_data"])
         self.assertIn("availability_checked_at", item)
 
-    def test_impossible_bay_counts_are_ignored(self):
+    def test_impossible_bay_counts_reject_entire_snapshot(self):
         occupancy = tfl_occupancy()
         occupancy["bays"][0]["free"] = 100
         item = self.parse(occupancy)
-        # The valid disabled bay can still contribute; impossible regular row
-        # is rejected record-by-record.
-        self.assertEqual(item["free_capacity"], 1)
-        self.assertEqual(item["availability_kind"], "reported")
+        self.assertEqual(item["availability_kind"], "static")
+        self.assertNotIn("free_capacity", item)
 
     def test_no_valid_bays_is_static(self):
         occupancy = tfl_occupancy()
