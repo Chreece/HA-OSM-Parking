@@ -1,0 +1,77 @@
+name: Prepare folded map results
+on:
+  push:
+    branches: [feat/folded-map-results]
+    paths: [.github/workflows/prepare-folded-results.yml]
+permissions:
+  contents: write
+concurrency:
+  group: prepare-folded-map-results
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Assemble checked presentation update
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/feat/folded-map-results
+          git merge-base --is-ancestor bfe55c928e6c37f92364ef61dc9526c8e83e93d6 HEAD
+          python tools/prepare_fold_results.py
+          python tools/card/build.py --check
+          node --check custom_components/osm_parking/frontend/osm-parking-map-card.js
+          test -z "$(git diff --name-only bfe55c928e6c37f92364ef61dc9526c8e83e93d6 -- custom_components/osm_parking ':!custom_components/osm_parking/frontend')"
+      - name: Run existing backend and frontend contracts
+        run: |
+          set -euo pipefail
+          mkdir -p card-evidence
+          python -m compileall -q custom_components/osm_parking
+          python -m unittest discover -s tests -v 2>&1 | tee card-evidence/python-contracts.log
+          node --test tests/card/filter.test.cjs | tee card-evidence/javascript-contracts.log
+      - name: Install pinned browser dependencies
+        run: |
+          npm install --no-save --package-lock=false maplibre-gl@5.6.2
+          python -m pip install playwright==1.57.0
+          python -m playwright install --with-deps chromium
+      - name: Verify marker unfold highlight and actual scrolling
+        run: python tests/card/fold_results_check.py
+      - name: Verify existing card interactions and map controls
+        run: |
+          python tests/card/browser_check.py
+          python tests/card/map_controls_check.py
+      - name: Commit tested source on preparation branch only
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/feat/folded-map-results
+          test "$(git ls-remote origin refs/heads/feat/folded-map-results | cut -f1)" = "$GITHUB_SHA"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f -- tools/prepare_fold_results.py .github/workflows/prepare-folded-results.yml
+          git add -- tools/card/explorer.js tools/card/explorer.css tools/card/locales.py tools/card/guide.md tools/card/readme_screenshots.py custom_components/osm_parking/frontend/osm-parking-map-card.js tests/card/browser_check.py .github/workflows/card-visual.yml README.md CHANGELOG.md
+          git diff --cached --check
+          git commit -m 'Fold results by default and reveal selected map result [skip ci]'
+          git push origin HEAD:refs/heads/feat/folded-map-results
+          git rev-parse HEAD > card-evidence/tested-fold-source.txt
+      - name: Preserve browser evidence and assembled sources
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: folded-results-evidence
+          path: |
+            card-evidence/
+            tools/card/
+            tests/card/
+            custom_components/osm_parking/frontend/
+            README.md
+            CHANGELOG.md
+          retention-days: 14
