@@ -265,6 +265,8 @@ The RDW provider now uses a **bundled authoritative Netherlands geometry** deriv
 
 The coverage loader is generic and can be reused by other providers when their publisher exposes an authoritative service-area or country geometry. Provider diagnostics expose the coverage authority/licence when applicable.
 
+Maintainers can reproduce the bundled RDW geometry with `python tools/generate_authoritative_coverage.py` (development dependencies: Shapely and pyproj); Home Assistant runtime has no geometry-generation dependency.
+
 Provider results are normalized into the same parking model and conservatively merged with OSM results. When two sources describe the same facility, OSM links/descriptive data can be retained while the regional provider contributes live capacity, free spaces, opening status or provider metadata. Individual physical parking-bay feeds such as Melbourne can opt out of merging so nearby bays remain distinct.
 
 ### Paris, Zaragoza and Singapore URA data integrity
