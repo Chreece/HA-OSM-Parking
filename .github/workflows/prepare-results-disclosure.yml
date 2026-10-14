@@ -28,6 +28,9 @@ jobs:
           test "$GITHUB_REF" = refs/heads/feat/map-first-results
           git merge-base --is-ancestor bfe55c928e6c37f92364ef61dc9526c8e83e93d6 HEAD
           python tools/apply_results_disclosure.py
+          # The authorized connector already committed the workflow change.
+          # The runner token must not create/update workflow files itself.
+          git restore -- .github/workflows/card-visual.yml
           python - <<'PY'
           from pathlib import Path
           p=Path('tests/card/results_disclosure_check.py')
