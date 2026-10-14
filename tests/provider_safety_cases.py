@@ -41,7 +41,18 @@ from custom_components.osm_parking.providers.base import ProviderFetchResult as 
 
 
 def row(provider='healthy',**changes):
-    return dict(provider=provider,provider_id=provider+':1',name='Central Garage',latitude=37.98,longitude=23.73,category='underground',fee='unknown',availability_kind='static',**changes)
+    item = dict(
+        provider=provider,
+        provider_id=provider+':1',
+        name='Central Garage',
+        latitude=37.98,
+        longitude=23.73,
+        category='underground',
+        fee='unknown',
+        availability_kind='static',
+    )
+    item.update(changes)
+    return item
 
 
 def zone():
