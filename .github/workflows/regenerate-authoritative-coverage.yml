@@ -1,0 +1,52 @@
+name: Regenerate authoritative Netherlands coverage
+on:
+  push:
+    branches: [feat/authoritative-coverage-provider-research]
+    paths: [.github/workflows/regenerate-authoritative-coverage.yml]
+permissions:
+  contents: write
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Regenerate directly from Kadaster/PDOK
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check shapely==2.1.2 pyproj==3.7.2
+          python tools/generate_authoritative_coverage.py
+      - name: Validate runtime geometry
+        run: |
+          python - <<'PY'
+          import importlib.util, sys
+          from pathlib import Path
+          path=Path("custom_components/osm_parking/coverage_geometry.py")
+          spec=importlib.util.spec_from_file_location("coverage_geometry_under_test",path)
+          module=importlib.util.module_from_spec(spec);sys.modules[spec.name]=module;spec.loader.exec_module(module)
+          exact=module.load_coverage("netherlands_brk.geojson")
+          buffered=module.load_coverage("netherlands_rdw_10km.geojson")
+          for lat,lon in ((52.3676,4.9041),(51.9244,4.4777),(50.8514,5.6910),(53.2194,6.5665),(52.2215,6.8937)):
+              assert exact.contains(lat,lon) and buffered.contains(lat,lon)
+          for lat,lon in ((50.9375,6.9603),(51.2277,6.7735),(51.5136,7.4653),(50.1109,8.6821)):
+              assert not exact.contains(lat,lon) and not buffered.contains(lat,lon)
+          assert not exact.contains(50.7753,6.0839)
+          assert buffered.contains(50.7753,6.0839)
+          assert "directly from the official BRK Landgebied" in buffered.properties["generation_note"]
+          print("DIRECT_AUTHORITATIVE_GEOMETRY=PASS")
+          PY
+      - name: Commit only generated GeoJSON
+        run: |
+          set -euo pipefail
+          test "$(git ls-remote origin refs/heads/feat/authoritative-coverage-provider-research | cut -f1)" = "$GITHUB_SHA"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add custom_components/osm_parking/data/coverage/netherlands_brk.geojson custom_components/osm_parking/data/coverage/netherlands_rdw_10km.geojson
+          git diff --cached --check
+          git commit -m 'Regenerate Netherlands coverage directly from BRK [skip ci]'
+          git push origin HEAD:refs/heads/feat/authoritative-coverage-provider-research
