@@ -120,6 +120,44 @@ The wizard **only saves after its last relevant step**. If you reopen the integr
 
 All 14 setup languages support the four step titles, field labels, parking type and provider option labels, credential descriptions and validation errors. This change retains the same underlying config entry fields as older versions, so existing installations need no data migration.
 
+## Action: Find parking
+
+OSM Parking provides the read-only response action **`osm_parking.find_parking`**. It searches arbitrary coordinates with the same official providers, source-quality ranking, deduplication, access filtering and fallbacks used by the sensor, but it **does not change the configured destination, sensor state, dashboard, or sensor polling/retry cycle**.
+
+Only `latitude` and `longitude` are required. Optional `radius_m`, `parking_types`, `max_results` and `include_restricted` override the selected config entry for that call only. When omitted, those values come from the OSM Parking configuration. Provider enablement and API credentials always come from a loaded OSM Parking config entry.
+
+When exactly one OSM Parking config entry is loaded it is selected automatically. If multiple entries are loaded, choose `config_entry_id` in the action's **Provider settings** section.
+
+Example:
+
+```yaml
+- action: osm_parking.find_parking
+  data:
+    latitude: 50.110924
+    longitude: 8.682127
+    radius_m: 2000
+    parking_types:
+      - underground
+      - multi_storey
+      - park_and_ride
+    max_results: 5
+  response_variable: parking_search
+```
+
+The response contains:
+
+- `parkings`: ordered parking records. Each record can include name, latitude/longitude, distance, category, fee/access, capacity/free capacity, price, opening information, provider/source data and navigation links.
+- `count`: number of returned parking records.
+- `category_counts`: returned count for each supported category.
+- `providers_used`: successful sources that contributed to this search.
+- `partial_data` and `unavailable_sources`: whether some sources failed while other sources still returned usable parking.
+- `availability_counts`: counts of timestamp-verified live, reported and estimated records.
+- The effective radius, categories, per-category limit and restricted-parking setting.
+
+For example, after checking `{{ parking_search.count > 0 }}`, the closest parking name is `{{ parking_search.parkings[0].name }}`.
+
+A source outage does not invalidate healthy overlapping sources. If no usable source can complete the search, the action raises a normal Home Assistant action error instead of returning an error code inside the response.
+
 ## Destination entity
 
 The setup screen automatically scans Home Assistant and lists the entities that are currently usable as OSM Parking destinations.

@@ -29,7 +29,7 @@ from .services import async_register_services
 
 CARD_URL = f"/{DOMAIN}/osm-parking-map-card.js"
 CARD_PATH = Path(__file__).parent / "frontend" / "osm-parking-map-card.js"
-CARD_VERSION = "1.4.1"
+CARD_VERSION = "1.5.0"
 _CARD_BOOT_TOKEN = uuid.uuid4().hex[:10]
 CARD_RESOURCE_URL = f"{CARD_URL}?v={CARD_VERSION}-{_CARD_BOOT_TOKEN}"
 

@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.5.0
+
+### Coordinate parking response action
+
+- Added **`osm_parking.find_parking`**, a response-only Home Assistant action for searching arbitrary latitude/longitude coordinates and returning a structured `parkings` list.
+- Supports optional search radius, parking-type multiselect, maximum results per category, restricted/private parking, and a config-entry selector for provider settings and credentials.
+- If exactly one OSM Parking config entry is loaded, the action uses it automatically. Multiple loaded entries require an explicit selection.
+- Omitting optional search fields reuses the selected configuration's settings; action overrides are ephemeral and do not modify the config entry.
+- Reuses the same provider isolation, source-quality ranking, deduplication, regional fallback and access filtering as the normal sensor.
+- Action searches use a separate provider supervisor/backoff path and lock, so they do not mutate the sensor state, polling interval or recovery cycle.
+- Partial source failures return healthy parking records together with `partial_data` and `unavailable_sources`. Complete source failure raises a translated Home Assistant error.
+- Added action/field/error translations in all supported integration languages and a graphical `services.yaml` action form.
+- Added isolated service-action tests plus a real coordinator contract proving coordinate searches leave sensor state unchanged.
+
+### Compatibility
+
+The four-step configuration flow, credentials, automatic Athens GIS handling, type-icon map markers, folded result behavior and dashboard card remain otherwise unchanged. No configuration migration is required.
+
 ## v1.4.1
 
 ### Parking-type icons
