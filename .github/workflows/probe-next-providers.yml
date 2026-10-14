@@ -30,15 +30,19 @@ jobs:
           raw=get('https://feed.vdl.lu/circulation/parking/feed.json', accept='application/json')
           data=json.loads(raw)
           print('VDL TYPE',type(data).__name__)
+          print('VDL TOP',json.dumps(data,ensure_ascii=False)[:12000])
           if isinstance(data,dict):
-              print('VDL KEYS',list(data)[:40])
-              for k,v in data.items():
-                  if isinstance(v,list):
-                      print('VDL LISTKEY',k,'COUNT',len(v))
-                      if v: print('VDL SAMPLE',json.dumps(v[0],ensure_ascii=False)[:5000])
-          elif isinstance(data,list):
-              print('VDL COUNT',len(data))
-              if data: print('VDL SAMPLE',json.dumps(data[0],ensure_ascii=False)[:5000])
+              parking=data.get('parking')
+              print('VDL PARKING TYPE',type(parking).__name__)
+              if isinstance(parking,dict):
+                  print('VDL PARKING KEYS',list(parking)[:80])
+                  for k,v in parking.items():
+                      if isinstance(v,list):
+                          print('VDL PARKING LIST',k,'COUNT',len(v))
+                          if v: print('VDL PARKING SAMPLE',json.dumps(v[0],ensure_ascii=False)[:8000])
+              elif isinstance(parking,list):
+                  print('VDL PARKING COUNT',len(parking))
+                  if parking: print('VDL PARKING SAMPLE',json.dumps(parking[0],ensure_ascii=False)[:8000])
           # CFL list + first two details
           raw=get('https://pr-mobile-a.cfl.lu/OpenData/ParkAndRide/', accept='application/json')
           cfl=json.loads(raw)
@@ -67,8 +71,8 @@ jobs:
               vals={child.tag:(child.text or '') for child in list(item)}
               print('ZURICH ITEM',json.dumps(vals,ensure_ascii=False)[:5000])
           # Zurich official garage geography
-          zgeo_url='https://www.stadt-zuerich.ch/geodaten/download/Oeffentlich_zugaengliche_Parkhaeuser?format=10009'
-          zgraw=get(zgeo_url, accept='application/geo+json,application/json,*/*')
+          zgeo_url='https://www.stadt-zuerich.ch/geodaten/download/Oeffentlich_zugaengliche_Parkhaeuser?format=geojson_link'
+          zgraw=get(zgeo_url, accept='application/geo+json,application/json,text/plain,*/*')
           try:
               zgeo=json.loads(zgraw)
               print('ZURICH GEO TYPE',zgeo.get('type'),'COUNT',len(zgeo.get('features',[])))
