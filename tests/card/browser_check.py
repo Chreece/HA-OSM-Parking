@@ -56,6 +56,10 @@ with sync_playwright() as p:
         page.wait_for_function('window.card?._map?.loaded() && window.card?._pins?.size===5',timeout=30000)
         report['maplibre_version']=page.evaluate('window.maplibregl.getVersion()')
         assert report['maplibre_version']=='5.6.2',report['maplibre_version']
+        assert not page.locator('.results-panel').is_visible()
+        assert page.locator('.results-toggle').get_attribute('aria-expanded')=='false'
+        page.locator('.results-toggle').click()
+        checked('new card starts folded; manual disclosure opens results')
         assert page.locator('.result-card').count()==5
         assert page.locator('.map').evaluate('(e)=>e.getBoundingClientRect().height')==220
         checked('real MapLibre + actual bundled card + compact 220px map')
@@ -127,6 +131,7 @@ with sync_playwright() as p:
         checked('browser-local filters survive reload without HA service calls')
         page.evaluate("window.ha={...window.ha,user:{id:'different-user'}};window.card.hass=window.ha")
         assert page.locator('.result-card').count()==5
+        assert not page.locator('.results-panel').is_visible()
         checked('preferences are isolated when Home Assistant user changes')
         page.evaluate("window.ha={...window.ha,user:{id:'preview-user'}};window.card.hass=window.ha")
         assert page.locator('.result-card').count()==1
@@ -139,6 +144,7 @@ with sync_playwright() as p:
         page.evaluate("() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))")
         assert page.locator('osm-parking-map-card').get_attribute('data-mode')=='light'
         assert page.locator('.osm-park-marker').count()==5
+        page.locator('.results-toggle').click()
         page.screenshot(path=str(OUT/'desktop-light.png'),full_page=True)
         report['screenshots'].append('desktop-light.png')
         page.evaluate('window.applyTheme(true)')
@@ -150,6 +156,8 @@ with sync_playwright() as p:
         page.locator('.expand').click()
         assert page.locator('.map').evaluate('(e)=>e.getBoundingClientRect().height')==220
         checked('map expansion and collapse without rebuilding card')
+        if not page.locator('.results-panel').is_visible():
+            page.locator('.results-toggle').click()
         page.locator('.result-focus').first.click()
         assert page.locator('.result-card.selected').count()==1
         assert page.locator('.osm-park-marker.selected').count()==1

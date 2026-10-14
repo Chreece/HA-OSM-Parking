@@ -79,6 +79,7 @@ with sync_playwright() as p:
           scroller.append(document.querySelector('.preview-label'),host,footer);
           document.body.style.padding='0';document.body.style.margin='0';
         }''')
+        ready()  # Moving the shadow host reconnects the card.
         before = page.evaluate('window.card._map.getCenter().toArray().concat(window.card._map.getZoom())')
         key = page.evaluate('lastKey()')
         page.locator('.osm-park-marker').last.click()
@@ -112,7 +113,7 @@ with sync_playwright() as p:
             page.locator('.sort').select_option(mode)
             target = page.evaluate('lastKey()')
             previous = page.evaluate('revealCalls.length')
-            page.locator('.osm-park-marker').last.click()
+            page.evaluate('clickLast()')  # Marker DOM order need not equal current sort order.
             page.wait_for_function('(n)=>revealCalls.length===n', arg=previous+1)
             assert page.locator('.result-card.selected').get_attribute('data-key') == target
         checked('marker-to-row reveal remains correct after sorting')

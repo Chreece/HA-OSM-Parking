@@ -17,12 +17,15 @@ ROWS = {
 'zh-Hans':'搜索停车场…|筛选|清除筛选|显示全部结果|展开 / 缩小地图|主题|自动|浅色|深色|排序方式|全部|未知|空位数据|仅显示有实时空位的停车场|最大距离（米）|没有匹配的停车场|减少筛选条件或清除搜索。|详情|地图不可用，停车结果仍可使用。|价格未知|实时|报告值|估算|预测|仅位置|距离最近|停车类型|名称排序|免费优先|空位最多|数据质量|来源',
 'ja':'駐車場を検索…|絞り込み|条件をクリア|結果を地図に表示|地図を拡大 / 縮小|テーマ|自動|ライト|ダーク|並び順|すべて|不明|空き情報|リアルタイムで空きがある場所のみ|最大距離（m）|一致する駐車場がありません|条件を減らすか検索をクリアしてください。|詳細|地図を利用できません。検索結果は利用できます。|料金不明|リアルタイム|報告値|推定|予測|位置のみ|近い順|駐車場の種類|名前順|無料優先|空きが多い順|データ品質|情報元'
 }
+DISCLOSURE_LABELS = {'en': ['Show results', 'Hide results'], 'el': ['Εμφάνιση αποτελεσμάτων', 'Απόκρυψη αποτελεσμάτων'], 'de': ['Ergebnisse anzeigen', 'Ergebnisse ausblenden'], 'es': ['Mostrar resultados', 'Ocultar resultados'], 'fr': ['Afficher les résultats', 'Masquer les résultats'], 'it': ['Mostra risultati', 'Nascondi risultati'], 'nl': ['Resultaten tonen', 'Resultaten verbergen'], 'pl': ['Pokaż wyniki', 'Ukryj wyniki'], 'pt': ['Mostrar resultados', 'Ocultar resultados'], 'pt-BR': ['Mostrar resultados', 'Ocultar resultados'], 'ru': ['Показать результаты', 'Скрыть результаты'], 'tr': ['Sonuçları göster', 'Sonuçları gizle'], 'zh-Hans': ['显示结果', '隐藏结果'], 'ja': ['結果を表示', '結果を非表示']}
+
 def translations():
     out={}
     for locale,row in ROWS.items():
         values=row.split('|')
         assert len(values)==len(KEYS),(locale,len(values),len(KEYS))
         out[locale]=dict(zip(KEYS,values))
+        out[locale].update(zip(('show_results','hide_results'),DISCLOSURE_LABELS[locale]))
     return out
 if __name__=='__main__':
     print(json.dumps(translations(),ensure_ascii=False,indent=2))

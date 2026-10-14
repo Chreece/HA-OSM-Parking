@@ -371,6 +371,8 @@ remember_filters: true
 
 `show_filters: false` hides the controls, `show_list: false` preserves map-only display, and `show_zones: false` hides zone boundaries. `remember_filters: false` disables browser-local preferences. For multiple cards using the same entity, set distinct `preference_key` values for independent preferences. Preferences are never written to the integration or shared across Home Assistant users.
 
+The results list starts **collapsed** on each new card load. The map, search, filters and sorting stay usable. Click a parking marker to expand the list, highlight that exact facility and scroll it into view. This does not reset the map camera or expand every result's details. Use **Show results / Hide results** to fold the list manually. Expansion survives ordinary data/theme/filter updates but is not persisted across a reload. Keyboard activation and reduced-motion preferences are respected. An explicit `show_list: false` retains map-only mode, without auto-expansion.
+
 Map markers and rows share the same visible numbering. Click a result to focus its marker; use the navigation link to open directions. Refresh is explicit; changing filters does not call Home Assistant update services. Pan/zoom is retained during ordinary updates. The fit button resets the view to visible results and the destination.
 
 Design references: [OpenFreeMap styles](https://openfreemap.org/quick_start/), [MapLibre map API](https://maplibre.org/maplibre-gl-js/docs/API/classes/Map/), and [W3C pointer target sizing](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html). Existing source timestamps, attribution, zone warnings, source-selection and deduplication remain authoritative.

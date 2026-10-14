@@ -53,12 +53,16 @@ function osmCleanPrefs(value={}, defaultSort='distance') {
     sort:OSM_EXPLORER_SORTS.includes(value.sort)?value.sort:defaultSort};
 }
 
+let osmResultsRegionId = 0;
+
 class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
   static getStubConfig() { return {entity:'sensor.parking_suggestions',map_height:220,theme_mode:'auto',show_list:true}; }
   setConfig(config) {
     if (!config?.entity) throw new Error('Please define an entity');
     this._dispose();
     this._originalConfig = {...config};
+    // Expansion is view state, not a saved preference: every new card starts folded.
+    this._resultsExpanded=false; this._contentVisible=false;
     const height=Number(config.map_height ?? config.height ?? 220);
     this._ui=osmCleanPrefs({},OSM_EXPLORER_SORTS.includes(config.sort_by)?config.sort_by:'distance');
     this._prefKey=null; this._selected=null; this._rows=new Map(); this._pins=new Map();
@@ -89,6 +93,7 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     this._media?.removeEventListener?.('change',this._mediaHandler);
     cancelAnimationFrame(this._resizeFrame); cancelAnimationFrame(this._renderFrame);
     clearTimeout(this._styleTimer);
+    this._cancelResultReveal();
     this._cancelMapWait?.(); this._cancelMapWait=null;
     this._popup?.remove(); this._popup=null;
     this._clearMapPins();
@@ -119,6 +124,8 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     const key=`osm-parking-explorer:v1:${this._hass?.user?.id || 'local'}:${this.config.entity}:${this.config.preference_key || this.config.title || ''}`;
     if(key===this._prefKey) return;
     this._prefKey=key;
+    this._resultsExpanded=false; this._cancelResultReveal();
+    this._selected=null; this._popup?.remove();
     this._ui=osmCleanPrefs({},this._originalConfig.sort_by || 'distance');
     if(this.config.remember_filters && this.config.show_filters!==false) {
       try { this._ui=osmCleanPrefs(JSON.parse(localStorage.getItem(key)||'{}'),this._originalConfig.sort_by || 'distance'); } catch(_) { /* Private browsing can deny storage. */ }
@@ -159,6 +166,15 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
       <button type="button" class="reset-filters" hidden></button>`;
     frame.after(tools);
     const empty=document.createElement('div');empty.className='filter-empty';empty.hidden=true;this._els.list.before(empty);
+    const results=document.createElement('section');results.className='results-panel';
+    results.id=`osm-parking-results-${++osmResultsRegionId}`;results.hidden=true;
+    const toggle=document.createElement('button');toggle.type='button';toggle.className='results-toggle';
+    toggle.setAttribute('aria-controls',results.id);toggle.setAttribute('aria-expanded','false');
+    const caption=document.createElement('span');caption.className='results-toggle-label';
+    const chevron=document.createElement('span');chevron.className='results-chevron';chevron.setAttribute('aria-hidden','true');chevron.textContent='⌄';
+    toggle.append(caption,chevron);empty.before(toggle,results);results.append(empty,this._els.list);
+    this._els.results=results;this._els['results-toggle']=toggle;
+    toggle.addEventListener('click',()=>this._setResultsExpanded(!this._resultsExpanded));
     this._els.frame=frame;this._els.tools=tools;this._els.note=note;this._els.empty=empty;
     for(const name of ['search','cost','quality','source','sort','max-distance','available','filter-toggle','filters-panel','type-chips','result-count','reset-filters','refresh','fit','theme','expand']) this._els[name]=this.querySelector('.'+name);
     this._els.search.addEventListener('input',()=>{this._ui.query=this._els.search.value;this._filterChanged();});
@@ -181,8 +197,51 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     });
   }
   _resetFilters() { const sort=this._ui.sort;this._ui=osmCleanPrefs({sort});this._filterChanged(); }
+  _cancelResultReveal() {
+    cancelAnimationFrame(this._revealFrame);this._revealFrame=null;
+  }
+  _syncResultsDisclosure() {
+    const e=this._els;if(!e?.results) return;
+    const allowed=this._contentVisible && this.config.show_list!==false;
+    e.results.hidden=!allowed || !this._resultsExpanded;
+    e['results-toggle'].hidden=!allowed;
+    e['results-toggle'].setAttribute('aria-expanded',String(allowed && this._resultsExpanded));
+    e['results-toggle'].querySelector('.results-toggle-label').textContent=
+      `${this._xt(this._resultsExpanded?'hide_results':'show_results')} (${this._visible?.length || 0})`;
+    e.results.setAttribute('aria-label',this._t('suggestions'));
+  }
+  _setResultsExpanded(expanded) {
+    this._resultsExpanded=expanded && this.config.show_list!==false;
+    if(!this._resultsExpanded) {
+      this._cancelResultReveal();
+      // Avoid leaving keyboard focus inside a section we are about to hide.
+      const active=this.getRootNode().activeElement;
+      if(active && this._els.results.contains(active)) this._els['results-toggle'].focus({preventScroll:true});
+    }
+    this._syncResultsDisclosure();
+  }
+  _revealResult(key, keyboard=false) {
+    this._cancelResultReveal();
+    if(this.config.show_list===false || !this._contentVisible) return;
+    this._setResultsExpanded(true);
+    const epoch=this._epoch;
+    // Resolve by stable facility key, not marker number: sorting may change
+    // before the formerly hidden panel participates in layout.
+    this._revealFrame=requestAnimationFrame(()=>{
+      this._revealFrame=null;
+      if(epoch!==this._epoch || !this.isConnected || !this._contentVisible || !this._resultsExpanded || this._selected!==key) return;
+      const row=this._rows.get(key);
+      if(!row?.isConnected || !this._visible.some(item=>osmKey(item)===key)) return;
+      if(keyboard) row.querySelector('.result-focus')?.focus({preventScroll:true});
+      row.scrollIntoView({block:'nearest',inline:'nearest',behavior:
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+    });
+  }
   _setContentVisible(visible) {
     if(!this._els) return;
+    this._contentVisible=visible;
+    if(!visible) this._cancelResultReveal();
+    this._syncResultsDisclosure();
     this._els.frame.hidden=!visible;
     this._els.tools.hidden=!visible || this.config.show_filters===false;
     this._els.list.hidden=!visible || this.config.show_list===false;
@@ -272,6 +331,7 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
       const button=document.createElement('button');button.type='button';button.className='filter-toggle';button.textContent=all.length?this._xt('reset'):this._st('settings');button.onclick=()=>all.length?this._resetFilters():this._openSettings();e.empty.append(title,body,button);
     }
     this._renderList(this._visible);
+    this._syncResultsDisclosure();
   }
   _qualityText(item) {
     const kind=osmKind(item),free=osmFree(item);
@@ -305,11 +365,19 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     });
     for(const [key,row] of this._rows) if(!keep.has(key)) {row.remove();this._rows.delete(key);}
   }
-  _focusItem(key) {
-    this._selected=key;
+  _focusItem(key, {fromMap=false, keyboard=false}={}) {
+    const item=this._visible.find(i=>osmKey(i)===key);
+    if(!item) return;
+    this._cancelResultReveal();this._selected=key;
     this._renderList(this._visible);this._syncMarkers();
-    const item=this._visible.find(i=>osmKey(i)===key),pin=this._pins.get(key);
-    if(!item || !this._map || !pin) return;
+    const pin=this._pins.get(key);
+    if(fromMap && this.config.show_list!==false) {
+      // Marker selection reveals the list, without competing popup/camera
+      // movement. List selection retains the existing map-focus action.
+      this._popup?.remove();this._popup=null;
+      this._revealResult(key,keyboard);return;
+    }
+    if(!this._map || !pin) return;
     this._map.easeTo({center:[Number(item.longitude),Number(item.latitude)],zoom:Math.max(this._map.getZoom(),16),duration:window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:250});
     this._popup?.remove();this._popup=pin.popup;this._popup.setLngLat([Number(item.longitude),Number(item.latitude)]).addTo(this._map);
   }
@@ -369,8 +437,8 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     (this._visible || []).forEach((item,index)=>{
       const ilat=osmNumber(item.latitude),ilon=osmNumber(item.longitude);if(ilat===null || ilon===null || Math.abs(ilat)>90 || Math.abs(ilon)>180) return;
       const key=osmKey(item);keep.add(key);let pin=this._pins.get(key);
-      if(!pin) {const button=document.createElement('button');button.type='button';button.className='osm-park-marker';button.onclick=()=>this._focusItem(key);
-        const popup=new maplibregl.Popup({offset:20,maxWidth:'280px'});
+      if(!pin) {const button=document.createElement('button');button.type='button';button.className='osm-park-marker';button.onclick=event=>{event.stopPropagation();this._focusItem(key,{fromMap:true,keyboard:event.detail===0});};
+        const popup=new maplibregl.Popup({offset:20,maxWidth:'280px',focusAfterOpen:false});
         const marker=new maplibregl.Marker({element:button}).setLngLat([ilon,ilat]).addTo(this._map);pin={marker,button,popup};this._pins.set(key,pin);}
       pin.marker.setLngLat([ilon,ilat]);pin.button.textContent=String(index+1);pin.button.title=String(item.name || this._t('parking'));
       pin.button.setAttribute('aria-label',`${index+1}. ${pin.button.title}`);pin.button.classList.toggle('selected',key===this._selected);

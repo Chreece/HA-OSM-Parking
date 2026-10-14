@@ -2,6 +2,13 @@
 
 ## v1.4.0
 
+### Map-first result browsing
+
+- Results start folded on a fresh card load; the map and local filter/sort controls remain visible.
+- Clicking or keyboard-activating a parking marker expands the list, highlights the matching stable facility and scrolls it into view. It does not change the map camera or request new data.
+- Added a localized Show/Hide results button in all 14 card languages. Ordinary updates preserve expansion without scrolling again; reloading starts folded.
+- Preserve explicit map-only mode, list-to-map focus, reduced-motion scrolling, source deduplication and the pending provider-resilience changes below.
+
 ### Automatic sources and fault isolation
 
 - Removed the manual Athens GIS switch from setup and options in all 14 languages. Usable official polygons are selected automatically only around Athens, ignoring obsolete manual flags.
