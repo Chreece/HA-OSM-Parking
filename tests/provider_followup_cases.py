@@ -5,6 +5,7 @@ from unittest.mock import patch
 import provider_safety_cases as support
 from custom_components.osm_parking.providers import resilient_http as http
 from custom_components.osm_parking.providers.toulouse import ToulouseParkingProvider
+from custom_components.osm_parking.providers.netherlands_rdw import NetherlandsRdwProvider
 
 
 class Followup(unittest.IsolatedAsyncioTestCase):
@@ -68,6 +69,30 @@ class Followup(unittest.IsolatedAsyncioTestCase):
         rows = [None, {'id': 'bad', 'ylat': [], 'xlong': {}}, self.record()]
         valid = ToulouseParkingProvider._catalog({'results': rows, 'total_count': 3})
         self.assertEqual(valid, [self.record()])
+
+    def test_rdw_country_shape_keeps_dutch_coverage_without_querying_german_cities(self):
+        provider = NetherlandsRdwProvider()
+        for lat, lon, name in (
+            (52.3676, 4.9041, "Amsterdam"),
+            (51.9244, 4.4777, "Rotterdam"),
+            (50.8514, 5.6910, "Maastricht"),
+            (53.2194, 6.5665, "Groningen"),
+            (52.2215, 6.8937, "Enschede"),
+            # Border buffer: a search near Aachen can legitimately include
+            # Dutch parking within the integration's maximum 10 km radius.
+            (50.7753, 6.0839, "Aachen-border"),
+        ):
+            with self.subTest(place=name):
+                self.assertTrue(provider.applies(lat, lon))
+
+        for lat, lon, name in (
+            (50.9375, 6.9603, "Cologne"),
+            (51.2277, 6.7735, "Dusseldorf"),
+            (51.5136, 7.4653, "Dortmund"),
+            (50.1109, 8.6821, "Frankfurt"),
+        ):
+            with self.subTest(place=name):
+                self.assertFalse(provider.applies(lat, lon))
 
 
 if __name__ == '__main__':
