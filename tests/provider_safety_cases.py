@@ -260,6 +260,51 @@ class Safety(unittest.IsolatedAsyncioTestCase):
         hass=types.SimpleNamespace(states=types.SimpleNamespace(get=lambda _:state),session=Session(),is_stopping=False)
         return coordinator.OsmParkingCoordinator(hass,types.SimpleNamespace(data={'destination_entity':'sensor.dest'},options={}))
 
+    async def test_coordinate_action_search_is_read_only_and_uses_separate_supervisor(self):
+        c = self.coordinator()
+        c.data = {"sentinel": "sensor-state"}
+        c.update_interval = None
+        c._query_overpass = AsyncMock(return_value=({
+            "elements": [
+                {
+                    "type": "node",
+                    "id": 77,
+                    "lat": 37.98,
+                    "lon": 23.73,
+                    "tags": {
+                        "amenity": "parking",
+                        "parking": "underground",
+                    },
+                },
+                {
+                    "type": "node",
+                    "id": 78,
+                    "lat": 37.981,
+                    "lon": 23.731,
+                    "tags": {
+                        "amenity": "parking",
+                        "parking": "surface",
+                    },
+                },
+            ]
+        }, "osm"))
+        before_sensor_status = dict(c._provider_supervisor.status)
+        with patch.object(coordinator, "PROVIDERS", []):
+            result = await c.async_search_coordinates(
+                37.98,
+                23.73,
+                radius_m=1000,
+                parking_types=["underground"],
+                max_results=2,
+                include_restricted=False,
+            )
+        self.assertEqual(len(result["suggestions"]), 1)
+        self.assertEqual(result["suggestions"][0]["category"], "underground")
+        self.assertEqual(result["parking_types"], ["underground"])
+        self.assertEqual(c.data, {"sentinel": "sensor-state"})
+        self.assertIsNone(c.update_interval)
+        self.assertEqual(c._provider_supervisor.status, before_sensor_status)
+
     async def test_real_coordinator_bad_provider_keeps_osm(self):
         c=self.coordinator();raw={'elements':[None,{'type':'node','id':3,'lat':37.98,'lon':23.73,'tags':{'amenity':'parking'}}]}
         c._query_overpass=AsyncMock(return_value=(raw,'osm'))
