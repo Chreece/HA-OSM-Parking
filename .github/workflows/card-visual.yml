@@ -32,7 +32,7 @@ jobs:
         run: |
           python3 tools/card/build.py --check
           node --check custom_components/osm_parking/frontend/osm-parking-map-card.js
-          node --test tests/card/filter.test.cjs
+          node --test tests/card/filter.test.cjs tests/card/type_icons.test.cjs
           python3 -m unittest discover -s tests -v
       - name: Install isolated browser test dependencies
         run: |
@@ -44,6 +44,7 @@ jobs:
           python3 tests/card/browser_check.py
           python3 tests/card/map_controls_check.py
           python3 tests/card/results_disclosure_check.py
+          python3 tests/card/type_icons_check.py
       - name: Record source fingerprints
         if: always()
         run: |
