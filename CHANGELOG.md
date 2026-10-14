@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.5.1
+
+### Provider selection transparency
+
+- Split provider diagnostics into **queried**, **contributing** and **winning** stages.
+- `providers_queried` now lists only sources that were actually contacted after geographic, credential, enablement and retry-cooldown checks.
+- `providers_contributing` lists successful sources that returned at least one usable parking facility or zone before deduplication and result limits.
+- `winning_sources` lists providers whose record won deduplication and survives in the final parking list.
+- Kept `providers_used` for backward compatibility, but it now aliases `winning_sources` instead of meaning merely “successful request”.
+- The `osm_parking.find_parking` action returns all three provider stages as well.
+
+### Netherlands RDW selection
+
+- Replaced the previous broad Netherlands rectangle with several conservative Netherlands-shaped coverage bands plus a small border buffer for searches near the national border.
+- Dutch coverage such as Amsterdam, Rotterdam, Maastricht, Groningen and Enschede remains enabled, including a narrow cross-border search margin near Aachen.
+- Cologne, Düsseldorf, Dortmund and Frankfurt no longer trigger RDW.
+- The RDW API still applies the requested radius to actual returned facilities, so the geofence only controls whether the provider is worth contacting.
+
+### Compatibility
+
+No configuration migration is required. Provider result normalization, source-quality ranking, deduplication, credentials, the coordinate response action and the dashboard UI remain otherwise unchanged.
+
 ## v1.5.0
 
 ### Coordinate parking response action
