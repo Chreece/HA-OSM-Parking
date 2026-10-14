@@ -137,5 +137,66 @@
         "ura": "启用新加坡 URA 停车场（需要访问密钥）"
       }
     }
+  },
+  "services": {
+    "find_parking": {
+      "name": "查找停车场",
+      "description": "按坐标搜索周边停车场并返回结构化列表，不会更改已配置的目的地或传感器状态。",
+      "fields": {
+        "latitude": {
+          "name": "纬度",
+          "description": "搜索点的纬度。"
+        },
+        "longitude": {
+          "name": "经度",
+          "description": "搜索点的经度。"
+        },
+        "radius_m": {
+          "name": "搜索半径",
+          "description": "可选。留空则使用所选 OSM Parking 配置的半径。"
+        },
+        "parking_types": {
+          "name": "停车类型",
+          "description": "可选。留空则使用配置中启用的停车类型。"
+        },
+        "max_results": {
+          "name": "每类最大结果数",
+          "description": "可选。留空则使用已配置的每类上限。"
+        },
+        "include_restricted": {
+          "name": "包含私人/限制停车",
+          "description": "可选。留空则使用已保存的设置。"
+        },
+        "config_entry_id": {
+          "name": "OSM Parking 配置",
+          "description": "要使用的提供方设置和 API 凭据。如果只加载了一个配置，可留空。"
+        }
+      },
+      "sections": {
+        "provider_settings": {
+          "name": "提供方设置"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "action_entry_not_found": {
+      "message": "所选 OSM Parking 配置不存在。"
+    },
+    "action_entry_not_loaded": {
+      "message": "所选 OSM Parking 配置未加载。"
+    },
+    "action_no_loaded_entry": {
+      "message": "没有可用的已加载 OSM Parking 配置。"
+    },
+    "action_multiple_loaded_entries": {
+      "message": "加载了多个 OSM Parking 配置，请选择一个。"
+    },
+    "action_invalid_search_options": {
+      "message": "停车搜索选项无效。"
+    },
+    "action_search_failed": {
+      "message": "无法从任何可用来源获取停车数据。"
+    }
   }
 }

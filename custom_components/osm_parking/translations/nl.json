@@ -137,5 +137,66 @@
         "ura": "Singapore URA-parkeerplaatsen inschakelen (sleutel vereist)"
       }
     }
+  },
+  "services": {
+    "find_parking": {
+      "name": "Parkeren zoeken",
+      "description": "Zoekt parkeerplaatsen rond coördinaten en geeft een gestructureerde lijst terug zonder bestemming of sensorstatus te wijzigen.",
+      "fields": {
+        "latitude": {
+          "name": "Breedtegraad",
+          "description": "Breedtegraad van het zoekpunt."
+        },
+        "longitude": {
+          "name": "Lengtegraad",
+          "description": "Lengtegraad van het zoekpunt."
+        },
+        "radius_m": {
+          "name": "Zoekradius",
+          "description": "Optioneel. Leeg laten om de radius van de gekozen OSM Parking-configuratie te gebruiken."
+        },
+        "parking_types": {
+          "name": "Parkeersoorten",
+          "description": "Optioneel. Leeg laten om de ingeschakelde typen uit de configuratie te gebruiken."
+        },
+        "max_results": {
+          "name": "Maximum per categorie",
+          "description": "Optioneel. Leeg laten om de ingestelde limiet per categorie te gebruiken."
+        },
+        "include_restricted": {
+          "name": "Privé/beperkt parkeren meenemen",
+          "description": "Optioneel. Leeg laten om de opgeslagen instelling te gebruiken."
+        },
+        "config_entry_id": {
+          "name": "OSM Parking-configuratie",
+          "description": "Providerinstellingen en API-gegevens. Leeg laten als precies één configuratie geladen is."
+        }
+      },
+      "sections": {
+        "provider_settings": {
+          "name": "Providerinstellingen"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "action_entry_not_found": {
+      "message": "De gekozen OSM Parking-configuratie bestaat niet."
+    },
+    "action_entry_not_loaded": {
+      "message": "De gekozen OSM Parking-configuratie is niet geladen."
+    },
+    "action_no_loaded_entry": {
+      "message": "Er is geen geladen OSM Parking-configuratie beschikbaar."
+    },
+    "action_multiple_loaded_entries": {
+      "message": "Er zijn meerdere OSM Parking-configuraties geladen. Selecteer er één."
+    },
+    "action_invalid_search_options": {
+      "message": "De zoekopties zijn ongeldig."
+    },
+    "action_search_failed": {
+      "message": "Parkeerdata kon uit geen bruikbare bron worden opgehaald."
+    }
   }
 }

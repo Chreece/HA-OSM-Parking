@@ -137,5 +137,66 @@
         "ura": "Singapur URA otoparklarını etkinleştir (anahtar gerekli)"
       }
     }
+  },
+  "services": {
+    "find_parking": {
+      "name": "Otopark bul",
+      "description": "Koordinatların çevresindeki otoparkları arar ve hedefi ya da sensör durumunu değiştirmeden yapılandırılmış bir liste döndürür.",
+      "fields": {
+        "latitude": {
+          "name": "Enlem",
+          "description": "Arama noktasının enlemi."
+        },
+        "longitude": {
+          "name": "Boylam",
+          "description": "Arama noktasının boylamı."
+        },
+        "radius_m": {
+          "name": "Arama yarıçapı",
+          "description": "İsteğe bağlı. Boş bırakırsanız seçilen OSM Parking ayarı kullanılır."
+        },
+        "parking_types": {
+          "name": "Otopark türleri",
+          "description": "İsteğe bağlı. Boş bırakırsanız yapılandırmada etkin türler kullanılır."
+        },
+        "max_results": {
+          "name": "Kategori başına maksimum",
+          "description": "İsteğe bağlı. Boş bırakırsanız yapılandırılmış sınır kullanılır."
+        },
+        "include_restricted": {
+          "name": "Özel/kısıtlı otoparkları dahil et",
+          "description": "İsteğe bağlı. Boş bırakırsanız kayıtlı ayar kullanılır."
+        },
+        "config_entry_id": {
+          "name": "OSM Parking yapılandırması",
+          "description": "Sağlayıcı ayarları ve API kimlik bilgileri. Yalnızca bir yapılandırma yüklüyse boş bırakın."
+        }
+      },
+      "sections": {
+        "provider_settings": {
+          "name": "Sağlayıcı ayarları"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "action_entry_not_found": {
+      "message": "Seçilen OSM Parking yapılandırması yok."
+    },
+    "action_entry_not_loaded": {
+      "message": "Seçilen OSM Parking yapılandırması yüklü değil."
+    },
+    "action_no_loaded_entry": {
+      "message": "Yüklü OSM Parking yapılandırması yok."
+    },
+    "action_multiple_loaded_entries": {
+      "message": "Birden fazla OSM Parking yapılandırması yüklü. Birini seçin."
+    },
+    "action_invalid_search_options": {
+      "message": "Arama seçenekleri geçersiz."
+    },
+    "action_search_failed": {
+      "message": "Kullanılabilir hiçbir kaynaktan otopark verisi alınamadı."
+    }
   }
 }

@@ -137,5 +137,66 @@
         "ura": "Singapore-URA-Parkplätze aktivieren (Zugangsschlüssel nötig)"
       }
     }
+  },
+  "services": {
+    "find_parking": {
+      "name": "Parkplätze finden",
+      "description": "Sucht Parkmöglichkeiten rund um Koordinaten und gibt eine strukturierte Liste zurück, ohne Ziel oder Sensorzustand zu ändern.",
+      "fields": {
+        "latitude": {
+          "name": "Breitengrad",
+          "description": "Breitengrad des Suchpunkts."
+        },
+        "longitude": {
+          "name": "Längengrad",
+          "description": "Längengrad des Suchpunkts."
+        },
+        "radius_m": {
+          "name": "Suchradius",
+          "description": "Optional. Leer lassen, um den Radius der gewählten OSM-Parking-Konfiguration zu verwenden."
+        },
+        "parking_types": {
+          "name": "Parkplatzarten",
+          "description": "Optional. Leer lassen, um die in der Konfiguration aktivierten Parkplatzarten zu verwenden."
+        },
+        "max_results": {
+          "name": "Maximale Ergebnisse pro Kategorie",
+          "description": "Optional. Leer lassen, um das konfigurierte Limit pro Kategorie zu verwenden."
+        },
+        "include_restricted": {
+          "name": "Private/eingeschränkte Parkplätze einbeziehen",
+          "description": "Optional. Leer lassen, um die gespeicherte Einstellung zu verwenden."
+        },
+        "config_entry_id": {
+          "name": "OSM-Parking-Konfiguration",
+          "description": "Provider-Einstellungen und API-Zugangsdaten. Leer lassen, wenn genau eine OSM-Parking-Konfiguration geladen ist."
+        }
+      },
+      "sections": {
+        "provider_settings": {
+          "name": "Provider-Einstellungen"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "action_entry_not_found": {
+      "message": "Die gewählte OSM-Parking-Konfiguration existiert nicht."
+    },
+    "action_entry_not_loaded": {
+      "message": "Die gewählte OSM-Parking-Konfiguration ist nicht geladen."
+    },
+    "action_no_loaded_entry": {
+      "message": "Es ist keine geladene OSM-Parking-Konfiguration verfügbar."
+    },
+    "action_multiple_loaded_entries": {
+      "message": "Mehrere OSM-Parking-Konfigurationen sind geladen. Wähle eine unter Provider-Einstellungen."
+    },
+    "action_invalid_search_options": {
+      "message": "Die Suchoptionen sind ungültig."
+    },
+    "action_search_failed": {
+      "message": "Parkdaten konnten von keiner nutzbaren Quelle geladen werden."
+    }
   }
 }
