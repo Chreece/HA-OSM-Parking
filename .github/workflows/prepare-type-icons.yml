@@ -28,6 +28,12 @@ jobs:
           test "$GITHUB_REF" = refs/heads/feat/parking-type-marker-icons
           test "$(git ls-remote origin refs/heads/main | cut -f1)" = fc1db8abc9a2f6c98951161336ddcdf5f2fb8f0e
           python tools/prepare_type_icons.py
+          python - <<'PY'
+          from pathlib import Path
+          for name in ('README.md', 'tools/card/guide.md'):
+              path = Path(name)
+              path.write_text(path.read_text(encoding='utf-8').rstrip() + '\n', encoding='utf-8')
+          PY
           python tools/card/build.py --check
           node --check custom_components/osm_parking/frontend/osm-parking-map-card.js
           python - <<'PY'
@@ -77,7 +83,7 @@ jobs:
           find tools tests custom_components -type d -name __pycache__ -prune -exec rm -rf {} +
           git add -- tools/card custom_components/osm_parking/frontend custom_components/osm_parking/__init__.py custom_components/osm_parking/manifest.json tests/card/browser_check.py .github/workflows/card-visual.yml README.md CHANGELOG.md assets/screenshots
           git diff --cached --check
-          git commit -m 'Show parking type icons and keep facility matching internal (v1.4.1) [skip ci]'
+          git commit -m 'Show parking type icons and keep facility matching internal (v1.4.1)'
           git push origin HEAD:refs/heads/feat/parking-type-marker-icons
           git rev-parse HEAD > card-evidence/tested-source-commit.txt
       - name: Preserve exact source and visual evidence
