@@ -27,7 +27,7 @@ jobs:
                   print('\nURL',url,'STATUS',r.status,'CTYPE',r.headers.get('content-type'),'BYTES',len(raw))
                   return raw
           # Luxembourg City
-          raw=get('https://feed.vdl.lu/circulation/parking/feed.json','application/json')
+          raw=get('https://feed.vdl.lu/circulation/parking/feed.json', accept='application/json')
           data=json.loads(raw)
           print('VDL TYPE',type(data).__name__)
           if isinstance(data,dict):
@@ -40,7 +40,7 @@ jobs:
               print('VDL COUNT',len(data))
               if data: print('VDL SAMPLE',json.dumps(data[0],ensure_ascii=False)[:5000])
           # CFL list + first two details
-          raw=get('https://pr-mobile-a.cfl.lu/OpenData/ParkAndRide/','application/json')
+          raw=get('https://pr-mobile-a.cfl.lu/OpenData/ParkAndRide/', accept='application/json')
           cfl=json.loads(raw)
           print('CFL LIST TYPE',type(cfl).__name__)
           print('CFL LIST SAMPLE',json.dumps(cfl[:2] if isinstance(cfl,list) else cfl,ensure_ascii=False)[:7000])
@@ -48,17 +48,17 @@ jobs:
           for item in rows[:2]:
               pid=item.get('id') if isinstance(item,dict) else None
               if pid:
-                  detail=json.loads(get('https://pr-mobile-a.cfl.lu/OpenData/ParkAndRide/'+str(pid),'application/json'))
+                  detail=json.loads(get('https://pr-mobile-a.cfl.lu/OpenData/ParkAndRide/'+str(pid), accept='application/json'))
                   print('CFL DETAIL',pid,json.dumps(detail,ensure_ascii=False)[:7000])
           # Basel
           base='https://data.bs.ch/api/explore/v2.1/catalog/datasets/100088/records?'+urlencode({'limit':100,'timezone':'Europe/Zurich'})
-          basel=json.loads(get(base,'application/json'))
+          basel=json.loads(get(base, accept='application/json'))
           print('BASEL KEYS',list(basel)[:20])
           print('BASEL COUNT',len(basel.get('results',[])),'TOTAL',basel.get('total_count'))
           for item in basel.get('results',[])[:3]:
               print('BASEL SAMPLE',json.dumps(item,ensure_ascii=False)[:6000])
           # Zurich RSS
-          zraw=get('https://www.pls-zh.ch/plsFeed/rss','application/xml,text/xml,*/*')
+          zraw=get('https://www.pls-zh.ch/plsFeed/rss', accept='application/xml,text/xml,*/*')
           print('ZURICH XML HEAD',zraw[:1500].decode('utf-8','replace'))
           root=ET.fromstring(zraw)
           items=root.findall('.//item')
@@ -68,7 +68,7 @@ jobs:
               print('ZURICH ITEM',json.dumps(vals,ensure_ascii=False)[:5000])
           # Zurich official garage geography
           zgeo_url='https://www.stadt-zuerich.ch/geodaten/download/Oeffentlich_zugaengliche_Parkhaeuser?format=10009'
-          zgraw=get(zgeo_url,'application/geo+json,application/json,*/*')
+          zgraw=get(zgeo_url, accept='application/geo+json,application/json,*/*')
           try:
               zgeo=json.loads(zgraw)
               print('ZURICH GEO TYPE',zgeo.get('type'),'COUNT',len(zgeo.get('features',[])))
