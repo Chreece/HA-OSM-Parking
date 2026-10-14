@@ -305,6 +305,62 @@ class Safety(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(c.update_interval)
         self.assertEqual(c._provider_supervisor.status, before_sensor_status)
 
+
+    async def test_provider_reporting_separates_queried_contributing_and_winning_sources(self):
+        c = self.coordinator()
+        c._query_overpass = AsyncMock(return_value=({
+            "elements": [{
+                "type": "node",
+                "id": 900,
+                "lat": 37.98,
+                "lon": 23.73,
+                "tags": {
+                    "amenity": "parking",
+                    "parking": "underground",
+                    "name": "Central Garage",
+                },
+            }]
+        }, "osm"))
+
+        empty = Provider("empty_source", Result("empty_source", []))
+        static = Provider(
+            "static_source",
+            Result("static_source", [row("static_source")]),
+        )
+        live_item = row(
+            "live_source",
+            availability_kind="live",
+            has_realtime_data=True,
+            capacity=100,
+            free_capacity=17,
+            realtime_updated_at=datetime.now(UTC).isoformat(),
+        )
+        live = Provider(
+            "live_source",
+            Result("live_source", [live_item]),
+        )
+
+        with patch.object(
+            coordinator,
+            "PROVIDERS",
+            [empty, static, live],
+        ):
+            data = await c._async_update_data()
+
+        self.assertEqual(
+            data["providers_queried"],
+            ["openstreetmap", "empty_source", "static_source", "live_source"],
+        )
+        self.assertEqual(
+            data["providers_contributing"],
+            ["openstreetmap", "static_source", "live_source"],
+        )
+        self.assertEqual(data["winning_sources"], ["live_source"])
+        self.assertEqual(data["providers_used"], ["live_source"])
+        self.assertEqual(len(data["suggestions"]), 1)
+        self.assertEqual(data["suggestions"][0]["provider"], "live_source")
+        self.assertEqual(data["suggestions"][0]["free_capacity"], 17)
+
     async def test_real_coordinator_bad_provider_keeps_osm(self):
         c=self.coordinator();raw={'elements':[None,{'type':'node','id':3,'lat':37.98,'lon':23.73,'tags':{'amenity':'parking'}}]}
         c._query_overpass=AsyncMock(return_value=(raw,'osm'))
