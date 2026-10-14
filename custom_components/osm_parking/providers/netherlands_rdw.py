@@ -5,20 +5,15 @@ from typing import Any
 
 from aiohttp import ClientError, ClientSession
 
+from ..coverage_geometry import load_coverage
 from .base import ProviderFetchResult, geo_uri, haversine_m, navigation_url
 
 PROVIDER_NAME = "Netherlands RDW Open Data"
-# Conservative Netherlands coverage bands with a small border buffer.
-# RDW's APIs still apply an exact radius query afterwards. Splitting the old
-# 50.70–53.75 / 3.15–7.35 rectangle avoids querying RDW from large parts of
-# western Germany (for example Cologne/Düsseldorf) while preserving Dutch
-# border areas where a <=10 km search can legitimately cross the border.
-_NETHERLANDS_COVERAGE_REGIONS = (
-    (50.65, 3.15, 51.30, 6.30),  # Zeeland, Brabant, Limburg + border buffer
-    (51.30, 3.15, 51.85, 6.75),  # South/central Netherlands
-    (51.85, 3.50, 52.50, 7.10),  # Randstad, Gelderland, Overijssel
-    (52.50, 4.25, 53.75, 7.35),  # North Netherlands + Wadden area
-)
+# Generated from the official Kadaster/PDOK BRK Landgebied geometry.
+# The 10 km buffer equals the integration's maximum search radius, allowing a
+# point just outside the border to discover Dutch parking without querying RDW
+# from unrelated German/Belgian cities. The file is bundled and checked offline.
+_RDW_COVERAGE_FILE = "netherlands_rdw_10km.geojson"
 
 DATASETS = (
     (
@@ -43,11 +38,8 @@ class NetherlandsRdwProvider:
     name = PROVIDER_NAME
 
     def applies(self, lat: float, lon: float) -> bool:
-        """Return whether coordinates plausibly overlap Dutch RDW coverage."""
-        return any(
-            south <= lat <= north and west <= lon <= east
-            for south, west, north, east in _NETHERLANDS_COVERAGE_REGIONS
-        )
+        """Return whether a search point overlaps authoritative Dutch coverage."""
+        return load_coverage(_RDW_COVERAGE_FILE).contains(lat, lon)
 
     async def async_fetch(
         self,
