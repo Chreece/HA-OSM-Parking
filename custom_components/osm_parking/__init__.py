@@ -25,6 +25,7 @@ from .const import (
     max_key,
 )
 from .coordinator import OsmParkingCoordinator
+from .services import async_register_services
 
 CARD_URL = f"/{DOMAIN}/osm-parking-map-card.js"
 CARD_PATH = Path(__file__).parent / "frontend" / "osm-parking-map-card.js"
@@ -116,6 +117,7 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
         pass
 
     await _async_register_card_resource(hass)
+    await async_register_services(hass)
     return True
 
 
