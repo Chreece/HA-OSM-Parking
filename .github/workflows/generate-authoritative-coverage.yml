@@ -33,8 +33,10 @@ jobs:
           import importlib.util
           from pathlib import Path
           path=Path("custom_components/osm_parking/coverage_geometry.py")
+          import sys
           spec=importlib.util.spec_from_file_location("coverage_geometry_under_test",path)
           module=importlib.util.module_from_spec(spec)
+          sys.modules[spec.name]=module
           spec.loader.exec_module(module)
           exact=module.load_coverage("netherlands_brk.geojson")
           buffered=module.load_coverage("netherlands_rdw_10km.geojson")
