@@ -129,6 +129,10 @@ def _response(search: dict[str, Any]) -> ServiceResponse:
         "max_results_per_category": search["max_results_per_category"],
         "include_restricted": search["include_restricted"],
         "category_counts": dict(search["category_counts"]),
+        "providers_queried": list(search.get("providers_queried", [])),
+        "providers_contributing": list(search.get("providers_contributing", [])),
+        "winning_sources": list(search.get("winning_sources", [])),
+        # Backward-compatible alias: since v1.5.1 "used" means final winners.
         "providers_used": list(search["providers_used"]),
         "partial_data": bool(search["partial_data"]),
         "unavailable_sources": unavailable,
