@@ -24,6 +24,16 @@ TARGETS = {
         {},
         "json",
     ),
+    "cfl_detail_mersch": (
+        "https://pr-mobile-a.cfl.lu/OpenData/ParkAndRide/FQMPE",
+        {},
+        "json",
+    ),
+    "cfl_datex": (
+        "https://pr-mobile-a.cfl.lu/DatexII",
+        {},
+        "xml",
+    ),
     "basel": (
         "https://data.bs.ch/api/explore/v2.1/catalog/datasets/100088/records",
         {"limit": "100"},
@@ -33,6 +43,11 @@ TARGETS = {
         "https://www.pls-zh.ch/plsFeed/rss",
         {},
         "xml",
+    ),
+    "zurich_static": (
+        "https://www.stadt-zuerich.ch/geodaten/download/Oeffentlich_zugaengliche_Parkhaeuser",
+        {"format": "geojson_link"},
+        "json",
     ),
 }
 
