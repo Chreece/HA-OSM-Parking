@@ -11,7 +11,7 @@ from locales import translations
 ROOT = Path(__file__).resolve().parents[2]
 UI = Path(__file__).resolve().parent
 PACKAGE = ROOT / 'custom_components/osm_parking'
-VERSION = '1.4.0'
+VERSION = '1.4.1'
 START = '// BEGIN OSM EXPLORER BUNDLE'
 END = '// END OSM EXPLORER BUNDLE'
 
@@ -27,7 +27,7 @@ def outputs():
     anchor = "if (!customElements.get('osm-parking-map-card')) {"
     assert text.count(anchor) == 1
     css = (UI / 'explorer.css').read_text(encoding='utf-8')
-    js = (UI / 'explorer.js').read_text(encoding='utf-8')
+    js = (UI / 'type_icons.js').read_text(encoding='utf-8') + '\n' + (UI / 'explorer.js').read_text(encoding='utf-8')
     bundle = (START + '\nconst OSM_EXPLORER_I18N = ' + json.dumps(translations(), ensure_ascii=False, separators=(',', ':'))
               + ';\nconst OSM_EXPLORER_CSS = ' + json.dumps(css, ensure_ascii=False)
               + ';\n' + js.rstrip() + '\n' + END + '\n')

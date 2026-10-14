@@ -4,7 +4,6 @@
 const OSM_EXPLORER_SORTS = ['distance', 'type', 'name', 'free_first', 'availability', 'data_quality', 'source'];
 const OSM_EXPLORER_KINDS = ['live', 'reported', 'estimated', 'predicted', 'static'];
 const OSM_EXPLORER_TYPES = ['paid', 'open', 'street', 'underground', 'multi_storey', 'park_and_ride', 'other'];
-const OSM_EXPLORER_ICONS = {paid:'mdi:cash',open:'mdi:parking',street:'mdi:road-variant',underground:'mdi:car-lifted-pickup',multi_storey:'mdi:office-building',park_and_ride:'mdi:train-car',other:'mdi:parking'};
 const osmNumber = value => value === null || value === undefined || typeof value === 'boolean' || typeof value === 'object' || (typeof value === 'string' && !value.trim()) ? null : (Number.isFinite(Number(value)) ? Number(value) : null);
 const osmKind = item => OSM_EXPLORER_KINDS.includes(item.availability_kind) ? item.availability_kind : (item.has_realtime_data ? 'live' : 'static');
 const osmFree = item => {
@@ -152,7 +151,7 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     const header=this.querySelector('.header');
     const titleBlock=header.firstElementChild; titleBlock.className='header-text';
     const emblem=document.createElement('div');emblem.className='explorer-emblem';emblem.textContent='P';emblem.setAttribute('aria-hidden','true');header.prepend(emblem);
-    this.querySelector('.headright').innerHTML='<button class="icon-button refresh" type="button"><ha-icon icon="mdi:refresh"></ha-icon></button><span class="version">v1.4.0</span>';
+    this.querySelector('.headright').innerHTML='<button class="icon-button refresh" type="button"><ha-icon icon="mdi:refresh"></ha-icon></button><span class="version">v1.4.1</span>';
     const frame=document.createElement('section');frame.className='map-frame';this._els.map.before(frame);frame.append(this._els.map);
     const actions=document.createElement('div');actions.className='map-actions';actions.innerHTML='<button type="button" class="icon-button fit"><ha-icon icon="mdi:fit-to-screen"></ha-icon></button><button type="button" class="icon-button theme"><ha-icon icon="mdi:theme-light-dark"></ha-icon></button><button type="button" class="icon-button expand"><ha-icon icon="mdi:arrow-expand"></ha-icon></button>';frame.append(actions);
     const note=document.createElement('div');note.className='map-note';note.hidden=true;note.setAttribute('role','status');frame.append(note);
@@ -340,7 +339,7 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     if(kind==='predicted') {const pct=osmNumber(item.predicted_occupancy_percent);return this._xt('predicted')+(pct!==null && pct>=0 && pct<=100?` · ${Math.round(pct)}%`:'');}
     return this._xt('static');
   }
-  _safeItem(item) {const copy={...item};for(const k of ['navigation_url','provider_url','osm_url','geo_uri']) copy[k]=this._url(copy[k]);return copy;}
+  _safeItem(item) {const copy={...item,name:String(item.name || '').trim() || this._t('parking')};for(const k of ['navigation_url','provider_url','osm_url','geo_uri']) copy[k]=this._url(copy[k]);return copy;}
   _renderList(items) {
     if(this.config.show_list===false) {this._els.list.hidden=true;return;}
     const keep=new Set();
@@ -352,14 +351,15 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
       if(row.dataset.signature!==signature) {
         const open=row.querySelector('details')?.open || false;
         const safe=this._safeItem(item),price=this._displayPrice(item),quality=this._qualityText(item),kind=osmKind(item);
-        row.innerHTML=`<button type="button" class="result-focus"><span class="result-number"></span><span class="result-body"><span class="result-title">${this._esc(item.name || this._t('parking'))}</span><span class="result-type"><ha-icon icon="${OSM_EXPLORER_ICONS[item.category] || 'mdi:parking'}"></ha-icon>${this._esc(this._labelType(item))}</span></span><span class="result-distance">${this._esc(this._distance(item.distance_m))}</span></button>
+        row.innerHTML=`<button type="button" class="result-focus"><span class="result-icon" aria-hidden="true">${osmTypeIconMarkup(item)}</span><span class="result-body"><span class="result-title">${this._esc(item.name || this._t('parking'))}</span><span class="result-type">${this._esc(this._labelType(item))}</span></span><span class="result-distance">${this._esc(this._distance(item.distance_m))}</span></button>
           <div class="result-meta"><span class="quality-badge ${kind}" title="${this._esc(kind==='reported'?this._qt('reported'):quality)}">${this._esc(quality)}</span>${this.config.show_price!==false?`<span class="cost-badge">${this._esc(price || this._xt('price_unknown'))}</span>`:''}</div>
           <div class="result-footer"><span class="result-source" title="${this._esc((Array.isArray(item.data_sources)?item.data_sources:[]).join(', '))}">${this._esc(item.provider_name || item.provider || 'OpenStreetMap')}${Number(item.deduplicated_source_count)>1?` · ${Number(item.deduplicated_source_count)} ${this._esc(this._qt('sources'))}`:''}</span>${safe.navigation_url?`<a class="navigate" href="${this._esc(safe.navigation_url)}" target="_blank" rel="noopener noreferrer" aria-label="${this._esc(this._t('navigate')+': '+(item.name || ''))}"><ha-icon icon="mdi:directions"></ha-icon>${this._esc(this._t('navigate'))}</a>`:''}</div>
           <details class="result-details" ${open?'open':''}><summary>${this._esc(this._xt('details'))}</summary><div>${this._popupHtml(safe,index)}</div></details>`;
         row.querySelector('.result-focus').onclick=()=>this._focusItem(key);
         row.dataset.signature=signature;
       }
-      row.querySelector('.result-number').textContent=String(index+1);
+      // Display order is internal metadata. Selection uses the stable key.
+      row.dataset.index=String(index);row.dataset.type=osmIconType(item);
       row.querySelector('.result-focus').setAttribute('aria-pressed',String(key===this._selected));row.classList.toggle('selected',key===this._selected);
       const atIndex=this._els.list.children[index];if(atIndex!==row) this._els.list.insertBefore(row,atIndex || null);
     });
@@ -440,8 +440,19 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
       if(!pin) {const button=document.createElement('button');button.type='button';button.className='osm-park-marker';button.onclick=event=>{event.stopPropagation();this._focusItem(key,{fromMap:true,keyboard:event.detail===0});};
         const popup=new maplibregl.Popup({offset:20,maxWidth:'280px',focusAfterOpen:false});
         const marker=new maplibregl.Marker({element:button}).setLngLat([ilon,ilat]).addTo(this._map);pin={marker,button,popup};this._pins.set(key,pin);}
-      pin.marker.setLngLat([ilon,ilat]);pin.button.textContent=String(index+1);pin.button.title=String(item.name || this._t('parking'));
-      pin.button.setAttribute('aria-label',`${index+1}. ${pin.button.title}`);pin.button.classList.toggle('selected',key===this._selected);
+      const type=osmIconType(item);
+      pin.marker.setLngLat([ilon,ilat]);
+      // Reuse the actual button so type changes cannot lose keyboard focus.
+      if(pin.button.dataset.type!==type) {
+        pin.button.innerHTML=osmTypeIconMarkup(item);pin.button.dataset.type=type;
+      }
+      pin.button.dataset.key=key;pin.button.dataset.index=String(index);
+      pin.marker._osmSuggestionIndex=index;
+      const label=this._translations().categories[type] || this._t('parking');
+      pin.button.title=`${label} · ${String(item.name || '').trim() || this._t('parking')}`;
+      pin.button.setAttribute('aria-label',pin.button.title);
+      pin.button.setAttribute('aria-pressed',String(key===this._selected));
+      pin.button.classList.toggle('selected',key===this._selected);
       pin.button.dataset.kind=osmKind(item);pin.popup.setHTML(this._popupHtml(this._safeItem(item),index));
     });
     for(const [key,pin] of this._pins) if(!keep.has(key)) {pin.marker.remove();pin.popup.remove();this._pins.delete(key);}
