@@ -213,7 +213,16 @@ class ZurichPlsProvider:
     ) -> ProviderFetchResult:
         static_task = self._static_sites(session)
         live_task = self._live(session)
-        static, live = await asyncio.gather(static_task, live_task)
+        static_result, live_result = await asyncio.gather(
+            static_task,
+            live_task,
+            return_exceptions=True,
+        )
+        if isinstance(static_result, BaseException):
+            raise static_result
+        static = static_result
+        # Geometry/capacity remain useful when the realtime RSS is down.
+        live = {} if isinstance(live_result, BaseException) else live_result
 
         suggestions = [
             item
