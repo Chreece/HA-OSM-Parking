@@ -149,7 +149,7 @@ The response contains:
 - `parkings`: ordered parking records. Each record can include name, latitude/longitude, distance, category, fee/access, capacity/free capacity, price, opening information, provider/source data and navigation links.
 - `count`: number of returned parking records.
 - `category_counts`: returned count for each supported category.
-- `providers_used`: successful sources that contributed to this search.
+- `providers_queried`: sources that were actually contacted for this search.\n- `providers_contributing`: successful sources that returned at least one usable facility or zone before deduplication/result limits.\n- `winning_sources`: sources whose parking record won deduplication and survived the final category/radius/result limits.\n- `providers_used`: backward-compatible alias of `winning_sources`.
 - `partial_data` and `unavailable_sources`: whether some sources failed while other sources still returned usable parking.
 - `availability_counts`: counts of timestamp-verified live, reported and estimated records.
 - The effective radius, categories, per-category limit and restricted-parking setting.
@@ -217,7 +217,15 @@ Technical error details are available in a collapsible section when useful.
 
 ## Parking data providers
 
-OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worldwide baseline.** Additional providers are queried only when the destination falls inside their geographic coverage. Public providers work automatically; credentialed providers remain optional.
+OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worldwide baseline.** Additional providers are considered from the search coordinates. A provider is queried only when its `applies(latitude, longitude)` coverage check passes, required credentials are available, it is enabled (when optional), and it is not in source-specific retry cooldown. Public providers work automatically; credentialed providers remain optional.
+
+Provider reporting has three distinct stages:
+
+- **Providers queried**: sources that were actually contacted. A successful query can still return zero nearby parking.
+- **Providers contributing**: queried sources that returned at least one structurally usable parking facility or zone before deduplication and category/result limiting.
+- **Winning sources / Providers used**: providers whose record actually won deduplication and remains in the final returned parking list. The legacy `providers_used` attribute now has this precise meaning.
+
+This distinction prevents a successful-but-empty regional API call from looking as if its data was used.
 
 | Provider | Coverage | Realtime | Credentials |
 | --- | --- | ---: | --- |
@@ -230,7 +238,7 @@ OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worl
 | İzmir Municipality / İZUM | İzmir, Turkey | Reported counts, upstream measurement time not published | None |
 | ParkAPI / MobiData BW | ParkAPI-covered Central European regions | When source provides it | None |
 | ParkenDD / ParkAPI | Supported European cities | Yes where upstream provides it | None |
-| Netherlands RDW Open Data | Netherlands | Static locations | None |
+| Netherlands RDW Open Data | Netherlands + small border search buffer | Static locations | None |
 | Stad Gent Open Data | Ghent, Belgium | Yes | None |
 | Stadt St.Gallen Open Data | St.Gallen, Switzerland | Yes, minute-updated | None |
 | Open Transport Data Switzerland / SBB P+Rail | Switzerland + nearby cross-border facilities | Estimated occupancy where supplied | None |
@@ -253,7 +261,7 @@ OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worl
 | Transport for NSW Car Park API | NSW supported facilities | Yes | Optional Open Data API key |
 | Taiwan TDX Parking | Taiwan | Yes | Optional Client ID + Client Secret |
 
-Provider results are normalized into the same parking model and conservatively merged with OSM results. When two sources describe the same facility, OSM links/descriptive data can be retained while the regional provider contributes live capacity, free spaces, opening status or provider metadata. Individual physical parking-bay feeds such as Melbourne can opt out of merging so nearby bays remain distinct.
+The RDW provider no longer uses one large Netherlands bounding rectangle. It uses several conservative Netherlands-shaped coverage bands with a small border buffer so Dutch border searches still work, while cities such as Cologne, Düsseldorf, Dortmund and Frankfurt do not trigger an unnecessary RDW request. RDW's own API still applies the exact requested radius to returned facilities.\n\nProvider results are normalized into the same parking model and conservatively merged with OSM results. When two sources describe the same facility, OSM links/descriptive data can be retained while the regional provider contributes live capacity, free spaces, opening status or provider metadata. Individual physical parking-bay feeds such as Melbourne can opt out of merging so nearby bays remain distinct.
 
 ### Paris, Zaragoza and Singapore URA data integrity
 

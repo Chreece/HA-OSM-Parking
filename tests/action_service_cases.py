@@ -136,6 +136,9 @@ class Coordinator:
                 "park_and_ride": 0,
                 "other": 0,
             },
+            "providers_queried": ["openstreetmap", "broken_provider"],
+            "providers_contributing": ["openstreetmap"],
+            "winning_sources": ["openstreetmap"],
             "providers_used": ["openstreetmap"],
             "provider_errors": {"broken_provider": "TimeoutError"},
             "provider_load_errors": {},
@@ -244,6 +247,13 @@ class ActionTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response["parkings"][0]["name"], "Central Garage")
         self.assertEqual(response["radius_m"], 1500)
         self.assertEqual(response["unavailable_sources"], ["broken_provider"])
+        self.assertEqual(
+            response["providers_queried"],
+            ["openstreetmap", "broken_provider"],
+        )
+        self.assertEqual(response["providers_contributing"], ["openstreetmap"])
+        self.assertEqual(response["winning_sources"], ["openstreetmap"])
+        self.assertEqual(response["providers_used"], ["openstreetmap"])
         self.assertEqual(response["availability_counts"], {
             "live": 0,
             "reported": 0,

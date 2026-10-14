@@ -792,7 +792,7 @@ class OsmParkingMapCardV070 extends HTMLElement {
             <div class="title"></div>
             <div class="subtitle"></div>
           </div>
-          <div class="headright"><span class="version">v1.5.0</span><ha-icon icon="mdi:parking"></ha-icon></div>
+          <div class="headright"><span class="version">v1.5.1</span><ha-icon icon="mdi:parking"></ha-icon></div>
         </div>
         <div class="status-panel" hidden>
           <div class="status-head">
@@ -1827,7 +1827,7 @@ class OsmParkingExplorerCard extends OsmParkingMapCardV070 {
     const header=this.querySelector('.header');
     const titleBlock=header.firstElementChild; titleBlock.className='header-text';
     const emblem=document.createElement('div');emblem.className='explorer-emblem';emblem.textContent='P';emblem.setAttribute('aria-hidden','true');header.prepend(emblem);
-    this.querySelector('.headright').innerHTML='<button class="icon-button refresh" type="button"><ha-icon icon="mdi:refresh"></ha-icon></button><span class="version">v1.5.0</span>';
+    this.querySelector('.headright').innerHTML='<button class="icon-button refresh" type="button"><ha-icon icon="mdi:refresh"></ha-icon></button><span class="version">v1.5.1</span>';
     const frame=document.createElement('section');frame.className='map-frame';this._els.map.before(frame);frame.append(this._els.map);
     const actions=document.createElement('div');actions.className='map-actions';actions.innerHTML='<button type="button" class="icon-button fit"><ha-icon icon="mdi:fit-to-screen"></ha-icon></button><button type="button" class="icon-button theme"><ha-icon icon="mdi:theme-light-dark"></ha-icon></button><button type="button" class="icon-button expand"><ha-icon icon="mdi:arrow-expand"></ha-icon></button>';frame.append(actions);
     const note=document.createElement('div');note.className='map-note';note.hidden=true;note.setAttribute('role','status');frame.append(note);

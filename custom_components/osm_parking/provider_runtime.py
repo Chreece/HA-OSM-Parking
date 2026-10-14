@@ -94,6 +94,7 @@ class ProviderSupervisor:
         self._failures: dict[str, FailureState] = {}
         self.status: dict[str, dict] = {}
         self.errors: dict[str, str] = {}
+        self.queried: list[str] = []
         self.retry_seconds: int | None = None
 
     def _failed(self, uid: str, exc: Exception) -> None:
@@ -140,7 +141,7 @@ class ProviderSupervisor:
 
     async def fetch(self, providers: Any, session: Any, lat: float, lon: float,
                     radius: int, options: dict) -> list[ProviderFetchResult]:
-        self.status, self.errors, self.retry_seconds = {}, {}, None
+        self.status, self.errors, self.queried, self.retry_seconds = {}, {}, [], None
         tasks = []
         seen = set()
         for index, provider in enumerate(providers):
@@ -161,6 +162,7 @@ class ProviderSupervisor:
                 if state is not None and state.retry_at > monotonic():
                     self._cooldown(uid, state)
                     continue
+                self.queried.append(uid)
                 tasks.append(self._one(provider, uid, session, lat, lon, radius, options))
             except Exception as exc:
                 state = self._failures.get(uid)

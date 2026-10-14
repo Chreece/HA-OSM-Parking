@@ -8,6 +8,18 @@ from aiohttp import ClientError, ClientSession
 from .base import ProviderFetchResult, geo_uri, haversine_m, navigation_url
 
 PROVIDER_NAME = "Netherlands RDW Open Data"
+# Conservative Netherlands coverage bands with a small border buffer.
+# RDW's APIs still apply an exact radius query afterwards. Splitting the old
+# 50.70–53.75 / 3.15–7.35 rectangle avoids querying RDW from large parts of
+# western Germany (for example Cologne/Düsseldorf) while preserving Dutch
+# border areas where a <=10 km search can legitimately cross the border.
+_NETHERLANDS_COVERAGE_REGIONS = (
+    (50.65, 3.15, 51.30, 6.30),  # Zeeland, Brabant, Limburg + border buffer
+    (51.30, 3.15, 51.85, 6.75),  # South/central Netherlands
+    (51.85, 3.50, 52.50, 7.10),  # Randstad, Gelderland, Overijssel
+    (52.50, 4.25, 53.75, 7.35),  # North Netherlands + Wadden area
+)
+
 DATASETS = (
     (
         "garage",
@@ -31,8 +43,11 @@ class NetherlandsRdwProvider:
     name = PROVIDER_NAME
 
     def applies(self, lat: float, lon: float) -> bool:
-        """Return whether coordinates fall inside the Netherlands."""
-        return 50.70 <= lat <= 53.75 and 3.15 <= lon <= 7.35
+        """Return whether coordinates plausibly overlap Dutch RDW coverage."""
+        return any(
+            south <= lat <= north and west <= lon <= east
+            for south, west, north, east in _NETHERLANDS_COVERAGE_REGIONS
+        )
 
     async def async_fetch(
         self,
