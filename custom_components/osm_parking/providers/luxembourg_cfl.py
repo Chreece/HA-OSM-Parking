@@ -143,7 +143,7 @@ class CflParkAndRideProvider:
             for row, value in details
             if (
                 item := self._normalize(
-                    value or row,
+                    {**row, **value} if value is not None else row,
                     lat,
                     lon,
                     radius_m,
