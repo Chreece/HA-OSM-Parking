@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 from pyproj import Transformer
-from shapely.geometry import box, mapping, shape
+from shapely.geometry import mapping, shape
 from shapely.ops import transform
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,7 +26,6 @@ SOURCE_LANDING = (
     "https://api.pdok.nl/kadaster/brk-bestuurlijke-gebieden/ogc/v1"
 )
 LICENSE = "CC BY 4.0"
-MAINLAND_CLIP = box(2.70, 50.50, 7.75, 54.10)
 
 
 def fetch_country():
@@ -66,9 +65,9 @@ def write_feature(path: Path, geometry, *, buffer_m: int):
         "buffer_m": buffer_m,
         "generated_at": datetime.now(UTC).isoformat(),
         "generation_note": (
-            "Derived from the official BRK Landgebied geometry; clipped only "
-            "to the European Netherlands envelope to exclude unrelated remote "
-            "components. Runtime selection is fully offline."
+            "Derived directly from the official BRK Landgebied geometry. "
+            "Runtime selection is fully offline; only the separate RDW search "
+            "variant adds a 10 km buffer."
         ),
     }
     payload = {
@@ -88,11 +87,16 @@ def main():
     if official.is_empty or not official.is_valid:
         raise RuntimeError("Official Netherlands geometry is empty/invalid")
 
-    # Landgebied may contain remote/administrative components; RDW parking
-    # coverage here is European Netherlands only.
-    official = official.intersection(MAINLAND_CLIP)
-    if official.is_empty or not official.is_valid:
-        raise RuntimeError("European Netherlands intersection is invalid")
+    west, south, east, north = official.bounds
+    if not (
+        3.0 <= west <= 3.6
+        and 50.5 <= south <= 51.0
+        and 7.0 <= east <= 7.5
+        and 53.3 <= north <= 53.8
+    ):
+        raise RuntimeError(
+            f"Unexpected official Netherlands bounds: {official.bounds}"
+        )
 
     to_rd = Transformer.from_crs("EPSG:4326", "EPSG:28992", always_xy=True)
     from_rd = Transformer.from_crs("EPSG:28992", "EPSG:4326", always_xy=True)
