@@ -64,6 +64,10 @@ def main():
     })
     out.append(fetch("fintraffic_facilities",f"https://parking.fintraffic.fi/api/v1/facilities?{params}",headers={"Digitraffic-User":"ha-osm-parking"}))
     out.append(fetch("fintraffic_utilizations","https://parking.fintraffic.fi/api/v1/utilizations",headers={"Digitraffic-User":"ha-osm-parking"}))
+    out.append(fetch("fintraffic_facilities_all","https://parking.fintraffic.fi/api/v1/facilities?limit=-1",headers={"Digitraffic-User":"ha-osm-parking"}))
+    out.append(fetch("fintraffic_facilities_geojson","https://parking.fintraffic.fi/api/v1/facilities.geojson?limit=-1",headers={"Digitraffic-User":"ha-osm-parking"}))
+    out.append(fetch("fintraffic_facility_268","https://parking.fintraffic.fi/api/v1/facilities/268",headers={"Digitraffic-User":"ha-osm-parking"}))
+    out.append(fetch("fintraffic_utilization_268","https://parking.fintraffic.fi/api/v1/facilities/268/utilization",headers={"Digitraffic-User":"ha-osm-parking"}))
 
     # Statens vegvesen register: base + likely public collection routes.
     base="https://www.vegvesen.no/ws/no/vegvesen/veg/parkeringsomraade/parkeringsregisteret/v1"
@@ -73,9 +77,11 @@ def main():
     # TfL anonymous public API: live occupancy + authoritative Place geometry.
     out.append(fetch("tfl_occupancy","https://api.tfl.gov.uk/Occupancy/CarPark"))
     out.append(fetch("tfl_places","https://api.tfl.gov.uk/Place/Type/CarPark"))
+    out.append(fetch("tfl_occupancy_800491","https://api.tfl.gov.uk/Occupancy/CarPark/CarParks_800491"))
 
     # Seoul official sample key is documented for max five rows.
     out.append(fetch("seoul_sample","http://openapi.seoul.go.kr:8088/sample/json/GetParkInfo/1/5/"))
+    out.append(fetch("seoul_realtime_sample","http://openapi.seoul.go.kr:8088/sample/json/GetParkingInfo/1/5/"))
 
     (OUT/"summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps(out,ensure_ascii=False,indent=2))
