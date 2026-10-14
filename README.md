@@ -238,7 +238,7 @@ This distinction prevents a successful-but-empty regional API call from looking 
 | İzmir Municipality / İZUM | İzmir, Turkey | Reported counts, upstream measurement time not published | None |
 | ParkAPI / MobiData BW | ParkAPI-covered Central European regions | When source provides it | None |
 | ParkenDD / ParkAPI | Supported European cities | Yes where upstream provides it | None |
-| Netherlands RDW Open Data | Netherlands + small border search buffer | Static locations | None |
+| Netherlands RDW Open Data | Official Kadaster/PDOK Netherlands geometry + 10 km search buffer | Static locations | None |
 | Stad Gent Open Data | Ghent, Belgium | Yes | None |
 | Stadt St.Gallen Open Data | St.Gallen, Switzerland | Yes, minute-updated | None |
 | Open Transport Data Switzerland / SBB P+Rail | Switzerland + nearby cross-border facilities | Estimated occupancy where supplied | None |
@@ -261,7 +261,11 @@ This distinction prevents a successful-but-empty regional API call from looking 
 | Transport for NSW Car Park API | NSW supported facilities | Yes | Optional Open Data API key |
 | Taiwan TDX Parking | Taiwan | Yes | Optional Client ID + Client Secret |
 
-The RDW provider no longer uses one large Netherlands bounding rectangle. It uses several conservative Netherlands-shaped coverage bands with a small border buffer so Dutch border searches still work, while cities such as Cologne, Düsseldorf, Dortmund and Frankfurt do not trigger an unnecessary RDW request. RDW's own API still applies the exact requested radius to returned facilities.\n\nProvider results are normalized into the same parking model and conservatively merged with OSM results. When two sources describe the same facility, OSM links/descriptive data can be retained while the regional provider contributes live capacity, free spaces, opening status or provider metadata. Individual physical parking-bay feeds such as Melbourne can opt out of merging so nearby bays remain distinct.
+The RDW provider now uses a **bundled authoritative Netherlands geometry** derived directly from Kadaster/PDOK **BRK Bestuurlijke Gebieden – Landgebied** (CC BY 4.0), rather than hand-written rectangles or regional bands. During development the official WGS84 shape is projected to Dutch RD New, buffered by exactly 10 km (the integration's maximum search radius), topology-preserving simplified, transformed back to WGS84 and shipped with the integration. Runtime provider selection is therefore offline and deterministic—no extra PDOK request is needed. The unbuffered derived geometry is also retained for provenance/tests. Searches just across the border can still discover Dutch parking, while Cologne, Düsseldorf, Dortmund and Frankfurt stay outside the RDW coverage buffer.
+
+The coverage loader is generic and can be reused by other providers when their publisher exposes an authoritative service-area or country geometry. Provider diagnostics expose the coverage authority/licence when applicable.
+
+Provider results are normalized into the same parking model and conservatively merged with OSM results. When two sources describe the same facility, OSM links/descriptive data can be retained while the regional provider contributes live capacity, free spaces, opening status or provider metadata. Individual physical parking-bay feeds such as Melbourne can opt out of merging so nearby bays remain distinct.
 
 ### Paris, Zaragoza and Singapore URA data integrity
 
@@ -340,7 +344,7 @@ ParkOut and AthensWay are useful Athens parking services, but no stable document
 
 ## Worldwide provider expansion research
 
-See [the researched source inventory](docs/provider-research-2026-10-13.md), including Greek municipalities, European, Asian, North American and Australian candidates, expected API access and licensing restrictions. Listed candidates are **not automatically implemented**.
+See [the researched source inventory](docs/provider-research-2026-10-13.md) and the newer [free vs commercial provider market research](docs/provider-market-research-2026-10-14.md). The latter covers Luxembourg City/CFL, Basel, Zürich, Fintraffic, Norway, TfL, Seoul, ParkWhiz, Parkopedia, INRIX, TomTom, ParkBee, Passport and EasyPark, including access/licensing constraints. Listed candidates are **not automatically implemented**.
 
 ## Parking categories and result limits
 

@@ -127,6 +127,15 @@ class ProviderSupervisor:
             self._failures.pop(uid, None)
             status = {'status': 'ok' if clean.suggestions or clean.zones else 'no_coverage',
                       'facilities': len(clean.suggestions), 'zones': len(clean.zones)}
+            coverage_source = getattr(provider, 'coverage_source', None)
+            if coverage_source:
+                status['coverage_source'] = str(coverage_source)
+                status['coverage_license'] = str(
+                    getattr(provider, 'coverage_license', '')
+                )
+                status['coverage_source_url'] = str(
+                    getattr(provider, 'coverage_source_url', '')
+                )
             pool = getattr(provider, '_endpoints', None)
             if pool is not None and pool.last_source:
                 status['active_endpoint'] = pool.last_source

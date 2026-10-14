@@ -70,7 +70,7 @@ class Followup(unittest.IsolatedAsyncioTestCase):
         valid = ToulouseParkingProvider._catalog({'results': rows, 'total_count': 3})
         self.assertEqual(valid, [self.record()])
 
-    def test_rdw_country_shape_keeps_dutch_coverage_without_querying_german_cities(self):
+    def test_rdw_authoritative_geometry_keeps_dutch_coverage_without_querying_german_cities(self):
         provider = NetherlandsRdwProvider()
         for lat, lon, name in (
             (52.3676, 4.9041, "Amsterdam"),
