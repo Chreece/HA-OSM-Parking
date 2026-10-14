@@ -15,15 +15,11 @@
       },
       "categories": {
         "title": "2/4 · Tipos de estacionamento",
-        "description": "Selecione pelo menos um tipo de estacionamento, o limite por categoria e, opcionalmente, vagas privadas ou zonas de Atenas.",
+        "description": "Selecione os tipos de estacionamento e o limite por categoria. Vagas privadas ou restritas são opcionais.",
         "data": {
           "parking_types": "Tipos de estacionamento",
           "max_results": "Máximo de resultados por categoria",
-          "include_restricted": "Incluir estacionamento restrito/privado",
-          "athens_zones_enabled": "Mostrar zonas de estacionamento regulamentado de Atenas (GIS experimental)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "include_restricted": "Incluir estacionamento restrito/privado"
         }
       },
       "providers": {
@@ -79,15 +75,11 @@
       },
       "categories": {
         "title": "2/4 · Tipos de estacionamento",
-        "description": "Selecione pelo menos um tipo de estacionamento, o limite por categoria e, opcionalmente, vagas privadas ou zonas de Atenas.",
+        "description": "Selecione os tipos de estacionamento e o limite por categoria. Vagas privadas ou restritas são opcionais.",
         "data": {
           "parking_types": "Tipos de estacionamento",
           "max_results": "Máximo de resultados por categoria",
-          "include_restricted": "Incluir estacionamento restrito/privado",
-          "athens_zones_enabled": "Mostrar zonas de estacionamento regulamentado de Atenas (GIS experimental)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "include_restricted": "Incluir estacionamento restrito/privado"
         }
       },
       "providers": {

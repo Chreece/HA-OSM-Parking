@@ -115,3 +115,13 @@ osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group button .maplibre
 osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-group button::after {position:absolute;inset:0;display:grid;place-items:center;line-height:1;}
 osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-zoom-out {border-top:1px solid var(--ex-line);}
 osm-parking-map-card[data-explorer] .map .maplibregl-ctrl-attrib {clear:both;float:right;max-width:100%;}
+
+/* Map-first disclosure. No height animation: scrolling uses final layout. */
+osm-parking-map-card[data-explorer] .results-toggle {display:flex;align-items:center;justify-content:space-between;gap:12px;width:calc(100% - 28px);min-height:44px;margin:6px 14px 14px;padding:10px 12px;border:1px solid var(--ex-line);border-radius:12px;background:var(--ex-surface);color:var(--ex-fg);font-size:.82rem;font-weight:600;text-align:start;}
+osm-parking-map-card[data-explorer] .results-toggle-label {min-width:0;overflow-wrap:anywhere;}
+osm-parking-map-card[data-explorer] .results-toggle:hover,osm-parking-map-card[data-explorer] .results-toggle[aria-expanded=true] {border-color:var(--ex-accent);color:var(--ex-accent);}
+osm-parking-map-card[data-explorer] .results-chevron {flex:none;font-size:20px;line-height:1;}
+osm-parking-map-card[data-explorer] .results-toggle[aria-expanded=true] .results-chevron {transform:rotate(180deg);}
+osm-parking-map-card[data-explorer] .results-panel {min-width:0;}
+osm-parking-map-card[data-explorer] .result-card {scroll-margin-top:calc(var(--header-height,56px) + 16px);scroll-margin-bottom:16px;}
+@media(max-width:450px) {osm-parking-map-card[data-explorer] .results-toggle {width:calc(100% - 20px);margin-left:10px;margin-right:10px;}}

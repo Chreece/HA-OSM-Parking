@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from collections import defaultdict
 from datetime import timedelta
 import logging
@@ -32,7 +33,8 @@ from .const import (
     DEFAULT_RADIUS_M,
     enabled_key,
 )
-from .providers import PROVIDERS, ProviderFetchResult
+from .providers import PROVIDERS, PROVIDER_LOAD_ERRORS, ProviderFetchResult
+from .provider_runtime import ProviderSupervisor, clean_result
 from .parking_quality import merge_facilities
 
 _LOGGER = logging.getLogger(__name__)
@@ -74,6 +76,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.entry = entry
+        self._provider_supervisor = ProviderSupervisor()
         self._preferred_endpoint: str | None = None
         self._failed_refreshes = 0
         super().__init__(
@@ -158,6 +161,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             state_name.lower() in {"unknown", "unavailable", "none", ""}
             or lat is None
             or lon is None
+            or not (-90 <= lat <= 90 and -180 <= lon <= 180)
         ):
             return self._waiting_data(
                 destination_entity,
@@ -184,39 +188,21 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             **self.entry.data,
             **self.entry.options,
         }
-        applicable_providers = [
-            provider
-            for provider in PROVIDERS
-            if provider.applies(lat, lon)
-            and (
-                not getattr(provider, "enabled_option", None)
-                or bool(
-                    provider_options.get(
-                        getattr(provider, "enabled_option"),
-                        bool(getattr(provider, "enabled_default", True)),
-                    )
-                )
-            )
-            and all(
-                str(provider_options.get(key, "")).strip()
-                for key in getattr(provider, "required_options", ())
-            )
-        ]
+        async def bounded_overpass():
+            # Bound the combined mirror attempts, not just one HTTP request.
+            async with asyncio.timeout(40):
+                return await self._query_overpass(lat, lon, radius)
 
-        fetches = [
-            self._query_overpass(lat, lon, radius),
-            *[
-                provider.async_fetch(
-                    session,
-                    lat,
-                    lon,
-                    radius,
-                    provider_options,
-                )
-                for provider in applicable_providers
-            ],
-        ]
-        fetch_results = await asyncio.gather(*fetches, return_exceptions=True)
+        fetch_results = await asyncio.gather(
+            bounded_overpass(),
+            self._provider_supervisor.fetch(
+                PROVIDERS, session, lat, lon, radius, provider_options,
+            ),
+            return_exceptions=True,
+        )
+        for result in fetch_results:
+            if isinstance(result, asyncio.CancelledError):
+                raise result
 
         overpass_result = fetch_results[0]
         source: str | None = None
@@ -228,36 +214,42 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         overpass_error: str | None = None
         live_refresh_seconds: list[int] = []
 
-        if isinstance(overpass_result, BaseException):
-            overpass_error = str(overpass_result)
+        if isinstance(overpass_result, Exception):
+            overpass_error = 'OpenStreetMap unavailable (' + type(overpass_result).__name__ + ')'
         else:
-            payload, source = overpass_result
-            raw_result_count = len(payload.get("elements", []))
-            suggestions = merge_facilities([], self._build_suggestions(
-                payload, lat, lon, radius, include_restricted
-            ))
-            providers_used.append("openstreetmap")
+            try:
+                payload, source = overpass_result
+                if not isinstance(payload, dict) or not isinstance(payload.get('elements'), list):
+                    raise ValueError('Invalid Overpass payload')
+                raw_result_count = len(payload['elements'])
+                rows = self._build_suggestions(payload, lat, lon, radius, include_restricted)
+                valid = clean_result(ProviderFetchResult('openstreetmap', rows), 'openstreetmap', lat, lon, radius)
+                suggestions = merge_facilities([], valid.suggestions)
+                providers_used.append('openstreetmap')
+            except Exception as exc:
+                overpass_error = 'OpenStreetMap data rejected (' + type(exc).__name__ + ')'
 
         provider_suggestion_count = 0
-        for provider, result in zip(
-            applicable_providers,
-            fetch_results[1:],
-            strict=True,
-        ):
-            if isinstance(result, BaseException):
-                provider_errors[provider.uid] = str(result)
+        supplemental = fetch_results[1]
+        if isinstance(supplemental, Exception):
+            provider_errors['provider_supervisor'] = type(supplemental).__name__
+            supplemental = []
+        for provider_result in supplemental:
+            suggestions = self._provider_supervisor.merge(suggestions, provider_result)
+            if provider_result.provider in self._provider_supervisor.errors:
                 continue
-
-            provider_result: ProviderFetchResult = result
             providers_used.append(provider_result.provider)
             provider_suggestion_count += len(provider_result.suggestions)
             parking_zones.extend(provider_result.zones)
-            suggestions = self._merge_provider_suggestions(
-                suggestions,
-                provider_result.suggestions,
-            )
             if provider_result.live_refresh_seconds:
                 live_refresh_seconds.append(provider_result.live_refresh_seconds)
+        provider_errors.update(self._provider_supervisor.errors)
+
+        unique_zones = {}
+        for zone in parking_zones:
+            key = json.dumps(zone['geometry'], sort_keys=True, separators=(',', ':'))
+            unique_zones.setdefault(key, zone)
+        parking_zones = list(unique_zones.values())
 
         if overpass_error and provider_suggestion_count == 0 and not parking_zones:
             raise UpdateFailed(overpass_error)
@@ -275,7 +267,11 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Live providers need periodic refreshes. Partial-provider failures also
         # get a temporary 5-minute recovery cadence; once every active provider
         # succeeds and no live data remains, polling stops again.
-        if overpass_error or provider_errors:
+        if overpass_error:
+            live_refresh_seconds.append(300)
+        if self._provider_supervisor.retry_seconds:
+            live_refresh_seconds.append(self._provider_supervisor.retry_seconds)
+        if 'provider_supervisor' in provider_errors:
             live_refresh_seconds.append(300)
 
         buckets: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -315,6 +311,8 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "provider_result_count": provider_suggestion_count,
             "providers_used": providers_used,
             "provider_errors": provider_errors,
+            "provider_status": self._provider_supervisor.status,
+            "provider_load_errors": dict(PROVIDER_LOAD_ERRORS),
             "partial_data": bool(overpass_error or provider_errors),
             "realtime_result_count": realtime_result_count,
             "reported_result_count": reported_result_count,
@@ -354,6 +352,8 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "provider_result_count": 0,
             "providers_used": [],
             "provider_errors": {},
+            "provider_status": {},
+            "provider_load_errors": dict(PROVIDER_LOAD_ERRORS),
             "partial_data": False,
             "realtime_result_count": 0,
             "reported_result_count": 0,
@@ -414,6 +414,8 @@ out center tags qt;
 
                         response.raise_for_status()
                         payload = await response.json(content_type=None)
+                        if not isinstance(payload, dict) or not isinstance(payload.get('elements'), list) or payload.get('remark'):
+                            raise ValueError('Unusable Overpass response')
 
                         if payload.get("elements"):
                             self._preferred_endpoint = endpoint
@@ -456,6 +458,8 @@ out center tags qt;
         seen: set[tuple[str, int]] = set()
 
         for element in payload.get("elements", []):
+            if not isinstance(element, dict):
+                continue
             osm_type = str(element.get("type", ""))
             try:
                 osm_id = int(element["id"])
@@ -468,12 +472,14 @@ out center tags qt;
             seen.add(key)
 
             tags = element.get("tags") or {}
+            if not isinstance(tags, dict):
+                continue
             access = str(tags.get("access", "unknown"))
             if not include_restricted and access in RESTRICTED_ACCESS:
                 continue
 
             lat, lon = self._element_lat_lon(element)
-            if lat is None or lon is None:
+            if lat is None or lon is None or not math.isfinite(lat) or not math.isfinite(lon) or not (-90 <= lat <= 90 and -180 <= lon <= 180):
                 continue
 
             distance = round(
@@ -567,8 +573,10 @@ out center tags qt;
             if name not in attrs:
                 continue
             try:
-                return float(attrs[name])
-            except (TypeError, ValueError):
+                number = float(attrs[name])
+                if not isinstance(attrs[name], bool) and math.isfinite(number):
+                    return number
+            except (TypeError, ValueError, OverflowError):
                 pass
         return None
 

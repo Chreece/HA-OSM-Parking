@@ -43,6 +43,7 @@ jobs:
         run: |
           python3 tests/card/browser_check.py
           python3 tests/card/map_controls_check.py
+          python3 tests/card/results_disclosure_check.py
       - name: Record source fingerprints
         if: always()
         run: |

@@ -69,7 +69,7 @@ class Zones(unittest.TestCase):
         self.assertIsNotNone(athens._normalize(self.feature, self.bbox))
 
     def test_opt_in_and_geofence(self):
-        self.assertFalse(athens.AthensParkingZonesProvider().enabled_default)
+        self.assertFalse(hasattr(athens.AthensParkingZonesProvider(), "enabled_option"))
         self.assertTrue(athens.AthensParkingZonesProvider().applies(37.98, 23.73))
 
 

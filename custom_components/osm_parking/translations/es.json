@@ -15,15 +15,11 @@
       },
       "categories": {
         "title": "2/4 · Tipos de aparcamiento",
-        "description": "Selecciona uno o más tipos, el máximo por categoría y, si lo deseas, plazas privadas o zonas reguladas de Atenas.",
+        "description": "Elige uno o más tipos de aparcamiento y el máximo por categoría. Puedes incluir plazas privadas o de acceso restringido.",
         "data": {
           "parking_types": "Tipos de aparcamiento",
           "max_results": "Máximo de resultados por categoría",
-          "include_restricted": "Incluir aparcamiento restringido/privado",
-          "athens_zones_enabled": "Mostrar zonas reguladas de Atenas (servicio SIG experimental)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+          "include_restricted": "Incluir aparcamiento restringido/privado"
         }
       },
       "providers": {
@@ -79,15 +75,11 @@
       },
       "categories": {
         "title": "2/4 · Tipos de aparcamiento",
-        "description": "Selecciona uno o más tipos, el máximo por categoría y, si lo deseas, plazas privadas o zonas reguladas de Atenas.",
+        "description": "Elige uno o más tipos de aparcamiento y el máximo por categoría. Puedes incluir plazas privadas o de acceso restringido.",
         "data": {
           "parking_types": "Tipos de aparcamiento",
           "max_results": "Máximo de resultados por categoría",
-          "include_restricted": "Incluir aparcamiento restringido/privado",
-          "athens_zones_enabled": "Mostrar zonas reguladas de Atenas (servicio SIG experimental)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+          "include_restricted": "Incluir aparcamiento restringido/privado"
         }
       },
       "providers": {

@@ -15,15 +15,11 @@
       },
       "categories": {
         "title": "2/4 · 駐車場の種類",
-        "description": "駐車場の種類を1つ以上選び、種類ごとの最大件数、私有駐車場やアテネ規制区域の表示を設定します。",
+        "description": "駐車場の種類と種類ごとの最大件数を選びます。私有・利用制限のある駐車場も任意で含められます。",
         "data": {
           "parking_types": "駐車場の種類",
           "max_results": "カテゴリごとの最大結果数",
-          "include_restricted": "制限付き / 私有駐車場を含める",
-          "athens_zones_enabled": "アテネ駐車規制区域を表示（試験的 GIS サービス）"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "include_restricted": "制限付き / 私有駐車場を含める"
         }
       },
       "providers": {
@@ -79,15 +75,11 @@
       },
       "categories": {
         "title": "2/4 · 駐車場の種類",
-        "description": "駐車場の種類を1つ以上選び、種類ごとの最大件数、私有駐車場やアテネ規制区域の表示を設定します。",
+        "description": "駐車場の種類と種類ごとの最大件数を選びます。私有・利用制限のある駐車場も任意で含められます。",
         "data": {
           "parking_types": "駐車場の種類",
           "max_results": "カテゴリごとの最大結果数",
-          "include_restricted": "制限付き / 私有駐車場を含める",
-          "athens_zones_enabled": "アテネ駐車規制区域を表示（試験的 GIS サービス）"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, disabled by default because the official Athens GIS service can fail. Shows only zone boundaries; check parking signs and local restrictions."
+          "include_restricted": "制限付き / 私有駐車場を含める"
         }
       },
       "providers": {

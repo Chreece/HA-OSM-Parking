@@ -210,7 +210,7 @@ class WizardFlows(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(step2["step_id"], "categories")
         self.assertEqual(
             set(fields(step2)),
-            {"parking_types", "max_results", "include_restricted", "athens_zones_enabled"},
+            {"parking_types", "max_results", "include_restricted"},
         )
         self.assertEqual(
             fields(step2)["parking_types"].default, list(const.CATEGORIES)
@@ -258,7 +258,7 @@ class WizardFlows(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(result["data"]["tdx_enabled"])
         self.assertFalse(result["data"]["ura_enabled"])
         self.assertFalse(result["data"]["tfnsw_enabled"])
-        self.assertTrue(result["data"]["athens_zones_enabled"])
+        self.assertNotIn("athens_zones_enabled", result["data"])
         self.assertNotIn("credential_providers", result["data"])
         self.assertNotIn("parking_types", result["data"])
         self.assertEqual(flow.unique_id, "sensor.destination")
@@ -367,7 +367,7 @@ class WizardFlows(unittest.IsolatedAsyncioTestCase):
         })
         self.assertEqual(page2["step_id"], "categories")
         self.assertNotIn("street", fields(page2)["parking_types"].default)
-        self.assertTrue(fields(page2)["athens_zones_enabled"].default)
+        self.assertNotIn("athens_zones_enabled", fields(page2))
 
         page3 = await flow.async_step_categories(
             category_config(["paid", "underground"])
@@ -451,7 +451,7 @@ class LocalizationContracts(unittest.TestCase):
                     )
                     self.assertEqual(
                         set(steps["categories"]["data"]),
-                        {"parking_types", "max_results", "include_restricted", "athens_zones_enabled"},
+                        {"parking_types", "max_results", "include_restricted"},
                     )
                     self.assertEqual(
                         set(steps["providers"]["data"]), {"credential_providers"}

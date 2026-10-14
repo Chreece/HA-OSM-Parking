@@ -24,7 +24,7 @@
 
 - Worldwide OpenStreetMap / Overpass baseline plus automatic municipal and national open-data providers.
 - Source-quality ranking, deduplication and provider provenance with live, reported, estimated, predicted and static distinctions.
-- Optional Athens municipal controlled-parking zone overlays (off by default).
+- Automatic, validated Athens municipal controlled-parking zone overlays.
 - Live free-space/occupancy data is shown when a supported provider exposes it.
 - Zero-key public providers work automatically; Prague, NSW, Taiwan and Singapore URA providers support optional API credentials through a four-step wizard.
 - OSM/static operation is event-driven; periodic refresh is enabled only while realtime provider data is active or while a failed source is recovering.
@@ -112,7 +112,7 @@ into your Home Assistant `config/custom_components/` directory and restart Home 
 The initial integration setup and **Settings → Devices & services → OSM Parking → Configure** both use the same short four-step wizard:
 
 1. **Destination and distance:** Choose an entity that provides coordinates and set the parking search radius (100–10,000 m).
-2. **Parking types:** Multiselect paid, surface, street, underground, multi-storey, Park & Ride and other parking. Choose the maximum results per category (1–25), whether to include private/restricted parking, and whether to enable the optional Athens controlled-parking zone overlay.
+2. **Parking types:** Multiselect paid, surface, street, underground, multi-storey, Park & Ride and other parking. Choose the maximum results per category (1–25), whether to include private/restricted parking.
 3. **Providers that require credentials:** Multiselect any additional providers to enable: Prague Golemio, Transport for NSW, Taiwan TDX and Singapore URA. These are not necessarily paid services; most have free developer/API-key options. **OpenStreetMap and all key-free municipal providers are automatic** and need no selection.
 4. **Provider credentials (only when needed):** Only password fields for the providers selected in step 3 appear. Taiwan TDX requires a Client ID and Client Secret; others require one key each. When no credentialed provider is selected, this final screen is skipped.
 
@@ -184,6 +184,7 @@ OSM Parking uses a provider model. **OpenStreetMap / Overpass is always the worl
 | Provider | Coverage | Realtime | Credentials |
 | --- | --- | ---: | --- |
 | OpenStreetMap / Overpass | Worldwide | No | None |
+| Toulouse Métropole BNLS | Toulouse public garages | Static inventory; equivalent API fallback | None |
 | Ville de Paris Open Data / BNLS | Paris concession garages | Static capacity, tariffs, accessibility | None |
 | Ayuntamiento de Zaragoza | Zaragoza public garages | Static facilities, no occupancy | None |
 | Singapore URA | Singapore URA car parks | Reported available car lots (timestamp not supplied) | Optional URA access key |
@@ -231,11 +232,15 @@ The source-quality order is: **verified live** (fresh upstream measurement times
 
 İstanbul İSPARK and İzmir İZUM publish counts but not dependable upstream observation times in their parking-list responses. They are therefore **reported**, never timestamp-verified live. Their current-location feeds refresh every five minutes while a covered facility is in the search radius; API failures are isolated from OSM. The time at which Home Assistant downloaded the response is not the original measurement time. Unsupported parking tariffs are never invented. Pre-existing provider responses without upstream timestamps are likewise classified as reported when they contain plausible counts.
 
-### Athens experimental parking-zone layer
+### Automatic public sources and Athens GIS
 
-To enable official Athens controlled-parking zone polygons, open **Settings → Devices & services → OSM Parking → Configure** and enable the Athens zone option. It is **off by default** because the city GIS WFS may be unavailable. Only geographically relevant Athens queries activate it.
+No Athens GIS switch is required in setup or options. Official polygons are considered automatically only around Athens and after validating GeoJSON, projection, closed rings and geographic bounds. Unusable responses contribute no overlay. Valid static zones cache for 24 hours; failed requests use source-specific recovery backoff. Old `athens_zones_enabled` flags are ignored. `show_zones: false` remains a card display preference.
 
-The bundled card draws Polygon/MultiPolygon boundaries independently of physical parking markers. Zone data is never counted as a free parking space, never deduplicated into a garage and does not imply legal parking permission. Always check local posted signs, permits, operating hours and fees. Card option **show_zones: false** hides the layer without changing integration options. A zone-feed failure triggers a partial-data notice while other valid parking results remain available.
+Equivalent Athens WFS routes and Toulouse Opendatasoft v2/v1 formats are primary/fallback access to the same dataset, not additional parking providers. Fallback is attempted only after transport or data validation failure. These routes share infrastructure; they do not offer an independent mirror during a whole-host outage. Complementary overlapping feeds remain enabled and are deduplicated by facility, so their unique coverage is not lost.
+
+Provider imports, construction, eligibility, requests, payloads and merging are isolated. Supplemental requests have a 30-second default total budget (at most 45 seconds for an explicit provider budget); Athens has an 18-second budget. Retries back off after consecutive failures (1 minute, 5 minutes, 30 minutes, 6 hours), with longer server rate limits respected. Successful static-only data stops polling. Diagnostics expose source status, active endpoint and retry time without API secrets or raw exception bodies.
+
+No failed-source occupancy is replayed. Healthy overlapping sources can take over. Static capacity and controlled-zone boundaries are never presented as measured vacancy or parking permission; check local signage. Toulouse Metropole BNLS is a static garage inventory with equivalent API fallback.
 
 ### Optional provider credentials
 
@@ -254,7 +259,7 @@ Credentials are stored in the Home Assistant config entry and are redacted from 
 - **Paris BNLS and Zaragoza:** static catalog cached 24 hours, with no successful background polling.
 - **Singapore URA:** with user access key, car park details cached 12 hours, token cached up to 20 hours, reported availability refreshed about every 5 minutes if nearby facilities are found.
 - **İstanbul and İzmir reported parking:** 5-minute refresh while facilities are nearby; not labelled verified live.
-- **Athens zone GIS:** opt-in, static response cached 24 hours; failures participate in existing recovery polling.
+- **Athens zone GIS:** automatic in Athens, validated static cache for 24 hours and source-specific recovery backoff.
 - **Melbourne / Singapore / Madrid / St.Gallen / Málaga live data:** approximately 60-second refresh while live data is active.
 - **Strasbourg live data:** 3-minute refresh, matching the official source cadence.
 - **Lyon and Nantes live feeds:** 2-minute refresh while covered facilities are in range, including when upstream availability is temporarily invalid.
@@ -366,6 +371,10 @@ remember_filters: true
 
 `show_filters: false` hides the controls, `show_list: false` preserves map-only display, and `show_zones: false` hides zone boundaries. `remember_filters: false` disables browser-local preferences. For multiple cards using the same entity, set distinct `preference_key` values for independent preferences. Preferences are never written to the integration or shared across Home Assistant users.
 
+The results list starts **collapsed** on each new card load. The map, search, filters and sorting stay usable. Click a parking marker to expand the list, highlight that exact facility and scroll it into view. This does not reset the map camera or expand every result's details. Use **Show results / Hide results** to fold the list manually. Expansion survives ordinary data/theme/filter updates but is not persisted across a reload. Keyboard activation and reduced-motion preferences are respected. An explicit `show_list: false` retains map-only mode, without auto-expansion.
+
 Map markers and rows share the same visible numbering. Click a result to focus its marker; use the navigation link to open directions. Refresh is explicit; changing filters does not call Home Assistant update services. Pan/zoom is retained during ordinary updates. The fit button resets the view to visible results and the destination.
 
 Design references: [OpenFreeMap styles](https://openfreemap.org/quick_start/), [MapLibre map API](https://maplibre.org/maplibre-gl-js/docs/API/classes/Map/), and [W3C pointer target sizing](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html). Existing source timestamps, attribution, zone warnings, source-selection and deduplication remain authoritative.
+
+Further official-source research: [automatic provider research](docs/provider-resilience-research.md).

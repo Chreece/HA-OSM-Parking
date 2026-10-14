@@ -15,15 +15,11 @@
       },
       "categories": {
         "title": "2/4 · Types de parking",
-        "description": "Choisissez au moins un type de parking, un nombre maximum par catégorie et, si souhaité, les parkings privés ou les zones d’Athènes.",
+        "description": "Choisissez un ou plusieurs types de parking et le maximum par catégorie. Les parkings privés ou à accès limité sont facultatifs.",
         "data": {
           "parking_types": "Types de parking",
           "max_results": "Nombre maximal de résultats par catégorie",
-          "include_restricted": "Inclure le stationnement restreint/privé",
-          "athens_zones_enabled": "Afficher les zones réglementées d’Athènes (service SIG expérimental)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+          "include_restricted": "Inclure le stationnement restreint/privé"
         }
       },
       "providers": {
@@ -79,15 +75,11 @@
       },
       "categories": {
         "title": "2/4 · Types de parking",
-        "description": "Choisissez au moins un type de parking, un nombre maximum par catégorie et, si souhaité, les parkings privés ou les zones d’Athènes.",
+        "description": "Choisissez un ou plusieurs types de parking et le maximum par catégorie. Les parkings privés ou à accès limité sont facultatifs.",
         "data": {
           "parking_types": "Types de parking",
           "max_results": "Nombre maximal de résultats par catégorie",
-          "include_restricted": "Inclure le stationnement restreint/privé",
-          "athens_zones_enabled": "Afficher les zones réglementées d’Athènes (service SIG expérimental)"
-        },
-        "data_description": {
-          "athens_zones_enabled": "Optional, off by default: the Athens municipal GIS server may be unavailable. Shows official zone boundaries only; always check local street signs."
+          "include_restricted": "Inclure le stationnement restreint/privé"
         }
       },
       "providers": {
