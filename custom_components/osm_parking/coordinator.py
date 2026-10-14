@@ -320,7 +320,8 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         source: str | None = None
         raw_result_count = 0
         provider_errors: dict[str, str] = {}
-        providers_used: list[str] = []
+        providers_queried: list[str] = ["openstreetmap"]
+        providers_contributing: list[str] = []
         suggestions: list[dict[str, Any]] = []
         parking_zones: list[dict[str, Any]] = []
         overpass_error: str | None = None
@@ -356,7 +357,8 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     radius,
                 )
                 suggestions = merge_facilities([], valid.suggestions)
-                providers_used.append("openstreetmap")
+                if valid.suggestions:
+                    providers_contributing.append("openstreetmap")
             except Exception as exc:
                 overpass_error = (
                     "OpenStreetMap data rejected ("
@@ -365,6 +367,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 )
 
         provider_suggestion_count = 0
+        providers_queried.extend(supervisor.queried)
         supplemental = fetch_results[1]
         if isinstance(supplemental, Exception):
             provider_errors["provider_supervisor"] = type(supplemental).__name__
@@ -374,7 +377,8 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             suggestions = supervisor.merge(suggestions, provider_result)
             if provider_result.provider in supervisor.errors:
                 continue
-            providers_used.append(provider_result.provider)
+            if provider_result.suggestions or provider_result.zones:
+                providers_contributing.append(provider_result.provider)
             provider_suggestion_count += len(provider_result.suggestions)
             parking_zones.extend(provider_result.zones)
             if provider_result.live_refresh_seconds:
@@ -448,6 +452,22 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         selected.sort(key=lambda item: item["distance_m"])
 
+        # "Used" now means the provider whose record actually won
+        # deduplication and survived category/radius/result limiting. Preserve
+        # the legacy key for compatibility, and expose the other stages
+        # separately so diagnostics do not confuse a successful empty query
+        # with a source that contributed final parking data.
+        winning_sources: list[str] = []
+        for item in selected:
+            provider = str(item.get("provider") or "").strip()
+            if provider in {"osm", "openstreetmap"}:
+                provider = "openstreetmap"
+            if provider and provider not in winning_sources:
+                winning_sources.append(provider)
+
+        providers_queried = list(dict.fromkeys(providers_queried))
+        providers_contributing = list(dict.fromkeys(providers_contributing))
+
         return {
             "status": "ok",
             "destination_latitude": lat,
@@ -459,7 +479,10 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "source": source,
             "raw_result_count": raw_result_count,
             "provider_result_count": provider_suggestion_count,
-            "providers_used": providers_used,
+            "providers_queried": providers_queried,
+            "providers_contributing": providers_contributing,
+            "winning_sources": winning_sources,
+            "providers_used": winning_sources,
             "provider_errors": provider_errors,
             "provider_status": dict(supervisor.status),
             "provider_load_errors": dict(PROVIDER_LOAD_ERRORS),
@@ -500,6 +523,9 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "source": None,
             "raw_result_count": 0,
             "provider_result_count": 0,
+            "providers_queried": [],
+            "providers_contributing": [],
+            "winning_sources": [],
             "providers_used": [],
             "provider_errors": {},
             "provider_status": {},
