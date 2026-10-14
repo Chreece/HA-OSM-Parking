@@ -263,14 +263,12 @@ class FintrafficLiipiProvider:
                 )
             ) is not None
         ]
-        has_live = any(
-            item.get("availability_kind") == "live"
-            for item in suggestions
-        )
         return ProviderFetchResult(
             provider=self.uid,
             suggestions=suggestions,
-            live_refresh_seconds=120 if suggestions and has_live else None,
+            # Keep recovering the timestamped utilization sub-feed if it is
+            # temporarily unavailable while static LIIPI facilities still work.
+            live_refresh_seconds=120 if suggestions else None,
         )
 
     @staticmethod
