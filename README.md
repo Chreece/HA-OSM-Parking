@@ -249,6 +249,8 @@ This distinction prevents a successful-but-empty regional API call from looking 
 | Brussels Open Data | Brussels Capital Region | No | None |
 | Dublin City Council Open Data | Dublin | Yes | None |
 | Helsinki Parkkihubi | Helsinki | Area statistics | None |
+| Fintraffic LIIPI | Finnish Park & Ride car facilities | **Live** when timestamped utilization is fresh; static facility remains on utilization outage | None |
+| Transport for London Car Parks | TfL CarPark Places within facility-derived coverage | Static Places; **reported** occupancy when TfL occupancy service is healthy | None |
 | Singapore HDB / data.gov.sg | Singapore HDB car parks | Yes | None |
 | Hong Kong DATA.GOV.HK | Hong Kong | Yes | None |
 | City of Melbourne Parking Bay Sensors | Central Melbourne street bays | Yes | None |
@@ -279,6 +281,14 @@ Provider results are normalized into the same parking model and conservatively m
 - **CFL P+R:** the official list/details APIs publish WGS84 coordinates, total/PMR/EV capacity and exact current free-space counts. The JSON details response has **no producer measurement timestamp**, so values are intentionally **reported**, not verified live. If one detail request fails, its list-level static P+R still remains available.
 - **Basel-Stadt:** dataset 100088 publishes `published`, `free`, `total`, `status`, coordinates and address and is officially updated every minute. Exact vacancy is **live** only when the publisher timestamp is fresh and status is open. This direct authority source wins equal-quality duplicates over ParkenDD, while ParkenDD remains an independent fallback/complement.
 - **Zürich PLS:** the official RSS provides per-garage free spaces, open/closed state and item timestamp. OSM Parking joins it by the official PLS `pid` link to the city's WFS `poi_parkhaus_view` layer, which supplies WGS84 coordinates, capacity, accessible/EV spaces and address for 136 public garages. If RSS fails, the WFS inventory remains usable as static data. The direct Zürich source wins equal-quality ParkenDD duplicates; ParkenDD remains available when the direct source is missing or unavailable.
+
+### Finland LIIPI and TfL resilience
+
+- **Fintraffic LIIPI:** the official spatial facility query was returning an upstream PostGIS HTTP 500 during development. OSM Parking therefore uses Fintraffic's healthy full GeoJSON inventory (784 total facilities; 256 with car capacity), caches it for 12 hours and enforces the exact search radius locally. Fresh timestamped CAR utilization becomes verified **live**. If utilization is unavailable/stale, the official static facility remains and the provider keeps retrying the live sub-feed.
+- **TfL:** `Place/Type/CarPark` returned 58 official geocoded car parks with capacity/accessibility/opening/tariff metadata. TfL's global and single-car-park occupancy endpoints were returning HTTP 500 during development, so occupancy failure is isolated inside the provider: static Place results remain usable and the occupancy sub-feed is retried. If it recovers, valid bay totals are **reported**, not verified live, because that occupancy schema has no producer observation timestamp.
+- Both providers use bundled applicability geometry generated from their own official facility inventories and buffered by the integration's maximum 10 km radius, rather than hand-written regional rectangles. Runtime applicability is offline.
+- **Norway Parkeringsregisteret** is not enabled because every documented/likely legacy machine endpoint probed returned HTTP 404.
+- **Seoul Open Data** is not enabled despite a usable real-time schema: the official API-key endpoint is documented and observed on plaintext HTTP port 8088, while the HTTPS form failed. OSM Parking will not transmit a user's private API key over unencrypted HTTP.
 
 ### Paris, Zaragoza and Singapore URA data integrity
 
@@ -448,3 +458,5 @@ Further official-source research: [automatic provider research](docs/provider-re
 Parking markers use type icons instead of sequential numbers: a banknote for paid parking, P for surface parking, a road for street parking, a tunnel for underground parking, a building for multi-storey parking, a train/car for Park & Ride, and a question-mark location pin for other or unknown types. The same glyph is shown beside the matching result. Hover text and accessible button names include the translated parking type and facility name.
 
 Numbers and ordering remain internal metadata. Matching uses the existing stable facility key, not icon appearance or row order, so two garages with identical icons and names still open their own results after sorting/filtering. Marker activation retains the folded-list behavior: expand, highlight and scroll to the correct row without changing the map camera. Ordinary updates do not scroll again. The glyphs are embedded in the card; no image service, icon font or extra browser dependency is required.
+
+Detailed probe evidence: [Fintraffic, TfL, Norway and Seoul](docs/provider-usability-fintraffic-tfl-seoul-2026-10-14.md).

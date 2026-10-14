@@ -10,10 +10,10 @@ This inventory separates **open/public data**, **free developer access with cred
 | **CFL Luxembourg P+R** | Key-free public JSON + DATEX II | P+R list/details, WGS84 coordinates, total/free/PMR/EV capacity and occupancy | P+R complement to Ville de Luxembourg | **Implemented in v1.7.0 as reported availability** |
 | **Basel-Stadt** | Key-free Opendatasoft; CC BY 4.0 / source attribution | Minute-updated garage free spaces, total, status, publication time, coordinates | Direct official source outranks equal ParkenDD duplicate | **Implemented in v1.7.0** |
 | **Stadt Zürich Parkleitsystem** | Key-free RSS/XML + official WFS geography | Timestamped free spaces/status joined to 136 public-garage WFS records | Direct official source; ParkenDD remains complementary/fallback | **Implemented in v1.7.0** |
-| **Fintraffic LIIPI, Finland** | Public interface, no login needed for data use | Nationwide park-and-ride location, capacity, services, pricing and operators; JSON/GeoJSON | Strong static/national P+R source | **Strong candidate**; confirm whether availability is present before labelling live |
-| **Statens vegvesen Parkeringsregisteret, Norway** | Public JSON distribution; Norwegian Open Government Data licence | Nationwide registered parking areas/operators | National static coverage | **Strong candidate** |
-| **TfL Unified API, London** | Anonymous public use currently limited to 50 req/min; registration raises quota | Car-park occupancy by bay type: count/free/occupied | Free live/occupancy source for supported TfL car parks | **Strong candidate**, but facility coordinates/join + source observation timestamps must be qualified |
-| **Seoul Open Data** | Free issued OpenAPI key | Public-parking details and current parked count; status field distinguishes <=20 min, 20–120 min, stale/non-linked feeds | Credentialed official source with explicit freshness state | **Strong candidate** |
+| **Fintraffic LIIPI, Finland** | Public interface, no login needed for data use | Nationwide P+R car facilities plus timestamped utilization | Direct static + verified-live source with facility-derived coverage | **Implemented in v1.8.0** |
+| **Statens vegvesen Parkeringsregisteret, Norway** | Catalogue says public JSON / Norwegian Open Government Data licence | Nationwide registered parking areas/operators | National static coverage | **Deferred**: published legacy API and likely collection paths returned HTTP 404 on 14 Oct 2026 |
+| **TfL Unified API, London** | Anonymous public use currently limited to 50 req/min; registration raises quota | 58 geocoded CarPark Places; optional bay occupancy | Static direct source + reported occupancy fallback | **Implemented in v1.8.0**; occupancy endpoint was HTTP 500 during probes and has no producer timestamp |
+| **Seoul Open Data** | Free issued OpenAPI key | Separate static and real-time parking services with producer timestamp/freshness status | Strong credentialed official source | **Deferred for security**: official key endpoint is plaintext HTTP:8088; HTTPS probe failed |
 | **Toulouse, Bordeaux, Galway** | Municipal/council open data | Static facilities and selected live/technical datasets already documented in the existing research files | Continue schema-specific work | Existing backlog |
 
 ### Free/open evidence
@@ -71,10 +71,10 @@ Commercial evidence:
 ## 4. Priority order
 
 ### Free/open
-1. **Fintraffic LIIPI** — nationwide Finnish P+R metadata, key-free.
-2. **Norway Parkeringsregisteret** — nationwide static facilities.
-3. **Seoul** — add as an optional free-key provider with freshness-state handling.
-4. **TfL** — add once facility geography/join and occupancy timestamp semantics are verified.
+1. **Bordeaux** — qualify the current direct availability semantics/timestamps before enabling live counts.
+2. **Galway** — official ArcGIS static facilities/capacity once current schema is revalidated.
+3. **Norway Parkeringsregisteret** — wait for a working current machine endpoint from Statens vegvesen.
+4. **Seoul** — wait for an official HTTPS API-key transport (or other secure delivery) before accepting user credentials.
 
 ### Commercial
 1. **Parkopedia** — broadest global static/dynamic option if a user has a licence.

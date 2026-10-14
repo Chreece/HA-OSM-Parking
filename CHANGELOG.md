@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.8.0
+
+### Finland and London official-source expansion
+
+- Added **Fintraffic LIIPI** as a key-free national Finnish Park & Ride provider. OSM Parking caches the healthy full official GeoJSON inventory and locally applies the exact radius instead of depending on Fintraffic's currently broken spatial-query path.
+- Fintraffic CAR utilization includes a producer timestamp, exact free/capacity counts and `openNow`; fresh plausible values are classified as verified **live**. Static facility/capacity data remains available when the utilization sub-feed fails.
+- Added **Transport for London Car Parks** from the official Unified API `Place/Type/CarPark` inventory: WGS84 location, capacity, accessible bays, opening information and daily tariffs.
+- TfL occupancy enrichment is deliberately optional/fault-isolated. The occupancy endpoints returned HTTP 500 during development probes; static Places remain usable and the sub-feed retries every five minutes.
+- When TfL occupancy recovers, internally consistent bay totals are classified as **reported**, never timestamp-verified live, because the occupancy response contains no publisher observation timestamp.
+- Added provider-derived offline applicability polygons generated from the official 256 Fintraffic car-facility geometries and 58 TfL CarPark Places, each buffered by exactly 10 km in an appropriate local CRS. No hand-written country/city rectangle is required at runtime.
+- Direct TfL data outranks an equal-quality ParkenDD duplicate through the existing source-quality precedence; independent sources remain complementary.
+
+### Deferred after live probes
+
+- **Norway Parkeringsregisteret:** the official catalogue still advertises a public register, but the published legacy API root and likely collection paths all returned HTTP 404. No broken provider is shipped.
+- **Seoul Open Data:** the real-time `GetParkingInfo` sample returned current capacity/parked count, producer update time and freshness status, but the official API-key URL is plaintext HTTP on port 8088 and the HTTPS form failed. OSM Parking will not send a user's API key over unencrypted transport.
+
+### Verified external schemas
+
+Development probes on 14 October 2026 observed:
+- Fintraffic full JSON + GeoJSON: HTTP 200, 784 facilities, 256 with positive CAR capacity; utilization feed HTTP 200 with timestamped current rows. The separate geometry search endpoint returned upstream HTTP 500/PostGIS class error.
+- TfL Place/Type/CarPark: HTTP 200, 58 official Places; global and single-car-park occupancy requests returned HTTP 500 at that time.
+- Seoul GetParkingInfo sample: HTTP 200 with 122 total city-car-park records and producer timestamp fields; HTTPS:8088 failed.
+- Norway legacy parking-register endpoints: HTTP 404.
+
+### Compatibility
+
+No config migration or new credentials are required. Existing providers, response action, authoritative coverage engine, queried/contributing/winning source reporting and dashboard card behavior remain unchanged.
+
 ## v1.7.0
 
 ### Luxembourg and Swiss official-source expansion

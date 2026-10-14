@@ -264,7 +264,11 @@ class Safety(unittest.IsolatedAsyncioTestCase):
 
     async def test_all_shipped_providers_load(self):
         self.assertEqual(registry.PROVIDER_LOAD_ERRORS,{})
-        self.assertEqual(len(registry.PROVIDERS),35)
+        self.assertEqual(len(registry.PROVIDERS), len(registry.PROVIDER_SPECS))
+        self.assertEqual(
+            len({provider.uid for provider in registry.PROVIDERS}),
+            len(registry.PROVIDERS),
+        )
 
     def coordinator(self):
         state=types.SimpleNamespace(state='Athens',attributes={'latitude':37.98,'longitude':23.73})
