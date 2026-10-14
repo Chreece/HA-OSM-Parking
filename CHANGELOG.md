@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.6.0
+
+### Authoritative provider coverage
+
+- Added a reusable offline GeoJSON coverage engine with cached Polygon/MultiPolygon point-in-polygon evaluation and provenance metadata.
+- Replaced the hand-shaped Netherlands RDW coverage bands with a geometry derived directly from the official Kadaster/PDOK **BRK Bestuurlijke Gebieden – Landgebied** source.
+- The development generator transforms the official boundary to EPSG:28992, applies a true 10 km buffer matching the integration's maximum search radius, topology-preserving simplifies it, then ships the WGS84 result.
+- Runtime RDW selection performs **no network call** to determine country coverage. The generated exact geometry (~76 KB) and buffered runtime geometry (~16 KB) are bundled with the component.
+- Coverage provenance (Kadaster/PDOK, BRK Landgebied, CC BY 4.0) is exposed in provider status.
+- Added geometry parser/provenance/border regression tests. Dutch cities remain inside, Aachen is included only by the 10 km search buffer, and Cologne/Düsseldorf/Dortmund/Frankfurt remain outside.
+
+### Provider market research
+
+- Added a new free/open, free-with-key and commercial provider matrix.
+- Highest-priority free/open candidates: Luxembourg City + CFL P+R, Basel direct live feed, Zürich PLS direct live feed, Fintraffic LIIPI, Norway Parkeringsregisteret, Seoul OpenAPI and TfL occupancy.
+- Commercial/partner candidates documented separately: Parkopedia, INRIX Parking Services, TomTom Parking API, ParkBee, ParkWhiz, Passport and EasyPark.
+- Documented duplicate policy: authoritative direct feeds can outrank aggregator duplicates when fresher; aggregators remain complementary/fallback sources; equivalent endpoints of the same dataset are fallbacks, not separate providers.
+
+### Compatibility
+
+No configuration migration is required. The coordinate response action, queried/contributing/winning provider reporting, deduplication, credentials and dashboard behavior remain unchanged.
+
 ## v1.5.1
 
 ### Provider selection transparency
