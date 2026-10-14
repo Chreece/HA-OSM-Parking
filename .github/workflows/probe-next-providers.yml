@@ -70,14 +70,22 @@ jobs:
           for item in items[:4]:
               vals={child.tag:(child.text or '') for child in list(item)}
               print('ZURICH ITEM',json.dumps(vals,ensure_ascii=False)[:5000])
-          # Zurich official garage geography
-          zgeo_url='https://www.stadt-zuerich.ch/geodaten/download/Oeffentlich_zugaengliche_Parkhaeuser?format=geojson_link'
-          zgraw=get(zgeo_url, accept='application/geo+json,application/json,text/plain,*/*')
-          try:
+          # Zurich official garage geography via published WFS
+          wfs='https://www.ogd.stadt-zuerich.ch/wfs/geoportal/Oeffentlich_zugaengliche_Parkhaeuser'
+          cap=get(wfs+'?'+urlencode({'service':'WFS','version':'1.1.0','request':'GetCapabilities'}), accept='application/xml,text/xml,*/*')
+          root=ET.fromstring(cap)
+          names=[]
+          for el in root.iter():
+              if el.tag.endswith('FeatureType'):
+                  for child in el:
+                      if child.tag.endswith('Name') and child.text:
+                          names.append(child.text.strip());break
+          print('ZURICH WFS LAYERS',names)
+          if names:
+              zurl=wfs+'?'+urlencode({'service':'WFS','version':'1.1.0','request':'GetFeature','typename':names[0],'outputFormat':'GeoJSON','srsName':'EPSG:4326'})
+              zgraw=get(zurl, accept='application/geo+json,application/json,*/*')
               zgeo=json.loads(zgraw)
               print('ZURICH GEO TYPE',zgeo.get('type'),'COUNT',len(zgeo.get('features',[])))
-              for ft in zgeo.get('features',[])[:3]:
+              for ft in zgeo.get('features',[])[:5]:
                   print('ZURICH GEO SAMPLE',json.dumps(ft,ensure_ascii=False)[:6000])
-          except Exception as e:
-              print('ZURICH GEO JSON FAIL',type(e).__name__,zgraw[:500].decode('utf-8','replace'))
           PY
