@@ -1,0 +1,89 @@
+name: Prepare map-first results
+on:
+  push:
+    branches: [feat/map-first-results]
+    paths: [.github/workflows/prepare-results-disclosure.yml]
+permissions:
+  contents: write
+concurrency:
+  group: map-first-results-preparation
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply reviewed disclosure patch
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/feat/map-first-results
+          git merge-base --is-ancestor bfe55c928e6c37f92364ef61dc9526c8e83e93d6 HEAD
+          python tools/apply_results_disclosure.py
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('tests/card/results_disclosure_check.py')
+          text=p.read_text()
+          old="        before = page.evaluate('window.card._map.getCenter().toArray().concat(window.card._map.getZoom())')"
+          assert text.count(old)==1
+          text=text.replace(old,"        ready()  # Moving the shadow host reconnects the card.\n"+old)
+          old="            target = page.evaluate('lastKey()')\n            previous = page.evaluate('revealCalls.length')\n            page.locator('.osm-park-marker').last.click()"
+          assert text.count(old)==1
+          text=text.replace(old,"            target = page.evaluate('lastKey()')\n            previous = page.evaluate('revealCalls.length')\n            page.evaluate('clickLast()')  # Marker DOM order need not equal current sort order.")
+          p.write_text(text)
+          PY
+      - name: Validate reproducible bundle and all backend regressions
+        run: |
+          set -euo pipefail
+          mkdir -p card-evidence
+          python -m compileall -q custom_components/osm_parking
+          python -m unittest discover -s tests -v 2>&1 | tee card-evidence/python-tests.log
+          python tools/card/build.py --check
+          node --check custom_components/osm_parking/frontend/osm-parking-map-card.js
+          node --test tests/card/filter.test.cjs | tee card-evidence/js-tests.log
+          git diff bfe55c928e6c37f92364ef61dc9526c8e83e93d6 -- custom_components/osm_parking ':!custom_components/osm_parking/frontend' > card-evidence/backend-diff.txt
+          test ! -s card-evidence/backend-diff.txt
+      - name: Install isolated browser dependencies
+        run: |
+          npm install --no-save --package-lock=false maplibre-gl@5.6.2
+          python -m pip install playwright==1.57.0
+          python -m playwright install --with-deps chromium
+      - name: Real MapLibre disclosure and regression checks
+        run: |
+          set -euo pipefail
+          python tests/card/results_disclosure_check.py | tee card-evidence/disclosure.log
+          python tests/card/browser_check.py | tee card-evidence/browser.log
+          python tests/card/map_controls_check.py | tee card-evidence/map-controls.log
+      - name: Preserve full source and browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: map-first-results-evidence
+          path: |
+            card-evidence/
+            tests/card/
+            tools/card/
+            custom_components/osm_parking/frontend/osm-parking-map-card.js
+            node_modules/maplibre-gl/dist/maplibre-gl.js
+            node_modules/maplibre-gl/dist/maplibre-gl.css
+          retention-days: 14
+      - name: Commit reviewed source on staging branch only
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/feat/map-first-results
+          test "$(git ls-remote origin refs/heads/feat/map-first-results | cut -f1)" = "$GITHUB_SHA"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f -- tools/apply_results_disclosure.py .github/workflows/prepare-results-disclosure.yml
+          git add -u
+          git diff --cached --check
+          git commit -m 'Fold results by default; reveal and scroll selected map result [skip ci]'
+          git push origin HEAD:refs/heads/feat/map-first-results
