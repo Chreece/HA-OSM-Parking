@@ -176,14 +176,12 @@ class TflCarParkProvider:
                 )
             ) is not None
         ]
-        has_reported = any(
-            item.get("availability_kind") == "reported"
-            for item in suggestions
-        )
         return ProviderFetchResult(
             provider=self.uid,
             suggestions=suggestions,
-            live_refresh_seconds=300 if suggestions and has_reported else None,
+            # TfL's occupancy endpoint can fail independently of Places. Retry
+            # it without sacrificing the authoritative static car-park list.
+            live_refresh_seconds=300 if suggestions else None,
         )
 
     @staticmethod
