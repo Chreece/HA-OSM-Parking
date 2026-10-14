@@ -27,7 +27,12 @@ jobs:
           set -euo pipefail
           test "$GITHUB_REF" = refs/heads/feat/parking-type-marker-icons
           test "$(git ls-remote origin refs/heads/main | cut -f1)" = fc1db8abc9a2f6c98951161336ddcdf5f2fb8f0e
+          # Workflow changes have already been committed via the authorized
+          # connector. Reproduce and verify them, but never push a workflow
+          # edit using this job's contents-only token.
+          git show fc1db8abc9a2f6c98951161336ddcdf5f2fb8f0e:.github/workflows/card-visual.yml > .github/workflows/card-visual.yml
           python tools/prepare_type_icons.py
+          test -z "$(git diff --name-only -- .github/workflows)"
           python - <<'PY'
           from pathlib import Path
           for name in ('README.md', 'tools/card/guide.md'):
@@ -72,16 +77,17 @@ jobs:
           python tests/card/results_disclosure_check.py
       - name: Capture README gallery from the new bundled card
         run: python tools/card/readme_screenshots.py
-      - name: Commit validated sources on feature branch only
+      - name: Commit validated app sources on feature branch only
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = refs/heads/feat/parking-type-marker-icons
           test "$(git ls-remote origin refs/heads/feat/parking-type-marker-icons | cut -f1)" = "$GITHUB_SHA"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git rm -f -- tools/prepare_type_icons.py .github/workflows/prepare-type-icons.yml
+          git rm -f -- tools/prepare_type_icons.py
           find tools tests custom_components -type d -name __pycache__ -prune -exec rm -rf {} +
-          git add -- tools/card custom_components/osm_parking/frontend custom_components/osm_parking/__init__.py custom_components/osm_parking/manifest.json tests/card/browser_check.py .github/workflows/card-visual.yml README.md CHANGELOG.md assets/screenshots
+          git add -- tools/card custom_components/osm_parking/frontend custom_components/osm_parking/__init__.py custom_components/osm_parking/manifest.json tests/card/browser_check.py README.md CHANGELOG.md assets/screenshots
+          test -z "$(git diff --cached --name-only -- .github/workflows)"
           git diff --cached --check
           git commit -m 'Show parking type icons and keep facility matching internal (v1.4.1)'
           git push origin HEAD:refs/heads/feat/parking-type-marker-icons
