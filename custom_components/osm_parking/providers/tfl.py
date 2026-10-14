@@ -299,20 +299,35 @@ class TflCarParkProvider:
         total = 0
         free = 0
         seen = False
+        invalid_bay = False
         for bay in bays:
             if not isinstance(bay, dict):
-                continue
+                invalid_bay = True
+                break
             bay_count = _count(bay.get("bayCount"))
             bay_free = _count(bay.get("free"))
-            if bay_count is None or bay_free is None or bay_free > bay_count:
-                continue
+            bay_occupied = _count(bay.get("occupied"))
+            if (
+                bay_count is None
+                or bay_free is None
+                or bay_occupied is None
+                or bay_free > bay_count
+                or bay_occupied > bay_count
+                or bay_free + bay_occupied != bay_count
+            ):
+                invalid_bay = True
+                break
             total += bay_count
             free += bay_free
             seen = True
-        if not seen:
+        if invalid_bay or not seen:
             return result
         effective_capacity = capacity if capacity is not None else total
-        if effective_capacity is None or free > effective_capacity:
+        if (
+            effective_capacity is None
+            or free > effective_capacity
+            or (capacity is not None and total != capacity)
+        ):
             return result
 
         result["capacity"] = effective_capacity
