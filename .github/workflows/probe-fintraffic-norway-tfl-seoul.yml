@@ -1,0 +1,25 @@
+name: Probe Finland Norway TfL Seoul parking sources
+on:
+  push:
+    branches: [feat/fintraffic-norway-tfl-seoul]
+    paths:
+      - .github/workflows/probe-fintraffic-norway-tfl-seoul.yml
+      - tools/probe_fintraffic_norway_tfl_seoul.py
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/probe_fintraffic_norway_tfl_seoul.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fintraffic-norway-tfl-seoul-probes
+          path: provider-evidence-next2/
+          retention-days: 7
