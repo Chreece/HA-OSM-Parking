@@ -70,8 +70,10 @@ with sync_playwright() as p:
         page.locator('.type-chip[data-type=underground]').click()
         assert page.locator('.result-card').count()==1
         assert page.locator('.osm-park-marker').count()==1
-        assert page.locator('.osm-park-marker').inner_text()=='1'
-        checked('type filter synchronizes marker and row numbering')
+        assert page.locator('.osm-park-marker').inner_text().strip()==''
+        assert page.locator('.osm-park-marker .parking-type-glyph').count()==1
+        assert page.evaluate("window.card._pins.get(osmKey(window.card._visible[0])).button.dataset.key===osmKey(window.card._visible[0])")
+        checked('type filter synchronizes marker icons and internal facility identity')
         page.locator('.reset-filters').click()
         page.locator('.available').check()
         assert page.locator('.result-card').count()==1
@@ -104,9 +106,9 @@ with sync_playwright() as p:
         assert 'Rheinpark' in page.locator('.result-title').first.inner_text()
         for sort in ['type','source','name','distance']:
             page.locator('.sort').select_option(sort)
-            pairs=page.evaluate('window.card._visible.map((i,n)=>[window.card._pins.get(osmKey(i)).button.textContent,String(n+1)])')
+            pairs=page.evaluate('window.card._visible.map((i,n)=>[window.card._pins.get(osmKey(i)).button.dataset.index,String(n)])')
             assert all(a==b for a,b in pairs)
-        checked('all seven sorts retain marker-to-result numbering')
+        checked('all seven sorts retain internal marker-to-result index and identity')
 
         page.evaluate('window.card._map.jumpTo({center:[6.994,50.943],zoom:15})')
         before=page.evaluate('window.card._map.getCenter().toArray()')

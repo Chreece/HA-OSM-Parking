@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.4.1
+
+### Parking-type icons
+
+- Replaced visible ordinal numbers on the map and result badges with matching parking-type SVG icons for all seven categories. Unknown types have a safe generic fallback.
+- Kept stable facility keys and display indices internally, including distinct facilities sharing the same name and type. Filter/sort changes never match by icon appearance.
+- Preserved marker-driven list expansion, highlight and scroll, keyboard activation, reduced motion, map-only popups and camera position.
+- Added translated type/name hover and accessibility labels. Unnamed facilities no longer acquire a visible ordinal fallback name.
+- Embedded licensed vector glyphs so markers do not wait for remote image, font or lazy-loaded icon requests. Refreshes reuse marker buttons and unchanged icon nodes.
+- Added icon/identity unit and real-browser regression coverage. Refreshed the README gallery with sample-data screenshots of the shipped card.
+
+### Compatibility
+
+Provider backends, API credentials, automatic Athens GIS, failure isolation, source-quality deduplication and the four-step setup are unchanged. No configuration migration or new YAML setting is required. Browser tests use the complete card, real MapLibre and local sample data, not the user's live Home Assistant.
+
 ## v1.4.0
 
 ### Map-first result browsing

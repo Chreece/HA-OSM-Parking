@@ -67,6 +67,7 @@ def main() -> None:
         "real_home_assistant_runtime": False,
         "live_municipal_api_validation": False,
         "preview_icon_substitutes": True,
+        "parking_type_glyphs": "Exact packaged SVG paths, not substitutes",
         "screenshots": [],
     }
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), partial(QuietServer, directory=str(ROOT)))
@@ -102,6 +103,7 @@ def main() -> None:
                         window.card.hass = window.ha;
                     }""", {"language": language, "dark": dark})
                     page.wait_for_function("(dark) => window.card._map.isStyleLoaded() && window.card._map.getStyle().name === 'README offline fixture - ' + (dark ? 'dark' : 'light') && !!window.card._map.getLayer('osm-parking-controlled-zones-fill')", arg=dark, timeout=30000)
+                    page.locator(".results-toggle").click()
                     if filters:
                         page.locator(".filter-toggle").first.click()
                         assert page.locator(".filters-panel").is_visible()
