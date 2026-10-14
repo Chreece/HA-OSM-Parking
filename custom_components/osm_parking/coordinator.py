@@ -77,6 +77,10 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.entry = entry
         self._provider_supervisor = ProviderSupervisor()
+        # Read-only coordinate actions share their own retry/backoff state so
+        # they cannot change the sensor coordinator's polling/recovery cycle.
+        self._action_provider_supervisor = ProviderSupervisor()
+        self._action_search_lock = asyncio.Lock()
         self._preferred_endpoint: str | None = None
         self._failed_refreshes = 0
         super().__init__(
@@ -169,6 +173,7 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 destination_name=display_name or friendly_name or destination_entity,
                 error_code="source_coordinates_missing",
             )
+
         if display_name:
             destination_name = display_name
         elif state_name.lower() not in {"unknown", "unavailable", "none", ""}:
@@ -178,9 +183,110 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         else:
             destination_name = destination_entity
 
-        radius = int(self._option(CONF_RADIUS_M, DEFAULT_RADIUS_M))
-        include_restricted = bool(
-            self._option(CONF_INCLUDE_RESTRICTED, DEFAULT_INCLUDE_RESTRICTED)
+        search = await self._async_search_coordinates(
+            lat,
+            lon,
+            radius_m=int(self._option(CONF_RADIUS_M, DEFAULT_RADIUS_M)),
+            parking_types=None,
+            max_results=None,
+            include_restricted=bool(
+                self._option(
+                    CONF_INCLUDE_RESTRICTED,
+                    DEFAULT_INCLUDE_RESTRICTED,
+                )
+            ),
+            supervisor=self._provider_supervisor,
+        )
+        return {
+            **search,
+            "destination_entity": destination_entity,
+            "destination_name": destination_name,
+            "auto_retry": False,
+            "retry_after_seconds": None,
+        }
+
+    async def async_search_coordinates(
+        self,
+        latitude: float,
+        longitude: float,
+        *,
+        radius_m: int | None = None,
+        parking_types: tuple[str, ...] | list[str] | None = None,
+        max_results: int | None = None,
+        include_restricted: bool | None = None,
+    ) -> dict[str, Any]:
+        """Search arbitrary coordinates without changing coordinator state.
+
+        The action path deliberately uses a different ProviderSupervisor and a
+        lock from normal sensor refreshes. Provider caches may still be shared,
+        but retries, source status and the sensor's DataUpdateCoordinator state
+        are not modified by an action call.
+        """
+        async with self._action_search_lock:
+            return await self._async_search_coordinates(
+                latitude,
+                longitude,
+                radius_m=radius_m,
+                parking_types=parking_types,
+                max_results=max_results,
+                include_restricted=include_restricted,
+                supervisor=self._action_provider_supervisor,
+            )
+
+    async def _async_search_coordinates(
+        self,
+        latitude: float,
+        longitude: float,
+        *,
+        radius_m: int | None,
+        parking_types: tuple[str, ...] | list[str] | None,
+        max_results: int | None,
+        include_restricted: bool | None,
+        supervisor: ProviderSupervisor,
+    ) -> dict[str, Any]:
+        """Run the common provider/deduplication search for given coordinates."""
+        lat = float(latitude)
+        lon = float(longitude)
+        if not (
+            math.isfinite(lat)
+            and math.isfinite(lon)
+            and -90 <= lat <= 90
+            and -180 <= lon <= 180
+        ):
+            raise ValueError("Invalid latitude/longitude")
+
+        radius = (
+            int(self._option(CONF_RADIUS_M, DEFAULT_RADIUS_M))
+            if radius_m is None
+            else int(radius_m)
+        )
+        if not 100 <= radius <= 10_000:
+            raise ValueError("Search radius must be between 100 and 10000 metres")
+
+        limit = self._category_limit() if max_results is None else int(max_results)
+        if not 1 <= limit <= 25:
+            raise ValueError("Maximum results per category must be between 1 and 25")
+
+        if parking_types is None:
+            enabled_categories = tuple(
+                category for category in CATEGORIES
+                if self._category_enabled(category)
+            )
+        else:
+            enabled_categories = tuple(dict.fromkeys(parking_types))
+            if (
+                not enabled_categories
+                or any(category not in CATEGORIES for category in enabled_categories)
+            ):
+                raise ValueError("Invalid parking category selection")
+
+        restricted = (
+            bool(self._option(
+                CONF_INCLUDE_RESTRICTED,
+                DEFAULT_INCLUDE_RESTRICTED,
+            ))
+            if include_restricted is None
+            else bool(include_restricted)
         )
 
         session = async_get_clientsession(self.hass)
@@ -188,15 +294,21 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             **self.entry.data,
             **self.entry.options,
         }
-        async def bounded_overpass():
+
+        async def bounded_overpass() -> tuple[dict[str, Any], str]:
             # Bound the combined mirror attempts, not just one HTTP request.
             async with asyncio.timeout(40):
                 return await self._query_overpass(lat, lon, radius)
 
         fetch_results = await asyncio.gather(
             bounded_overpass(),
-            self._provider_supervisor.fetch(
-                PROVIDERS, session, lat, lon, radius, provider_options,
+            supervisor.fetch(
+                PROVIDERS,
+                session,
+                lat,
+                lon,
+                radius,
+                provider_options,
             ),
             return_exceptions=True,
         )
@@ -215,39 +327,69 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         live_refresh_seconds: list[int] = []
 
         if isinstance(overpass_result, Exception):
-            overpass_error = 'OpenStreetMap unavailable (' + type(overpass_result).__name__ + ')'
+            overpass_error = (
+                "OpenStreetMap unavailable ("
+                + type(overpass_result).__name__
+                + ")"
+            )
         else:
             try:
                 payload, source = overpass_result
-                if not isinstance(payload, dict) or not isinstance(payload.get('elements'), list):
-                    raise ValueError('Invalid Overpass payload')
-                raw_result_count = len(payload['elements'])
-                rows = self._build_suggestions(payload, lat, lon, radius, include_restricted)
-                valid = clean_result(ProviderFetchResult('openstreetmap', rows), 'openstreetmap', lat, lon, radius)
+                if not (
+                    isinstance(payload, dict)
+                    and isinstance(payload.get("elements"), list)
+                ):
+                    raise ValueError("Invalid Overpass payload")
+                raw_result_count = len(payload["elements"])
+                rows = self._build_suggestions(
+                    payload,
+                    lat,
+                    lon,
+                    radius,
+                    restricted,
+                )
+                valid = clean_result(
+                    ProviderFetchResult("openstreetmap", rows),
+                    "openstreetmap",
+                    lat,
+                    lon,
+                    radius,
+                )
                 suggestions = merge_facilities([], valid.suggestions)
-                providers_used.append('openstreetmap')
+                providers_used.append("openstreetmap")
             except Exception as exc:
-                overpass_error = 'OpenStreetMap data rejected (' + type(exc).__name__ + ')'
+                overpass_error = (
+                    "OpenStreetMap data rejected ("
+                    + type(exc).__name__
+                    + ")"
+                )
 
         provider_suggestion_count = 0
         supplemental = fetch_results[1]
         if isinstance(supplemental, Exception):
-            provider_errors['provider_supervisor'] = type(supplemental).__name__
+            provider_errors["provider_supervisor"] = type(supplemental).__name__
             supplemental = []
+
         for provider_result in supplemental:
-            suggestions = self._provider_supervisor.merge(suggestions, provider_result)
-            if provider_result.provider in self._provider_supervisor.errors:
+            suggestions = supervisor.merge(suggestions, provider_result)
+            if provider_result.provider in supervisor.errors:
                 continue
             providers_used.append(provider_result.provider)
             provider_suggestion_count += len(provider_result.suggestions)
             parking_zones.extend(provider_result.zones)
             if provider_result.live_refresh_seconds:
-                live_refresh_seconds.append(provider_result.live_refresh_seconds)
-        provider_errors.update(self._provider_supervisor.errors)
+                live_refresh_seconds.append(
+                    provider_result.live_refresh_seconds
+                )
+        provider_errors.update(supervisor.errors)
 
-        unique_zones = {}
+        unique_zones: dict[str, dict[str, Any]] = {}
         for zone in parking_zones:
-            key = json.dumps(zone['geometry'], sort_keys=True, separators=(',', ':'))
+            key = json.dumps(
+                zone["geometry"],
+                sort_keys=True,
+                separators=(",", ":"),
+            )
             unique_zones.setdefault(key, zone)
         parking_zones = list(unique_zones.values())
 
@@ -255,44 +397,52 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             raise UpdateFailed(overpass_error)
 
         realtime_result_count = sum(
-            1 for item in suggestions if item.get("availability_kind") == "live"
+            1
+            for item in suggestions
+            if item.get("availability_kind") == "live"
         )
         reported_result_count = sum(
-            1 for item in suggestions if item.get("availability_kind") == "reported"
+            1
+            for item in suggestions
+            if item.get("availability_kind") == "reported"
         )
         estimated_result_count = sum(
-            1 for item in suggestions if item.get("availability_kind") == "estimated"
+            1
+            for item in suggestions
+            if item.get("availability_kind") == "estimated"
         )
 
-        # Live providers need periodic refreshes. Partial-provider failures also
-        # get a temporary 5-minute recovery cadence; once every active provider
-        # succeeds and no live data remains, polling stops again.
         if overpass_error:
             live_refresh_seconds.append(300)
-        if self._provider_supervisor.retry_seconds:
-            live_refresh_seconds.append(self._provider_supervisor.retry_seconds)
-        if 'provider_supervisor' in provider_errors:
+        if supervisor.retry_seconds:
+            live_refresh_seconds.append(supervisor.retry_seconds)
+        if "provider_supervisor" in provider_errors:
             live_refresh_seconds.append(300)
 
         buckets: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for item in suggestions:
-            # Regional sources honor the same restricted-access option as OSM.
-            if not include_restricted and str(item.get("access") or "").casefold() in RESTRICTED_ACCESS:
+            if (
+                not restricted
+                and str(item.get("access") or "").casefold()
+                in RESTRICTED_ACCESS
+            ):
                 continue
             buckets[item["category"]].append(item)
 
         selected: list[dict[str, Any]] = []
         category_counts: dict[str, int] = {}
+        enabled = set(enabled_categories)
 
         for category in CATEGORIES:
-            if not self._category_enabled(category):
+            if category not in enabled:
                 category_counts[category] = 0
                 continue
 
             category_items = sorted(
-                buckets.get(category, []), key=lambda item: item["distance_m"]
+                buckets.get(category, []),
+                key=lambda item: item["distance_m"],
             )
-            chosen = category_items[: self._category_limit()]
+            chosen = category_items[:limit]
             selected.extend(chosen)
             category_counts[category] = len(chosen)
 
@@ -300,30 +450,30 @@ class OsmParkingCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         return {
             "status": "ok",
-            "destination_entity": destination_entity,
-            "destination_name": destination_name,
             "destination_latitude": lat,
             "destination_longitude": lon,
             "radius_m": radius,
-            "max_results_per_category": self._category_limit(),
+            "parking_types": list(enabled_categories),
+            "max_results_per_category": limit,
+            "include_restricted": restricted,
             "source": source,
             "raw_result_count": raw_result_count,
             "provider_result_count": provider_suggestion_count,
             "providers_used": providers_used,
             "provider_errors": provider_errors,
-            "provider_status": self._provider_supervisor.status,
+            "provider_status": dict(supervisor.status),
             "provider_load_errors": dict(PROVIDER_LOAD_ERRORS),
             "partial_data": bool(overpass_error or provider_errors),
             "realtime_result_count": realtime_result_count,
             "reported_result_count": reported_result_count,
             "estimated_result_count": estimated_result_count,
             "live_refresh_seconds": (
-                min(live_refresh_seconds) if live_refresh_seconds else None
+                min(live_refresh_seconds)
+                if live_refresh_seconds
+                else None
             ),
             "error": overpass_error if overpass_error else None,
             "error_code": None,
-            "auto_retry": False,
-            "retry_after_seconds": None,
             "category_counts": category_counts,
             "suggestions": selected,
             "parking_zones": parking_zones,
