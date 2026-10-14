@@ -137,5 +137,66 @@
         "ura": "Włącz parkingi Singapore URA (wymagany klucz)"
       }
     }
+  },
+  "services": {
+    "find_parking": {
+      "name": "Znajdź parking",
+      "description": "Wyszukuje parkingi wokół współrzędnych i zwraca uporządkowaną listę bez zmiany celu ani stanu czujnika.",
+      "fields": {
+        "latitude": {
+          "name": "Szerokość geograficzna",
+          "description": "Szerokość geograficzna punktu wyszukiwania."
+        },
+        "longitude": {
+          "name": "Długość geograficzna",
+          "description": "Długość geograficzna punktu wyszukiwania."
+        },
+        "radius_m": {
+          "name": "Promień wyszukiwania",
+          "description": "Opcjonalnie. Pozostaw puste, aby użyć promienia z wybranej konfiguracji OSM Parking."
+        },
+        "parking_types": {
+          "name": "Rodzaje parkingów",
+          "description": "Opcjonalnie. Pozostaw puste, aby użyć typów włączonych w konfiguracji."
+        },
+        "max_results": {
+          "name": "Maksimum na kategorię",
+          "description": "Opcjonalnie. Pozostaw puste, aby użyć skonfigurowanego limitu."
+        },
+        "include_restricted": {
+          "name": "Uwzględnij parking prywatny/ograniczony",
+          "description": "Opcjonalnie. Pozostaw puste, aby użyć zapisanej opcji."
+        },
+        "config_entry_id": {
+          "name": "Konfiguracja OSM Parking",
+          "description": "Ustawienia dostawców i dane API. Pozostaw puste, jeśli załadowana jest dokładnie jedna konfiguracja."
+        }
+      },
+      "sections": {
+        "provider_settings": {
+          "name": "Ustawienia dostawców"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "action_entry_not_found": {
+      "message": "Wybrana konfiguracja OSM Parking nie istnieje."
+    },
+    "action_entry_not_loaded": {
+      "message": "Wybrana konfiguracja OSM Parking nie jest załadowana."
+    },
+    "action_no_loaded_entry": {
+      "message": "Brak załadowanej konfiguracji OSM Parking."
+    },
+    "action_multiple_loaded_entries": {
+      "message": "Załadowano wiele konfiguracji OSM Parking. Wybierz jedną."
+    },
+    "action_invalid_search_options": {
+      "message": "Opcje wyszukiwania są nieprawidłowe."
+    },
+    "action_search_failed": {
+      "message": "Nie udało się pobrać danych parkingowych z żadnego użytecznego źródła."
+    }
   }
 }

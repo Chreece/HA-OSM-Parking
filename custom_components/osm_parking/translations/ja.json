@@ -137,5 +137,66 @@
         "ura": "シンガポール URA 駐車場を有効化（キー必須）"
       }
     }
+  },
+  "services": {
+    "find_parking": {
+      "name": "駐車場を検索",
+      "description": "指定座標の周辺を検索し、設定済みの目的地やセンサー状態を変更せずに駐車場一覧を返します。",
+      "fields": {
+        "latitude": {
+          "name": "緯度",
+          "description": "検索地点の緯度。"
+        },
+        "longitude": {
+          "name": "経度",
+          "description": "検索地点の経度。"
+        },
+        "radius_m": {
+          "name": "検索半径",
+          "description": "任意。空欄の場合は選択した OSM Parking 設定の半径を使用します。"
+        },
+        "parking_types": {
+          "name": "駐車場の種類",
+          "description": "任意。空欄の場合は設定で有効な種類を使用します。"
+        },
+        "max_results": {
+          "name": "種類ごとの最大件数",
+          "description": "任意。空欄の場合は設定済みの上限を使用します。"
+        },
+        "include_restricted": {
+          "name": "私有/制限付き駐車場を含める",
+          "description": "任意。空欄の場合は保存済み設定を使用します。"
+        },
+        "config_entry_id": {
+          "name": "OSM Parking 設定",
+          "description": "使用するプロバイダー設定と API 認証情報。読み込まれた設定が1つだけなら空欄で構いません。"
+        }
+      },
+      "sections": {
+        "provider_settings": {
+          "name": "プロバイダー設定"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "action_entry_not_found": {
+      "message": "選択した OSM Parking 設定は存在しません。"
+    },
+    "action_entry_not_loaded": {
+      "message": "選択した OSM Parking 設定は読み込まれていません。"
+    },
+    "action_no_loaded_entry": {
+      "message": "読み込まれた OSM Parking 設定がありません。"
+    },
+    "action_multiple_loaded_entries": {
+      "message": "複数の OSM Parking 設定が読み込まれています。1つ選択してください。"
+    },
+    "action_invalid_search_options": {
+      "message": "検索オプションが無効です。"
+    },
+    "action_search_failed": {
+      "message": "利用可能なデータソースから駐車情報を取得できませんでした。"
+    }
   }
 }
