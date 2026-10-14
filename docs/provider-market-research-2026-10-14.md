@@ -6,10 +6,10 @@ This inventory separates **open/public data**, **free developer access with cred
 
 | Provider | Access / licence | Parking data | Recommended OSM Parking role | Status |
 | --- | --- | --- | --- | --- |
-| **Ville de Luxembourg** | Key-free JSON; CC BY 4.0 | City garages, total/free spaces, address/accessibility/pricing; publisher says free-space values refresh every minute | High-priority direct live municipal source | **Implement next** after raw-schema/timestamp probe |
-| **CFL Luxembourg P+R** | Key-free public JSON + DATEX II | P+R list/details, WGS84 coordinates, total/free/PMR/EV capacity and occupancy | High-priority P+R complement to Ville de Luxembourg | **Implement next** after observing source timestamps/status flags |
-| **Basel-Stadt** | Key-free Opendatasoft; CC BY 4.0 / source attribution | Minute-updated garage free spaces, total, status, publication time, coordinates | Direct official source should outrank an aggregator duplicate | **Very strong candidate** |
-| **Stadt Zürich Parkleitsystem** | Key-free RSS/XML municipal open-data service | Current free spaces and status for participating garages | Direct official source; ParkenDD can remain complementary/fallback | **Very strong candidate** |
+| **Ville de Luxembourg** | Key-free JSON; CC BY 4.0 | City garages, total/free spaces, address/accessibility/pricing; publisher says free-space values refresh every minute | Direct live municipal source | **Implemented in v1.7.0** |
+| **CFL Luxembourg P+R** | Key-free public JSON + DATEX II | P+R list/details, WGS84 coordinates, total/free/PMR/EV capacity and occupancy | P+R complement to Ville de Luxembourg | **Implemented in v1.7.0 as reported availability** |
+| **Basel-Stadt** | Key-free Opendatasoft; CC BY 4.0 / source attribution | Minute-updated garage free spaces, total, status, publication time, coordinates | Direct official source outranks equal ParkenDD duplicate | **Implemented in v1.7.0** |
+| **Stadt Zürich Parkleitsystem** | Key-free RSS/XML + official WFS geography | Timestamped free spaces/status joined to 136 public-garage WFS records | Direct official source; ParkenDD remains complementary/fallback | **Implemented in v1.7.0** |
 | **Fintraffic LIIPI, Finland** | Public interface, no login needed for data use | Nationwide park-and-ride location, capacity, services, pricing and operators; JSON/GeoJSON | Strong static/national P+R source | **Strong candidate**; confirm whether availability is present before labelling live |
 | **Statens vegvesen Parkeringsregisteret, Norway** | Public JSON distribution; Norwegian Open Government Data licence | Nationwide registered parking areas/operators | National static coverage | **Strong candidate** |
 | **TfL Unified API, London** | Anonymous public use currently limited to 50 req/min; registration raises quota | Car-park occupancy by bay type: count/free/occupied | Free live/occupancy source for supported TfL car parks | **Strong candidate**, but facility coordinates/join + source observation timestamps must be qualified |
@@ -71,13 +71,10 @@ Commercial evidence:
 ## 4. Priority order
 
 ### Free/open
-1. **Luxembourg City + CFL P+R** — complementary direct official feeds, small scope, strong structured fields.
-2. **Basel direct live feed** — authoritative source with minute updates and timestamps; use ParkenDD as complementary/fallback, not duplicate output.
-3. **Zürich direct PLS feed** — authoritative live feed; deduplicate against ParkenDD.
-4. **Fintraffic LIIPI** — nationwide Finnish P+R metadata, key-free.
-5. **Norway Parkeringsregisteret** — nationwide static facilities.
-6. **Seoul** — add as an optional free-key provider with freshness-state handling.
-7. **TfL** — add once facility geography/join and occupancy timestamp semantics are verified.
+1. **Fintraffic LIIPI** — nationwide Finnish P+R metadata, key-free.
+2. **Norway Parkeringsregisteret** — nationwide static facilities.
+3. **Seoul** — add as an optional free-key provider with freshness-state handling.
+4. **TfL** — add once facility geography/join and occupancy timestamp semantics are verified.
 
 ### Commercial
 1. **Parkopedia** — broadest global static/dynamic option if a user has a licence.

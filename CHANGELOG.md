@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.7.0
+
+### Luxembourg and Swiss official-source expansion
+
+- Added **Ville de Luxembourg** official parking JSON feed. Fresh open/non-faulted facilities expose verified live free spaces from the feed's shared publisher timestamp; stale/faulted facilities remain static only.
+- Added **CFL Luxembourg Park & Ride** list/details APIs. WGS84 locations, total/PMR/EV capacity and exact free-space counts are supported. Because the JSON details endpoint has no producer measurement timestamp, availability is classified as **reported**, never verified live.
+- Added **Kanton Basel-Stadt dataset 100088** as a direct official minute-updated source with fresh publisher timestamp, free/total spaces, status, address and coordinates.
+- Added **Stadt Zürich PLS** direct integration: official RSS free-space/status/timestamp data is joined by PLS pid to the city's official WFS `poi_parkhaus_view` layer for WGS84 position, capacity, address and accessible/EV capacity.
+- Zürich keeps static WFS garages when the RSS feed fails; one failed CFL detail request keeps the list-level static P+R site.
+- Direct Basel/Zürich authority data outranks an equal-quality ParkenDD duplicate through the existing source-quality ranking; ParkenDD remains complementary/fallback coverage rather than being disabled.
+- Added 22 offline contracts covering freshness, faults, impossible counts, RSS parsing, WFS/RSS joins, fallback behavior and direct-source deduplication.
+
+### Verified external schemas
+
+Development probes on 14 October 2026 observed:
+- Luxembourg City: HTTP 200 JSON, `last_build_date` + keyed `parking` map with total/current free, fault/open/full flags, coordinates, P+R, accessibility, EV, tariffs and opening data.
+- CFL: HTTP 200 list/details JSON with WGS84, capacity and current total/PMR/EV free spaces; no producer timestamp in details.
+- Basel: HTTP 200 Opendatasoft v2.1, 16/16 records with minute-fresh `published` timestamps.
+- Zürich: HTTP 200 RSS with 37 timestamped items; official WFS exposes `poi_parkhaus_view` with 136 geocoded public garages.
+
+### Compatibility
+
+No configuration migration is required. Existing ParkenDD/ParkAPI providers, authoritative RDW coverage, coordinate response action, provider-stage reporting, map icons and dashboard behavior remain unchanged.
+
 ## v1.6.0
 
 ### Authoritative provider coverage
