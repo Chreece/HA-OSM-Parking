@@ -36,6 +36,12 @@ class NetherlandsRdwProvider:
 
     uid = "netherlands_rdw"
     name = PROVIDER_NAME
+    coverage_file = _RDW_COVERAGE_FILE
+    coverage_source = "Kadaster / PDOK BRK Bestuurlijke Gebieden - Landgebied"
+    coverage_license = "CC BY 4.0"
+    coverage_source_url = (
+        "https://api.pdok.nl/kadaster/brk-bestuurlijke-gebieden/ogc/v1"
+    )
 
     def applies(self, lat: float, lon: float) -> bool:
         """Return whether a search point overlaps authoritative Dutch coverage."""
