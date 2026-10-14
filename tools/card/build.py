@@ -11,7 +11,7 @@ from locales import translations
 ROOT = Path(__file__).resolve().parents[2]
 UI = Path(__file__).resolve().parent
 PACKAGE = ROOT / 'custom_components/osm_parking'
-VERSION = '1.7.0'
+VERSION = '1.8.0'
 START = '// BEGIN OSM EXPLORER BUNDLE'
 END = '// END OSM EXPLORER BUNDLE'
 
