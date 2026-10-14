@@ -81,11 +81,11 @@ jobs:
                       if child.tag.endswith('Name') and child.text:
                           names.append(child.text.strip());break
           print('ZURICH WFS LAYERS',names)
-          if names:
-              zurl=wfs+'?'+urlencode({'service':'WFS','version':'1.1.0','request':'GetFeature','typename':names[0],'outputFormat':'GeoJSON','srsName':'EPSG:4326'})
+          for layer in names:
+              zurl=wfs+'?'+urlencode({'service':'WFS','version':'1.1.0','request':'GetFeature','typename':layer,'outputFormat':'GeoJSON','srsName':'EPSG:4326'})
               zgraw=get(zurl, accept='application/geo+json,application/json,*/*')
               zgeo=json.loads(zgraw)
-              print('ZURICH GEO TYPE',zgeo.get('type'),'COUNT',len(zgeo.get('features',[])))
+              print('ZURICH GEO LAYER',layer,'TYPE',zgeo.get('type'),'COUNT',len(zgeo.get('features',[])))
               for ft in zgeo.get('features',[])[:5]:
-                  print('ZURICH GEO SAMPLE',json.dumps(ft,ensure_ascii=False)[:6000])
+                  print('ZURICH GEO SAMPLE',layer,json.dumps(ft,ensure_ascii=False)[:6000])
           PY
