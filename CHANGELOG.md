@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.8.1
+
+### Home Assistant event-loop safety
+
+- Fixed Home Assistant blocking-call warnings for `read_text` and `open` caused by first-time bundled GeoJSON coverage loading during provider eligibility checks.
+- Offloaded eligibility checks for the three file-backed coverage providers (**Fintraffic LIIPI**, **Transport for London** and **Netherlands RDW**) to a background worker thread; other providers retain their inexpensive synchronous checks.
+- Preserved cached coverage geometry, offline provider selection, error isolation and source-specific retry behavior.
+- Added regression tests for cache-miss file I/O outside the asyncio event loop, cache reuse, cheap provider checks and missing-file failure isolation.
+
+### Compatibility
+
+No configuration migration or new dependencies are required. Existing parking sensors, service actions and dashboard behavior remain unchanged.
+
 ## v1.8.0
 
 ### Finland and London official-source expansion
