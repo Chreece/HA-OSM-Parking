@@ -19,7 +19,8 @@ concurrency:
 jobs:
   browser:
     name: Card browser and layout
-    runs-on: ubuntu-latest
+    # Playwright 1.57 Chromium is not supported on Ubuntu 26.04 runners.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
