@@ -4,6 +4,7 @@ import asyncio
 from datetime import UTC, datetime
 import json
 import sys
+import threading
 import types
 import unittest
 from unittest.mock import patch, AsyncMock
@@ -97,6 +98,82 @@ class Safety(unittest.IsolatedAsyncioTestCase):
     async def fetch(self,*providers):
         s=runtime.ProviderSupervisor();r=await s.fetch(providers,None,37.98,23.73,1000,{})
         return s,r
+
+    async def test_disk_backed_eligibility_reads_off_the_event_loop(self):
+        """All bundled-GeoJSON providers must load on a worker, even on a cache miss."""
+        from custom_components.osm_parking.coverage_geometry import load_coverage
+
+        providers = {provider.uid: provider for provider in registry.PROVIDERS}
+        locations = (
+            ('fintraffic_liipi', 60.1699, 24.9384),
+            ('tfl_carpark', 51.58629, 0.08832),
+            ('netherlands_rdw', 52.3676, 4.9041),
+        )
+        event_loop_thread = threading.get_ident()
+        disk_reads = []
+        original_read_text = Path.read_text
+
+        def guarded_read_text(path, *args, **kwargs):
+            disk_reads.append(threading.get_ident())
+            if threading.get_ident() == event_loop_thread:
+                raise AssertionError('Disk read on event loop')
+            return original_read_text(path, *args, **kwargs)
+
+        with patch.object(Path, 'read_text', guarded_read_text):
+            for index, (uid, latitude, longitude) in enumerate(locations):
+                with self.subTest(provider=uid):
+                    load_coverage.cache_clear()
+                    provider = providers[uid]
+                    with patch.object(provider, 'async_fetch', new_callable=AsyncMock) as fetch:
+                        fetch.return_value = Result(uid, [])
+                        supervisor = runtime.ProviderSupervisor()
+                        results = await supervisor.fetch(
+                            [provider], None, latitude, longitude, 1000, {}
+                        )
+                        self.assertEqual(
+                            [result.provider for result in results],
+                            [uid], supervisor.errors,
+                        )
+                        self.assertEqual(supervisor.queried, [uid])
+                        # A second refresh must reuse the original cached geometry.
+                        await supervisor.fetch(
+                            [provider], None, latitude, longitude, 1000, {}
+                        )
+                    self.assertEqual(len(disk_reads), index + 1)
+        self.assertTrue(
+            all(thread != event_loop_thread for thread in disk_reads)
+        )
+
+    async def test_non_coverage_provider_eligibility_stays_on_event_loop(self):
+        """Cheap synchronous predicates must not require a worker thread."""
+        event_loop_thread = threading.get_ident()
+
+        class FastProvider(Provider):
+            def applies(self, lat, lon):
+                self.check_thread = threading.get_ident()
+                return True
+
+        provider = FastProvider()
+        supervisor, results = await self.fetch(provider)
+        self.assertEqual([result.provider for result in results], ['healthy'])
+        self.assertEqual(provider.check_thread, event_loop_thread)
+
+    async def test_coverage_read_failure_is_isolated_per_provider(self):
+        """A missing GeoJSON must not block unrelated healthy parking sources."""
+        from custom_components.osm_parking.coverage_geometry import load_coverage
+
+        load_coverage.cache_clear()
+        provider = next(
+            provider for provider in registry.PROVIDERS
+            if provider.uid == 'fintraffic_liipi'
+        )
+        with patch.object(Path, 'read_text', side_effect=FileNotFoundError):
+            supervisor, results = await self.fetch(provider, Provider())
+        self.assertEqual([result.provider for result in results], ['healthy'])
+        self.assertEqual(
+            supervisor.status['fintraffic_liipi']['error_type'],
+            'FileNotFoundError',
+        )
 
     async def test_exception_and_eligibility_failures_leave_healthy_results(self):
         for bad in [Provider('bad',fail=ValueError('SECRET')),Provider('bad',applies_fail=True)]:

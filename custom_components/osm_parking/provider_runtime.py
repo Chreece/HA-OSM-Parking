@@ -160,7 +160,14 @@ class ProviderSupervisor:
                 if uid in seen:
                     continue
                 seen.add(uid)
-                if not provider.applies(lat, lon):
+                # Disk-backed coverage providers load bundled GeoJSON on the
+                # first eligibility check. Both file I/O and polygon preparation
+                # must run outside Home Assistant's asyncio event loop.
+                if getattr(provider, 'coverage_file', None):
+                    eligible = await asyncio.to_thread(provider.applies, lat, lon)
+                else:
+                    eligible = provider.applies(lat, lon)
+                if not eligible:
                     continue
                 flag = getattr(provider, 'enabled_option', None)
                 if flag and not options.get(flag, getattr(provider, 'enabled_default', True)):
